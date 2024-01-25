@@ -4,13 +4,13 @@ on:
     branches: [ testing, testing2 ]
 jobs:
   testing:
-    runs-on: campus-api-new
+    runs-on: self-hosted
     steps:
     - name: Run test
       run: echo TESTING IS RUNNING HERE
   building:
     needs: testing
-    runs-on: campus-api-new
+    runs-on: self-hosted
     container: docker:stable
     steps:
     - uses: actions/checkout@v1
@@ -22,15 +22,15 @@ jobs:
         sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
         sed -i 's/localhost/85.214.29.254/' src/main/resources/application.properties
         cat src/main/resources/application.properties
-        docker build -t campus-api-spring .
+        docker build -t campus-langue-api .
   deployment:
     needs: [testing, building]
-    runs-on: campus-api-new
+    runs-on: self-hosted
     container: docker:stable
     steps:
     - name: Run deploy
       run: |
         echo Start app deployment here !
-        docker kill campus-api-spring || echo "Nothing to kill"
-        docker run --name campus-api-spring -p 10021:8443 --rm -dit --hostname campus-api-spring.devops.kamer-center.net  -e VIRTUAL_HOST=campus-api-spring.devops.kamer-center.net  -e VIRTUAL_PORT=8443 -e LETSENCRYPT_HOST=campus-api-spring.devops.kamer-center.net  campus-api-spring
-        docker logs -f  campus-api-spring
+        docker kill campus-langue-api || echo "Nothing to kill"
+        docker run --name campus-langue-api -p 10022:8443 --rm -dit --hostname campus-langue-api.devops.kamer-center.net  -e VIRTUAL_HOST=campus-langue-api.devops.kamer-center.net  -e VIRTUAL_PORT=8443 -e LETSENCRYPT_HOST=campus-langue-api.devops.kamer-center.net  campus-langue-api
+        docker logs -f  campus-langue-api
