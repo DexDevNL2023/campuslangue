@@ -10,7 +10,7 @@ import lombok.*;
 @ToString
 public class SaveDroitDTO {
     private String module;
-    private String droit;
+    private String libelle;
     private String Key;
     private String verbe;
     private Boolean isDefault;

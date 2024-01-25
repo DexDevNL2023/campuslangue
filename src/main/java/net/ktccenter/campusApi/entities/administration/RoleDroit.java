@@ -1,6 +1,5 @@
 package net.ktccenter.campusApi.entities.administration;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.Accessors;
 import net.ktccenter.campusApi.entities.BaseAuditingEntity;
@@ -19,12 +18,10 @@ import java.util.Objects;
 public class RoleDroit extends BaseAuditingEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
     @JoinColumn(name = "role_id")
     private Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
     @JoinColumn(name = "droit_id")
     private Droit droit;
 

@@ -48,9 +48,9 @@ public class CampusControllerImpl implements CampusController {
   @Override
   @PostMapping("/imports")
   @ResponseStatus(HttpStatus.CREATED)
-  @AuthorizeUser(actionKey = "campus-add-list")
+  @AuthorizeUser(actionKey = "campus-import")
   public List<LiteCampusDTO> saveAll(@Valid @RequestBody List<ImportCampusRequestDTO> dtos) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Ajouter une liste de campus", "campus-add-list", "POST", true));
+    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Importer des campus", "campus-import", "POST", true));
     for (ImportCampusRequestDTO dto : dtos) {
         if (service.existsByCodeAndLibelle(dto.getCode(), dto.getLibelle()))
             throw new RuntimeException("Le campus avec le code " + dto.getCode() + ", ou le libelle " + dto.getLibelle() + " existe déjà");

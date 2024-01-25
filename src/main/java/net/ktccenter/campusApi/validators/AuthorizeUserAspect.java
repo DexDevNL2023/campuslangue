@@ -1,6 +1,7 @@
 package net.ktccenter.campusApi.validators;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.entities.administration.Role;
 import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import net.ktccenter.campusApi.entities.administration.User;
@@ -11,6 +12,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Set;
 
 @Aspect
@@ -19,9 +21,11 @@ import java.util.Set;
 public class AuthorizeUserAspect {
 
     private final UserService userService;
+    private final RoleDroitRepository roleDroitRepository;
 
-    public AuthorizeUserAspect(UserService userService) {
+    public AuthorizeUserAspect(UserService userService, RoleDroitRepository roleDroitRepository) {
         this.userService = userService;
+        this.roleDroitRepository = roleDroitRepository;
     }
 
     @Around("@annotation(AuthorizeUser)")
@@ -51,7 +55,8 @@ public class AuthorizeUserAspect {
             if (role.getIsGrant() || role.getIsSuper()) {
                 return true;
             } else {
-                for (RoleDroit permission : role.getPermissions()) {
+                List<RoleDroit> permissions = roleDroitRepository.findAllByRole(role);
+                for (RoleDroit permission : permissions) {
                     if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) return true;
                 }
             }

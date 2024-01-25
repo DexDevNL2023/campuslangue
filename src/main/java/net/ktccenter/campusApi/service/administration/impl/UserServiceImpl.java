@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.service.administration.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
+import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dao.administration.UserRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
@@ -52,6 +53,7 @@ public class UserServiceImpl implements UserService {
     private final JavaMailSender javaMailSender;
     private final InstitutionService institutionService;
     private final RoleRepository roleRepository;
+    private final RoleDroitRepository roleDroitRepository;
     private final PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
 
     @Value("${app.template.url}")
@@ -64,12 +66,13 @@ public class UserServiceImpl implements UserService {
     private String APP_PASSWORD_RESET_URL;
 
 
-    public UserServiceImpl(UserRepository repository, UserMapper mapper, JavaMailSender javaMailSender, InstitutionService institutionService, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository repository, UserMapper mapper, JavaMailSender javaMailSender, InstitutionService institutionService, RoleRepository roleRepository, RoleDroitRepository roleDroitRepository) {
       this.repository = repository;
       this.mapper = mapper;
       this.javaMailSender = javaMailSender;
       this.institutionService = institutionService;
       this.roleRepository = roleRepository;
+        this.roleDroitRepository = roleDroitRepository;
     }
 
     @Override
@@ -342,7 +345,8 @@ public class UserServiceImpl implements UserService {
             if (role.getIsSuper()) {
                 return true;
             } else {
-                for (RoleDroit permission : role.getPermissions()) {
+                List<RoleDroit> permissions = roleDroitRepository.findAllByRole(role);
+                for (RoleDroit permission : permissions) {
                     if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) return true;
                 }
             }

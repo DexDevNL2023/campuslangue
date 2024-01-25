@@ -70,12 +70,7 @@ public class CampusServiceImpl implements CampusService {
   }
 
   private LiteSalleDTO buildSalleLiteDto(Salle salle) {
-    LiteSalleDTO lite = new LiteSalleDTO();
-    lite.setId(salle.getId());
-    lite.setCode(salle.getCode());
-    lite.setLibelle(salle.getLibelle());
-    lite.setCapacite(salle.getCapacite());
-    return lite;
+    return new LiteSalleDTO(salle);
   }
 
   @Override

@@ -24,7 +24,7 @@ public class Droit extends BaseAuditingEntity {
     @Column(nullable = false, unique = true)
 	private String key;
 
-    @Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String verbe;
 
 	private String description;

@@ -1,11 +1,17 @@
 package net.ktccenter.campusApi.service.administration.impl;
 
+import net.ktccenter.campusApi.dao.administration.DroitRepository;
+import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportRoleRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteDroitDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDroitDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.RoleDTO;
 import net.ktccenter.campusApi.dto.request.administration.RoleRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Droit;
 import net.ktccenter.campusApi.entities.administration.Role;
+import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.RoleMapper;
 import net.ktccenter.campusApi.service.administration.RoleService;
@@ -23,15 +29,27 @@ import java.util.stream.Collectors;
 public class RoleServiceImpl implements RoleService {
     private final RoleRepository repository;
     private final RoleMapper mapper;
+    private final DroitRepository droitRepository;
+    private final RoleDroitRepository roleDroitRepository;
 
-    public RoleServiceImpl(RoleRepository repository, RoleMapper mapper) {
+    public RoleServiceImpl(RoleRepository repository, RoleMapper mapper, DroitRepository droitRepository, RoleDroitRepository roleDroitRepository) {
         this.repository = repository;
         this.mapper = mapper;
+        this.droitRepository = droitRepository;
+        this.roleDroitRepository = roleDroitRepository;
     }
 
     @Override
     public RoleDTO save(RoleRequestDTO entity) {
-        return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        Role role = mapper.asEntity(entity);
+        List<Droit> list = (List<Droit>) droitRepository.findAll();
+        for (Droit droit : list) {
+            if (droit.getIsDefault()) {
+                RoleDroit permission = new RoleDroit(role, droit, droit.getIsDefault());
+                roleDroitRepository.save(permission);
+            }
+        }
+        return mapper.asDTO(repository.save(role));
     }
 
     @Override
@@ -45,15 +63,30 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public void deleteById(Long id) {
         Role role = findById(id);
-        if (!role.getPermissions().isEmpty())
+        if (!getAllPermissionsByRole(role).isEmpty())
             throw new ResourceNotFoundException("Le role avec l'id " + id + " ne peut pas etre supprimé car elle est utilisé par d'autre ressource");
         repository.deleteById(id);
     }
 
+    private List<LiteRoleDroitDTO> getAllPermissionsByRole(Role role) {
+        return roleDroitRepository.findAllByRole(role).stream().map(this::buildPermissionLiteDto).collect(Collectors.toList());
+    }
+
+    private LiteRoleDroitDTO buildPermissionLiteDto(RoleDroit roleDroit) {
+        LiteRoleDroitDTO permissionLiteDto = new LiteRoleDroitDTO(roleDroit);
+        permissionLiteDto.setDroit(new LiteDroitDTO(roleDroit.getDroit()));
+        return permissionLiteDto;
+    }
+
     @Override
     public RoleDTO getOne(Long id) {
+        return buildRoleDto(findById(id));
+    }
 
-        return mapper.asDTO(findById(id));
+    private RoleDTO buildRoleDto(Role role) {
+        RoleDTO dto = mapper.asDTO(role);
+        dto.setPermissions(getAllPermissionsByRole(role));
+        return dto;
     }
 
     @Override
@@ -78,9 +111,17 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO update(RoleRequestDTO entity, Long id) {
-      Role exist =  findById(id);
-      entity.setId(exist.getId());
-      return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        Role exist = findById(id);
+        Role role = mapper.asEntity(entity);
+        role.setId(exist.getId());
+        List<Droit> list = (List<Droit>) droitRepository.findAll();
+        for (Droit droit : list) {
+            if (droit.getIsDefault()) {
+                RoleDroit permission = new RoleDroit(role, droit, droit.getIsDefault());
+                roleDroitRepository.save(permission);
+            }
+        }
+        return mapper.asDTO(repository.save(role));
     }
 
     @Override
