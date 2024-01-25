@@ -33,4 +33,4 @@ jobs:
         echo Start app deployment here !
         docker kill campus-langue-api || echo "Nothing to kill"
         docker run --name campus-langue-api -p 10022:8443 --rm -dit --hostname campus-langue-api.devops.kamer-center.net  -e VIRTUAL_HOST=campus-langue-api.devops.kamer-center.net  -e VIRTUAL_PORT=8443 -e LETSENCRYPT_HOST=campus-langue-api.devops.kamer-center.net  campus-langue-api
-        docker logs -f  campus-langue-api
+        # docker logs -f  campus-langue-api
