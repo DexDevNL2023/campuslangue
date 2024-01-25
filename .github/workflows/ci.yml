@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+    branches: [ testing, testing2 ]
+jobs:
+  testing:
+    runs-on: campus-api-new
+    steps:
+    - name: Run test
+      run: echo TESTING IS RUNNING HERE
+  building:
+    needs: testing
+    runs-on: campus-api-new
+    container: docker:stable
+    steps:
+    - uses: actions/checkout@v1
+    - name: Run Build
+      run: |
+        echo Start app building here !
+        docker -v
+        sed -i 's/spring.profiles.active=dev/#spring.profiles.active=dev/' src/main/resources/application.properties
+        sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
+        sed -i 's/localhost/85.214.29.254/' src/main/resources/application.properties
+        cat src/main/resources/application.properties
+        docker build -t campus-api-spring .
+  deployment:
+    needs: [testing, building]
+    runs-on: campus-api-new
+    container: docker:stable
+    steps:
+    - name: Run deploy
+      run: |
+        echo Start app deployment here !
+        docker kill campus-api-spring || echo "Nothing to kill"
+        docker run --name campus-api-spring -p 10021:8443 --rm -dit --hostname campus-api-spring.devops.kamer-center.net  -e VIRTUAL_HOST=campus-api-spring.devops.kamer-center.net  -e VIRTUAL_PORT=8443 -e LETSENCRYPT_HOST=campus-api-spring.devops.kamer-center.net  campus-api-spring
+        docker logs -f  campus-api-spring

@@ -1,0 +1,46 @@
+stages:
+  - test
+  - build
+  - deploy
+
+test:
+  stage: test
+  script: echo "Running tests"
+  tags:
+    - ktc
+
+build_testing:
+  stage: build
+  tags:
+    - ktc
+  script:
+    - echo "Building the app" 
+    - ls
+    - echo "spring.datasource.url= jdbc:postgresql://85.214.29.254:5432/campus" >> src/main/resources/application.properties
+
+    #- echo "server.ssl.overrides.key-store=classpath:keystore.p12" >> src/main/resources/application.properties
+    #- echo "server.ssl.overrides.key-store-password=2+2Font4" >> src/main/resources/application.properties
+    #- echo "server.ssl.overrides.keyStoreType=PKCS12" >> src/main/resources/application.properties
+    #- echo "server.ssl.overrides.keyAlias=tomcat" >> src/main/resources/application.properties
+    #- echo "security.require-ssl=true" >> src/main/resources/application.properties
+    - sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
+    - sed -i 's/localhost/85.214.29.254/' src/main/resources/application.properties
+    #- echo "server.ssl.enabled=true" >> src/main/resources/application.properties
+    - cat src/main/resources/application.properties
+    - docker build -t campus-api-spring .
+  only:
+    - testing
+
+deploy_testing:
+  stage: deploy
+  tags:
+    - ktc
+  script:
+    - echo "Deploy to testing server"
+    - docker kill campus-api-spring || echo "Nothing to kill"
+    - docker run --name campus-api-spring -p 10000:8443 --rm -dit --hostname campus-api-spring.devops.kamer-center.net -e VIRTUAL_PORT=8443  -e VIRTUAL_HOST=campus-api-spring.devops.kamer-center.net -e LETSENCRYPT_HOST=campus-api-spring.devops.kamer-center.net  campus-api-spring
+    - docker logs -f  campus-api-spring
+  only:
+    - testing
+
+
