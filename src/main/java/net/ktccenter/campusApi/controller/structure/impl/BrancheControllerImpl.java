@@ -5,6 +5,8 @@ import net.ktccenter.campusApi.dto.importation.administration.ImportBrancheReque
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.BrancheDTO;
 import net.ktccenter.campusApi.dto.request.administration.BrancheRequestDTO;
+import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
+import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.BrancheService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +21,11 @@ import java.util.List;
 @CrossOrigin("*")
 public class BrancheControllerImpl implements BrancheController {
   private final BrancheService service;
+    private final AutorisationService autorisationService;
 
-  public BrancheControllerImpl(BrancheService service) {
+    public BrancheControllerImpl(BrancheService service, AutorisationService autorisationService) {
     this.service = service;
+        this.autorisationService = autorisationService;
   }
 
   @Override
@@ -60,6 +64,7 @@ public class BrancheControllerImpl implements BrancheController {
   @Override
   @GetMapping
   public List<LiteBrancheDTO> list() {
+      autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les branches", "branche-list", "GET", true));
     return service.findAll();
   }
 

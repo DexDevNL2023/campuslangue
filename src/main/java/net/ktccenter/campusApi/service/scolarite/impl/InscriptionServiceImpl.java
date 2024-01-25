@@ -449,7 +449,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     log.info("New etudiant");
 
     // On vérifie que l'etudiant à une adresse mail, si oui on creer son compte utilisateur
-    User user = userService.createUser(dto.getNom(), dto.getPrenom(), dto.getEmail().toLowerCase(), "ROLE_ETUDIANT", dto.getImageUrl());
+    User user = userService.createUser(dto.getNom(), dto.getPrenom(), dto.getEmail().toLowerCase(), "ROLE_ETUDIANT", dto.getImageUrl(), null, null);
     etudiant.setUser(user);
 
     // On construit le dto du compte user assoicer à étudiant

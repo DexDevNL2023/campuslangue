@@ -30,4 +30,7 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 
     @Query("SELECT DISTINCT e FROM User e WHERE e.nom = :nom OR e.email = :email")
     Optional<User> findByNomAndEmail(String nom, String email);
+
+    @Query("SELECT DISTINCT e FROM User e WHERE e.nom = :nomOremail OR e.email = :nomOremail")
+    User findByNomOrEmail(String nomOremail);
 }

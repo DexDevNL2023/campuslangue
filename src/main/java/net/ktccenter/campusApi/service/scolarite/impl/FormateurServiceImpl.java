@@ -56,7 +56,7 @@ public class FormateurServiceImpl implements FormateurService {
 
   private Formateur construitFormateur(Formateur Formateur) {
     // On vérifie que l'Formateur à une adresse mail, si oui on creer son compte utilisateur
-    User user = userService.createUser(Formateur.getNom(), Formateur.getPrenom(), Formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", Formateur.getImageUrl());
+    User user = userService.createUser(Formateur.getNom(), Formateur.getPrenom(), Formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", Formateur.getImageUrl(), null, null);
     Formateur.setUser(user);
     if (Formateur.getMatricule().isEmpty()) Formateur.setMatricule(MyUtils.GenerateMatricule("DEFAULT-TRAINER"));
     return Formateur;

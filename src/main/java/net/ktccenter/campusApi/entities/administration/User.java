@@ -84,6 +84,10 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private TypeUser typeUser = TypeUser.INTERNE;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Branche branche;
+
   public void setAuthorities(Role authority) {
     this.roles.add(authority);
   }

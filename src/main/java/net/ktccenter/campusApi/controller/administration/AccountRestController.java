@@ -62,7 +62,7 @@ public class AccountRestController {
 
     @GetMapping("/me")
     public UserDTO getCurrentUser() {
-        return userService.loadUserByUsername();
+        return userMapper.asDTO(userService.getCurrentUser());
     }
 
     @PostMapping("/login")

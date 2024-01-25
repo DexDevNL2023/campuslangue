@@ -5,6 +5,7 @@ import net.bytebuddy.utility.RandomString;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dao.administration.UserRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.InstitutionDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
@@ -16,7 +17,6 @@ import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.enums.TypeUser;
 import net.ktccenter.campusApi.exceptions.APIException;
-import net.ktccenter.campusApi.exceptions.AuthenticationException;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.UserMapper;
 import net.ktccenter.campusApi.service.administration.InstitutionService;
@@ -41,7 +41,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,7 +98,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-    public User createUser(String nom, String prenom, String email, String roleName, String imageUrl) {
+  public User createUser(String nom, String prenom, String email, String roleName, String imageUrl, String passwordText, TypeUser typeUser) {
       log.info("User 1");
       if (repository.existsByEmail(email)) {
         log.info("User 2");
@@ -127,8 +126,17 @@ public class UserServiceImpl implements UserService {
       String uniqueId = MyUtils.UniqueId();
       newUser.setUniqueId(uniqueId);
       log.debug("User 7 : "+newUser.getUniqueId());
-      newUser.setTypeUser(TypeUser.INTERNE);
-      String encodedPassword = bCryptPasswordEncoder.encode(MyUtils.generatedPassWord());
+      if (typeUser == null) {
+          newUser.setTypeUser(TypeUser.INTERNE);
+      } else {
+          newUser.setTypeUser(typeUser);
+      }
+      String encodedPassword = null;
+      if (passwordText == null) {
+          encodedPassword = bCryptPasswordEncoder.encode(MyUtils.generatedPassWord());
+      } else {
+          encodedPassword = bCryptPasswordEncoder.encode(passwordText);
+      }
       newUser.setPassword(encodedPassword);
       log.info("User 8 : "+newUser.getPassword());
       newUser.setAuthorities(authority);
@@ -172,7 +180,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO save(UserRequestDTO entity) {
-        return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        //return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        Role authority = roleRepository.findById(entity.getRoleId()).orElse(null);
+        if (authority == null)
+            throw new ResourceNotFoundException("Le rôle avec l'id " + entity.getRoleId() + " n'existe pas!");
+        return mapper.asDTO(createUser(entity.getNom(), entity.getPrenom(), entity.getEmail(), authority.getLibelle(), entity.getImageUrl(), entity.getPassword(), entity.getTypeUser()));
     }
 
     @Override
@@ -300,40 +312,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
-            throw new AuthenticationException("Erreur lors de la récupération des données de l'utilisateur en cours!");
-        }
-        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
-        User user = repository.findByEmail(userPrincipal.getUsername());
-        if (user != null)
-            throw new AuthenticationException("L'utilisateur n'existe avec le nom utilisateur " + userPrincipal.getUsername());
-        return user;
-    }
-
-    @Override
-    public boolean hasAuthorized(Set<Role> authoritie, String actionKey) {
-        for (Role role : authoritie) {
-            if (role.getIsGrant() || role.getIsSuper()) {
-                return true;
-            } else {
-                for (RoleDroit permission : role.getPermissions()) {
-                    if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isAuthorized(String actionKey) {
-        User account = getCurrentUser();
-        log.info("ID de l'utilisateur : " + account.getId());
-        return hasAuthorized(account.getRoles(), actionKey);
-    }
-
-    @Override
     public boolean existsByNomAndEmail(String nom, String email) {
         return repository.findByNomAndEmail(nom, email).isPresent();
     }
@@ -346,7 +324,44 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO loadUserByUsername() {
-        return mapper.asDTO(getCurrentUser());
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+            throw new ResourceNotFoundException("Impossible de retouver l'utilisateur courant!");
+        }
+        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        User user = repository.findByNomOrEmail(userPrincipal.getUsername());
+        if (user == null)
+            throw new ResourceNotFoundException("Aucun utilisateur n'existe avec le nom utilisateur " + userPrincipal.getUsername());
+        return user;
+    }
+
+    @Override
+    public boolean isAuthorized(String actionKey) {
+        for (Role role : getCurrentUser().getRoles()) {
+            if (role.getIsSuper()) {
+                return true;
+            } else {
+                for (RoleDroit permission : role.getPermissions()) {
+                    if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public LiteBrancheDTO getCurrentBranche() {
+        return new LiteBrancheDTO(getCurrentUser().getBranche());
+    }
+
+    @Override
+    public boolean hasGrantAuthorized() {
+        for (Role role : getCurrentUser().getRoles()) {
+            if (role.getIsGrant()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

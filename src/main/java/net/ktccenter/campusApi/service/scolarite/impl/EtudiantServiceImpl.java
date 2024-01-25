@@ -107,7 +107,7 @@ public class EtudiantServiceImpl implements EtudiantService {
 
     private Etudiant construitEtudiant(Etudiant etudiant) {
         // On vérifie que l'etudiant à une adresse mail, si oui on creer son compte utilisateur
-        User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl());
+        User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl(), null, null);
         etudiant.setUser(user);
 
         // On génére le matricule de l"étudiant

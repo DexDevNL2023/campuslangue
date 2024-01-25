@@ -12,6 +12,7 @@ import net.ktccenter.campusApi.entities.administration.Salle;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.CampusMapper;
 import net.ktccenter.campusApi.service.administration.CampusService;
+import net.ktccenter.campusApi.service.administration.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -28,11 +29,13 @@ public class CampusServiceImpl implements CampusService {
   private final CampusRepository repository;
   private final CampusMapper mapper;
   private final SalleRepository salleRepository;
+  private final UserService userService;
 
-  public CampusServiceImpl(CampusRepository repository, CampusMapper mapper, SalleRepository salleRepository) {
+  public CampusServiceImpl(CampusRepository repository, CampusMapper mapper, SalleRepository salleRepository, UserService userService) {
     this.repository = repository;
     this.mapper = mapper;
     this.salleRepository = salleRepository;
+    this.userService = userService;
   }
 
   @Override
@@ -82,15 +85,30 @@ public class CampusServiceImpl implements CampusService {
 
   @Override
   public Campus findById(Long id) {
-    return repository.findById(id).orElseThrow(
-      () ->  new ResourceNotFoundException("Le campus avec l'id " + id + " n'existe pas")
-    );
+    Long currentBrancheId = userService.getCurrentBranche().getId();
+    if (userService.hasGrantAuthorized()) {
+      return repository.findById(id).orElseThrow(
+              () -> new ResourceNotFoundException("Le campus avec l'id " + id + " n'existe pas")
+      );
+    } else {
+      return repository.findById(id).filter(c -> c.getBranche().getId().equals(currentBrancheId)).orElseThrow(
+              () -> new ResourceNotFoundException("Le campus avec l'id " + id + " n'existe pas")
+      );
+    }
   }
 
   @Override
   public List<LiteCampusDTO> findAll() {
-    if
-    return ((List<Campus>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+    Long currentBrancheId = userService.getCurrentBranche().getId();
+    if (userService.hasGrantAuthorized()) {
+      return ((List<Campus>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+    } else {
+      return ((List<Campus>) repository.findAll())
+              .stream()
+              .filter(c -> c.getBranche().getId().equals(currentBrancheId))
+              .map(mapper::asLite)
+              .collect(Collectors.toList());
+    }
   }
 
   @Override
