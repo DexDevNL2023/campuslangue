@@ -278,7 +278,7 @@ public class InscriptionServiceImpl implements InscriptionService {
 
     // On verifie que l'etudiant n'est pas inscrit dans cette session
     if (isInscritToSession(etudiant, session)) throw
-            new ResourceNotFoundException("L'étudiant " + etudiant.getNom() + " est déjà inscrit pour cette session.");
+            new ResourceNotFoundException("L'étudiant " + etudiant.getNom().toLowerCase() + " est déjà inscrit pour cette session.");
 
     // On génére le matricule de l"étudiant
     etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode()+"-"+session.getVague().getCode()+"-"+session.getNiveau().getCode()));
