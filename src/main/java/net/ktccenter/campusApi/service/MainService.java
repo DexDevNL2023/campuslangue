@@ -51,10 +51,9 @@ public class MainService {
     }
 
     public boolean hasGrantAuthorized() {
-        for (Role role : getCurrentUser().getRoles()) {
-            if (role.getIsGrant()) {
-                return true;
-            }
+        if (getCurrentUser() != null) {
+            Role role = getCurrentUser().getRoles().iterator().next();
+            return role.getIsGrant();
         }
         return false;
     }
@@ -63,7 +62,8 @@ public class MainService {
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
-            throw new ResourceNotFoundException("Impossible de retouver l'utilisateur courant!");
+            return null;
+            // throw new ResourceNotFoundException("Impossible de retouver l'utilisateur courant!");
         }
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         User user = userRepository.findByNomOrEmail(userPrincipal.getUsername());

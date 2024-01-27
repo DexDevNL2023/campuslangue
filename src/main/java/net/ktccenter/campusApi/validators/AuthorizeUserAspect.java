@@ -34,21 +34,25 @@ public class AuthorizeUserAspect {
 
         // AVANT L'EXÉCUTION DE LA MÉTHODE
         User account = mainService.getCurrentUser();
-        log.info("ID de l'utilisateur : " + account.getId());
+        if (account != null) {
+            log.info("ID de l'utilisateur : " + account.getId());
 
-        // Seul l'ID utilisateur 33 est autorisé à se connecter, les autres utilisateurs ne sont pas des utilisateurs valides.
-        if (hasAuthorized(account.getRoles(), "Author")) {
-            // écrire la logique métier de vérification d'autorisation
-            log.info("L'utilisateur n'a pas l'authorisation nécésaire pour effectuer cette action : " + joinPoint.toShortString());
-            return new ResourceNotFoundException("L'utilisateur n'a pas l'authorisation nécésaire pour effectuer cette action : " + joinPoint.toShortString());
+            // Seul l'ID utilisateur 33 est autorisé à se connecter, les autres utilisateurs ne sont pas des utilisateurs valides.
+            if (hasAuthorized(account.getRoles(), "Author")) {
+                // écrire la logique métier de vérification d'autorisation
+                log.info("L'utilisateur n'a pas l'authorisation nécésaire pour effectuer cette action : " + joinPoint.toShortString());
+                return new ResourceNotFoundException("L'utilisateur n'a pas l'authorisation nécésaire pour effectuer cette action : " + joinPoint.toShortString());
+            }
+
+            // C'est là que la MÉTHODE RÉELLE sera invoquée
+            Object result = joinPoint.proceed();
+
+            // APRÈS L'EXÉCUTION DE LA MÉTHODE
+            log.info(result.toString());
+            return result;
         }
+        return null;
 
-        // C'est là que la MÉTHODE RÉELLE sera invoquée
-        Object result = joinPoint.proceed();
-
-        // APRÈS L'EXÉCUTION DE LA MÉTHODE
-        log.info(result.toString());
-        return result;
     }
 
     private boolean hasAuthorized(Set<Role> authoritie, String actionKey) {
