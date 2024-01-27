@@ -46,6 +46,10 @@ public class MainService {
     }
 
 
+    public MainService() {
+
+    }
+
     public boolean hasGrantAuthorized() {
         for (Role role : getCurrentUser().getRoles()) {
             if (role.getIsGrant()) {
