@@ -82,12 +82,12 @@ public class InstitutionServiceImpl implements InstitutionService {
 
 
   @Override
-  public InstitutionDTO update(InstitutionRequestDTO dto, Long id) {
+  public void update(InstitutionRequestDTO dto, Long id) {
       if(!MyUtils.isValidEmailAddress(dto.getEmail()))
           throw new ResourceNotFoundException("L'email " + dto.getEmail() + " est invalide.");
     Institution exist = findById(id);
     dto.setId(exist.getId());
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+      mapper.asDTO(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

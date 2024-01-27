@@ -6,10 +6,11 @@ import net.ktccenter.campusApi.entities.administration.Role;
 import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
-import net.ktccenter.campusApi.service.administration.UserService;
+import net.ktccenter.campusApi.service.MainService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,11 +21,11 @@ import java.util.Set;
 @Slf4j
 public class AuthorizeUserAspect {
 
-    private final UserService userService;
+    @Autowired
+    private MainService mainService;
     private final RoleDroitRepository roleDroitRepository;
 
-    public AuthorizeUserAspect(UserService userService, RoleDroitRepository roleDroitRepository) {
-        this.userService = userService;
+    public AuthorizeUserAspect(RoleDroitRepository roleDroitRepository) {
         this.roleDroitRepository = roleDroitRepository;
     }
 
@@ -32,7 +33,7 @@ public class AuthorizeUserAspect {
     public Object authorize(ProceedingJoinPoint joinPoint) throws Throwable {
 
         // AVANT L'EXÉCUTION DE LA MÉTHODE
-        User account = userService.getCurrentUser();
+        User account = mainService.getCurrentUser();
         log.info("ID de l'utilisateur : " + account.getId());
 
         // Seul l'ID utilisateur 33 est autorisé à se connecter, les autres utilisateurs ne sont pas des utilisateurs valides.

@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface DroitController {
-    public DroitDTO save(@RequestBody DroitRequestDTO droit);
+    DroitDTO save(@RequestBody DroitRequestDTO droit);
 
-    public List<LiteDroitDTO> saveAll(@RequestBody List<ImportDroitRequestDTO> dtos);
+    List<LiteDroitDTO> saveAll(@RequestBody List<ImportDroitRequestDTO> dtos);
 
-    public DroitDTO findById(@PathVariable("id") Long id);
+    DroitDTO findById(@PathVariable("id") Long id);
 
-    public void delete(@PathVariable("id") Long id);
+    void delete(@PathVariable("id") Long id);
 
-    public List<LiteDroitDTO> list();
+    List<LiteDroitDTO> list();
 
-    public Page<LiteDroitDTO> pageQuery(Pageable pageable);
+    Page<LiteDroitDTO> pageQuery(Pageable pageable);
 
-    public DroitDTO update(@RequestBody DroitRequestDTO dto, @PathVariable("id") Long id);
+    void update(@RequestBody DroitRequestDTO dto, @PathVariable("id") Long id);
 }

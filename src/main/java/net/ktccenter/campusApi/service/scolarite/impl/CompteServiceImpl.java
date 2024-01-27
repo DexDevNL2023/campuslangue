@@ -148,10 +148,10 @@ public class CompteServiceImpl implements CompteService {
 
 
     @Override
-    public CompteDTO update(CompteRequestDTO dto, Long id) {
+    public void update(CompteRequestDTO dto, Long id) {
         Compte exist = findById(id);
         dto.setId(exist.getId());
-        return buildCompteDto(repository.save(mapper.asEntity(dto)));
+        buildCompteDto(repository.save(mapper.asEntity(dto)));
     }
 
     @Override

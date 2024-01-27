@@ -32,7 +32,7 @@ public interface InscriptionController {
 
   Page<LiteInscriptionDTO> pageQuery(Pageable pageable);
 
-  InscriptionDTO update(@RequestBody InscriptionRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody InscriptionRequestDTO dto, @PathVariable("id") Long id);
 
   void download(@PathVariable("inscriptionId") Long inscriptionId, HttpServletResponse response) throws URISyntaxException, JRException, IOException;
 }

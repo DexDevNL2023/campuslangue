@@ -216,7 +216,7 @@ public class SessionServiceImpl implements SessionService {
   }
 
   @Override
-  public SessionDTO update(SessionRequestDTO dto, Long id) {
+  public void update(SessionRequestDTO dto, Long id) {
     Session exist = findById(id);
     Set<OccupationSalle> occupations = new HashSet<>();
     Session session = mapper.asEntity(dto);
@@ -254,7 +254,7 @@ public class SessionServiceImpl implements SessionService {
     session.setCode(code);
     session.setOccupations(occupations);
     session = repository.save(session);
-    return buildSessionDto(session);
+    buildSessionDto(session);
   }
 
   @Override

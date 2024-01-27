@@ -74,10 +74,10 @@ public class EpreuveServiceImpl implements EpreuveService {
   }
 
   @Override
-  public EpreuveDTO update(EpreuveRequestDTO dto, Long id) {
+  public void update(EpreuveRequestDTO dto, Long id) {
     Epreuve exist =  findById(id);
     dto.setId(exist.getId());
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    mapper.asDTO(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

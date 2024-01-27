@@ -15,6 +15,8 @@ public interface PaiementService extends GenericService<Paiement, PaiementReques
 
   Paiement findByRefPaiement(String code);
 
+  List<LitePaiementDTO> findAll();
+
   boolean existByRefPaiement(String code);
 
   List<LitePaiementDTO> findAllByCampus(Long campusId);

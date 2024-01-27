@@ -7,6 +7,10 @@ import net.ktccenter.campusApi.dto.request.cours.EvaluationTestRequestDTO;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface EvaluationTestService extends GenericService<EvaluationTest, EvaluationTestRequestDTO, EvaluationTestDTO, LiteEvaluationTestDTO, ImportEvaluationTestRequestDTO> {
-  boolean equalsByDto(EvaluationTestRequestDTO dto, Long id);
+    List<LiteEvaluationTestDTO> findAll();
+
+    boolean equalsByDto(EvaluationTestRequestDTO dto, Long id);
 }

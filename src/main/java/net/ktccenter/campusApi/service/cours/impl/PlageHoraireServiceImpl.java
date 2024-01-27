@@ -99,10 +99,10 @@ public class PlageHoraireServiceImpl implements PlageHoraireService {
     }
 
     @Override
-    public PlageHoraireDTO update(PlageHoraireRequestDTO dto, Long id) {
+    public void update(PlageHoraireRequestDTO dto, Long id) {
         PlageHoraire exist =  findById(id);
         dto.setId(exist.getId());
-        return buildPlageHoraireDto(repository.save(mapper.asEntity(dto)));
+        buildPlageHoraireDto(repository.save(mapper.asEntity(dto)));
     }
 
     @Override

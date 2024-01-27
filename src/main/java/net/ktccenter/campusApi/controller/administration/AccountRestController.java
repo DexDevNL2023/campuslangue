@@ -13,6 +13,7 @@ import net.ktccenter.campusApi.dto.request.administration.UserSendLinkDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
 import net.ktccenter.campusApi.exceptions.AuthenticationException;
 import net.ktccenter.campusApi.mapper.administration.UserMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.UserService;
 import net.ktccenter.campusApi.utils.MyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,9 @@ public class AccountRestController {
     @Value("${app.account.validation.failed.url}")
     private String APP_ACCOUNT_VALIDATION_FAILED_URL;
 
+
+    @Autowired
+    private MainService mainService;
     private final UserService userService;
 
     private final UserMapper userMapper;
@@ -62,7 +66,7 @@ public class AccountRestController {
 
     @GetMapping("/me")
     public UserDTO getCurrentUser() {
-        return userMapper.asDTO(userService.getCurrentUser());
+        return userMapper.asDTO(mainService.getCurrentUser());
     }
 
     @PostMapping("/login")

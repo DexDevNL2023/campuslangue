@@ -28,5 +28,5 @@ public interface EtudiantController {
 
     Page<LiteEtudiantDTO> pageQuery(Pageable pageable);
 
-    EtudiantDTO update(@RequestBody EtudiantRequestDTO dto, @PathVariable("id") Long id);
+    void update(@RequestBody EtudiantRequestDTO dto, @PathVariable("id") Long id);
 }

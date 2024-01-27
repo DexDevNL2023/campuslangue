@@ -72,11 +72,11 @@ public class PaiementControllerImpl implements PaiementController {
 
   @Override
   @PutMapping("/{id}")
-  public PaiementDTO update(@Valid @RequestBody PaiementRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody PaiementRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new APIException("Le paiement avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new APIException("Le paiement avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+    service.update(dto, id);
   }
 
   @Override

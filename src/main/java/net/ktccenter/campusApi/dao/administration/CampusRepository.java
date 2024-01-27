@@ -19,4 +19,7 @@ public interface CampusRepository extends PagingAndSortingRepository<Campus, Lon
 
     @Query("SELECT DISTINCT e FROM Campus e WHERE e.branche = :branche")
     List<Campus> findAllByBranche(Branche branche);
+
+    @Query("SELECT DISTINCT e FROM Campus e WHERE e.branche.id = :brancheId")
+    List<Campus> findAllByBrancheId(Long brancheId);
 }

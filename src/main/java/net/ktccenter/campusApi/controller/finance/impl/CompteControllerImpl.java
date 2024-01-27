@@ -72,10 +72,10 @@ public class CompteControllerImpl implements CompteController {
 
     @Override
     @PutMapping("/{id}")
-    public CompteDTO update(@Valid @RequestBody CompteRequestDTO dto, @PathVariable("id") Long id) {
+    public void update(@Valid @RequestBody CompteRequestDTO dto, @PathVariable("id") Long id) {
         if (service.findById(id) == null) throw new APIException("Le compte avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))
             throw new APIException("Le compte avec les données suivante : " + dto.toString() + " existe déjà");
-        return service.update(dto, id);
+        service.update(dto, id);
     }
 }

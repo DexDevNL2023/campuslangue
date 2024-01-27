@@ -74,10 +74,10 @@ public class EvaluationTestServiceImpl implements EvaluationTestService {
   }
 
   @Override
-  public EvaluationTestDTO update(EvaluationTestRequestDTO dto, Long id) {
+  public void update(EvaluationTestRequestDTO dto, Long id) {
     EvaluationTest exist =  findById(id);
     dto.setId(exist.getId());
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    mapper.asDTO(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

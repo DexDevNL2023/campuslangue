@@ -13,6 +13,9 @@ public interface EtudiantService extends GenericService<Etudiant, EtudiantReques
 
     boolean equalsByDto(EtudiantRequestDTO dto, Long id);
     boolean existByEmail(String email);
+
+    List<LiteEtudiantDTO> findAll();
+
     boolean existByTelephone(String telephone);
     boolean findByTelephoneAndEmail(String telephone, String email);
     Etudiant findByMatricule(String matricule);

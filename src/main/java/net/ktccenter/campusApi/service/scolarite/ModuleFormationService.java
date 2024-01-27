@@ -7,11 +7,15 @@ import net.ktccenter.campusApi.dto.request.scolarite.ModuleFormationRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.ModuleFormation;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface ModuleFormationService extends GenericService<ModuleFormation, ModuleFormationRequestDTO, ModuleFormationDTO, LiteModuleFormationDTO, ImportModuleFormationRequestDTO> {
 
   boolean equalsByDto(ModuleFormationRequestDTO dto, Long id);
 
   ModuleFormation findByCode(String code);
+
+  List<LiteModuleFormationDTO> findAll();
 
   boolean existByCode(String code);
 

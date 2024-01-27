@@ -13,10 +13,13 @@ import net.sf.jasperreports.engine.JRException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.util.List;
 
 public interface InscriptionService extends GenericService<Inscription, InscriptionRequestDTO, InscriptionDTO, LiteInscriptionDTO, ImportInscriptionRequestDTO> {
 
-  boolean equalsByDto(InscriptionRequestDTO dto, Long id);
+    List<LiteInscriptionDTO> findAll();
+
+    boolean equalsByDto(InscriptionRequestDTO dto, Long id);
 
   InscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto);
 

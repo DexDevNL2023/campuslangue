@@ -65,10 +65,10 @@ public class EpreuveControllerImpl implements EpreuveController {
 
   @Override
   @PutMapping("/{id}")
-  public EpreuveDTO update(@Valid @RequestBody EpreuveRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody EpreuveRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new RuntimeException("L'epreuve avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new RuntimeException("L'epreuve avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+    service.update(dto, id);
   }
 }

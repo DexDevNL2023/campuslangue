@@ -7,6 +7,8 @@ import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Session;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface SessionService extends GenericService<Session, SessionRequestDTO, SessionDTO, LiteSessionDTO, ImportSessionRequestDTO> {
 
   boolean equalsByDto(SessionRequestDTO dto, Long id);
@@ -14,6 +16,8 @@ public interface SessionService extends GenericService<Session, SessionRequestDT
   Session findByCode(String code);
 
   boolean existByCode(String code);
+
+  List<LiteSessionDTO> findAll();
 
   SessionDTO close(Long id);
 }

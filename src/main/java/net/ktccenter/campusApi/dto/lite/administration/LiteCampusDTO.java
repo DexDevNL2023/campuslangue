@@ -13,12 +13,13 @@ public class LiteCampusDTO {
   private String code;
   private String libelle;
   private String adresse;
-  private LiteBrancheForCampusDTO branche;
+  private int nombreSalle;
 
   public LiteCampusDTO(Campus campus) {
     this.id = campus.getId();
     this.code = campus.getCode();
     this.libelle = campus.getLibelle();
     this.adresse = campus.getAdresse();
+    this.nombreSalle = campus.getNombreSalle();
   }
 }

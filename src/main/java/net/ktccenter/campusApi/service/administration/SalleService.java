@@ -5,6 +5,7 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteOccupationSalleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteSalleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.OccupationSalleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.SalleDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SalleBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.OccupationSalleRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SalleRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Salle;
@@ -28,4 +29,6 @@ public interface SalleService extends GenericService<Salle, SalleRequestDTO, Sal
     List<LiteOccupationSalleDTO> getPlageDisponible(Long salleId);
 
     List<LiteOccupationSalleDTO> getPlannigSalle(Long salleId);
+
+    List<SalleBranchDTO> findAll();
 }

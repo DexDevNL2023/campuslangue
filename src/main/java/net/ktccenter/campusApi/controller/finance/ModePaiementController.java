@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface ModePaiementController {
-  public ModePaiementDTO save(@RequestBody ModePaiementRequestDTO dto);
+  ModePaiementDTO save(@RequestBody ModePaiementRequestDTO dto);
 
-  public List<LiteModePaiementDTO> saveAll(@RequestBody List<ImportModePaiementRequestDTO> dtos);
+  List<LiteModePaiementDTO> saveAll(@RequestBody List<ImportModePaiementRequestDTO> dtos);
 
-  public ModePaiementDTO findById(@PathVariable("id") Long id);
+  ModePaiementDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LiteModePaiementDTO> list();
+  List<LiteModePaiementDTO> list();
 
-  public Page<LiteModePaiementDTO> pageQuery(Pageable pageable);
+  Page<LiteModePaiementDTO> pageQuery(Pageable pageable);
 
-  public ModePaiementDTO update(@RequestBody ModePaiementRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody ModePaiementRequestDTO dto, @PathVariable("id") Long id);
 }

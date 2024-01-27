@@ -12,7 +12,9 @@ import net.ktccenter.campusApi.service.GenericService;
 import java.util.List;
 
 public interface ExamenService extends GenericService<Examen, ExamenRequestDTO, ExamenDTO, LiteExamenDTO, ImportExamenRequestDTO> {
-  boolean existsByCode(String code);
+    List<LiteExamenDTO> findAll();
+
+    boolean existsByCode(String code);
 
   boolean equalsByDto(ExamenRequestDTO dto, Long id);
 

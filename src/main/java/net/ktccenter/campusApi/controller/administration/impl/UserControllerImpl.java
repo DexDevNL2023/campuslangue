@@ -4,10 +4,13 @@ import net.ktccenter.campusApi.controller.administration.UserController;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,9 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 public class UserControllerImpl implements UserController {
+
+    @Autowired
+    private MainService mainService;
     private final UserService service;
 
     public UserControllerImpl(UserService service) {
@@ -61,7 +67,7 @@ public class UserControllerImpl implements UserController {
 
     @Override
     @GetMapping
-    public List<LiteUserDTO> list() {
+    public List<UserBranchDTO> list() {
         return service.findAll();
     }
 
@@ -73,16 +79,16 @@ public class UserControllerImpl implements UserController {
 
     @Override
     @PutMapping("/{id}")
-    public UserDTO update(@Valid @RequestBody UserRequestDTO dto, @PathVariable("id") Long id) {
+    public void update(@Valid @RequestBody UserRequestDTO dto, @PathVariable("id") Long id) {
         if (service.findById(id) == null) throw new RuntimeException("L'utilisateur avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))
             throw new RuntimeException("L'utilisateur avec les données suivante : " + dto.toString() + " existe déjà");
-        return service.update(dto, id);
+        service.update(dto, id);
     }
 
     @GetMapping(path= "/users/profile")
     UserDTO profile(){
-        Long id = service.getCurrentUser() != null ? service.getCurrentUser().getId() : null;
+        Long id = mainService.getCurrentUser() != null ? mainService.getCurrentUser().getId() : null;
         if (service.findById(id) == null) throw new RuntimeException("L'utilisateur avec l'id " + id + " n'existe pas");
         return service.getOne(id);
     }

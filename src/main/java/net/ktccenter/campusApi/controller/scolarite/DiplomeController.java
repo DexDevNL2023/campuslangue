@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface DiplomeController {
-    public DiplomeDTO save(@RequestBody DiplomeRequestDTO dto);
+    DiplomeDTO save(@RequestBody DiplomeRequestDTO dto);
 
-    public List<LiteDiplomeDTO> saveAll(@RequestBody List<ImportDiplomeRequestDTO> dtos);
+    List<LiteDiplomeDTO> saveAll(@RequestBody List<ImportDiplomeRequestDTO> dtos);
 
-    public DiplomeDTO findById(@PathVariable("id") Long id);
+    DiplomeDTO findById(@PathVariable("id") Long id);
 
-    public void delete(@PathVariable("id") Long id);
+    void delete(@PathVariable("id") Long id);
 
-    public List<LiteDiplomeDTO> list();
+    List<LiteDiplomeDTO> list();
 
-    public Page<LiteDiplomeDTO> pageQuery(Pageable pageable);
+    Page<LiteDiplomeDTO> pageQuery(Pageable pageable);
 
-    public DiplomeDTO update(@RequestBody DiplomeRequestDTO dto, @PathVariable("id") Long id);
+    void update(@RequestBody DiplomeRequestDTO dto, @PathVariable("id") Long id);
 }

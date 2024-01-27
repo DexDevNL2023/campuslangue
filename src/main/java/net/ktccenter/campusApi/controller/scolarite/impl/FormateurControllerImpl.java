@@ -81,12 +81,12 @@ public class FormateurControllerImpl implements FormateurController {
 
   @Override
   @PutMapping("/{id}")
-  public FormateurDTO update(@Valid @RequestBody FormateurRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody FormateurRequestDTO dto, @PathVariable("id") Long id) {
     if(!MyUtils.isValidEmailAddress(dto.getEmail()))
       throw new APIException("L'email " + dto.getEmail() + " est invalide.");
     if (service.findById(id) == null) throw new APIException("Le formateur avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
-      throw new APIException("Le formateur avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+      throw new APIException("Le formateur avec les données suivante : " + dto + " existe déjà");
+    service.update(dto, id);
   }
 }

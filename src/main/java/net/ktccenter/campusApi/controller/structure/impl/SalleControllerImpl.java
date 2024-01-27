@@ -7,6 +7,7 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteOccupationSalleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteSalleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.OccupationSalleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.SalleDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SalleBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.OccupationSalleRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SalleRequestDTO;
 import net.ktccenter.campusApi.service.administration.SalleService;
@@ -65,7 +66,7 @@ public class SalleControllerImpl implements SalleController {
 
   @Override
   @GetMapping
-  public List<LiteSalleDTO> list() {
+  public List<SalleBranchDTO> list() {
     return service.findAll();
   }
 
@@ -77,11 +78,11 @@ public class SalleControllerImpl implements SalleController {
 
   @Override
   @PutMapping("/{id}")
-  public SalleDTO update(@Valid @RequestBody SalleRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody SalleRequestDTO dto, @PathVariable("id") Long id) {
       if (service.findById(id) == null) throw new RuntimeException("La salle avec l'id " + id + " n'existe pas");
       if (service.equalsByDto(dto, id))
           throw new RuntimeException("La salle avec les données suivante : " + dto.toString() + " existe déjà");
-      return service.update(dto, id);
+    service.update(dto, id);
   }
 
   @Override

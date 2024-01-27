@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface RoleDroitController {
-    public RoleDroitDTO save(@RequestBody RoleDroitRequestDTO roleDroit);
+    RoleDroitDTO save(@RequestBody RoleDroitRequestDTO roleDroit);
 
-    public List<LiteRoleDroitDTO> saveAll(@RequestBody List<ImportRoleDroitRequestDTO> dtos);
+    List<LiteRoleDroitDTO> saveAll(@RequestBody List<ImportRoleDroitRequestDTO> dtos);
 
-    public RoleDroitDTO findById(@PathVariable("id") Long id);
+    RoleDroitDTO findById(@PathVariable("id") Long id);
 
-    public void delete(@PathVariable("id") Long id);
+    void delete(@PathVariable("id") Long id);
 
-    public List<LiteRoleDroitDTO> list();
+    List<LiteRoleDroitDTO> list();
 
-    public Page<LiteRoleDroitDTO> pageQuery(Pageable pageable);
+    Page<LiteRoleDroitDTO> pageQuery(Pageable pageable);
 
-    public RoleDroitDTO update(@RequestBody RoleDroitRequestDTO dto, @PathVariable("id") Long id);
+    void update(@RequestBody RoleDroitRequestDTO dto, @PathVariable("id") Long id);
 }

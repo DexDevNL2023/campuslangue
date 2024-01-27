@@ -6,10 +6,8 @@ import net.ktccenter.campusApi.dto.importation.scolarite.ImportRubriqueRequestDT
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModePaiementDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteRubriqueDTO;
-import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.RubriqueDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.RubriqueRequestDTO;
-import net.ktccenter.campusApi.entities.scolarite.Compte;
 import net.ktccenter.campusApi.entities.scolarite.Paiement;
 import net.ktccenter.campusApi.entities.scolarite.Rubrique;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
@@ -106,10 +104,10 @@ public class RubriqueServiceImpl implements RubriqueService {
 
 
 	@Override
-	public RubriqueDTO update(RubriqueRequestDTO dto, Long id) {
+	public void update(RubriqueRequestDTO dto, Long id) {
 		Rubrique exist = findById(id);
 		dto.setId(exist.getId());
-		return buildRubriqueDto(repository.save(mapper.asEntity(dto)));
+		buildRubriqueDto(repository.save(mapper.asEntity(dto)));
 	}
 
 

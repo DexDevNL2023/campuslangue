@@ -86,10 +86,10 @@ public class ModuleFormationServiceImpl implements ModuleFormationService {
 
 
   @Override
-  public ModuleFormationDTO update(ModuleFormationRequestDTO dto, Long id) {
+  public void update(ModuleFormationRequestDTO dto, Long id) {
     ModuleFormation exist = findById(id);
     dto.setId(exist.getId());
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    mapper.asDTO(repository.save(mapper.asEntity(dto)));
   }
 
 

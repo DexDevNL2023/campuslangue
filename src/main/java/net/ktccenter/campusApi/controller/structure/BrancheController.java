@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface BrancheController {
-  public BrancheDTO save(@RequestBody BrancheRequestDTO dto);
+  BrancheDTO save(@RequestBody BrancheRequestDTO dto);
 
-  public List<LiteBrancheDTO> saveAll(@RequestBody List<ImportBrancheRequestDTO> dtos);
+  List<LiteBrancheDTO> saveAll(@RequestBody List<ImportBrancheRequestDTO> dtos);
 
-  public BrancheDTO findById(@PathVariable("id") Long id);
+  BrancheDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LiteBrancheDTO> list();
+  List<LiteBrancheDTO> list();
 
-  public Page<LiteBrancheDTO> pageQuery(Pageable pageable);
+  Page<LiteBrancheDTO> pageQuery(Pageable pageable);
 
-  public BrancheDTO update(@RequestBody BrancheRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody BrancheRequestDTO dto, @PathVariable("id") Long id);
 }

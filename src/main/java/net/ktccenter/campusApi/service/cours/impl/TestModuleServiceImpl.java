@@ -76,14 +76,14 @@ public class TestModuleServiceImpl implements TestModuleService {
     log.info("Find niveau "+niveau.toString());
     List<ModuleFormation> moduleFormations = moduleFormationRepository.findAllByNiveau(niveau);
     if (moduleFormations.isEmpty()) throw new ResourceNotFoundException("Avant d'effectuer une inscription veillez ajouter au moins un module de formation pour le niveau "+niveau.getLibelle());
-    log.info("Get all module by niveau "+moduleFormations.toString());
+    log.info("Get all module by niveau " + moduleFormations);
     log.info("add test to test module");
     for (ModuleFormation module : moduleFormations) {
       EvaluationTest test = new EvaluationTest();
       test.setModuleFormation(module);
       test.setTestModule(testModule);
       test = evaluationTestRepository.save(test);
-      log.info("new test " + test.toString());
+      log.info("new test " + test);
       list.add(buildEvaluationLiteDto(test));
     }
     return list;
@@ -148,10 +148,10 @@ public class TestModuleServiceImpl implements TestModuleService {
   }
 
   @Override
-  public TestModuleDTO update(TestModuleRequestDTO dto, Long id) {
+  public void update(TestModuleRequestDTO dto, Long id) {
     TestModule exist = findById(id);
     dto.setId(exist.getId());
-    return buildTestModuleDto(repository.save(mapper.asEntity(dto)));
+    buildTestModuleDto(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

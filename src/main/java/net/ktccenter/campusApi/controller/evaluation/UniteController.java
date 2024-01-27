@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface UniteController {
-  public UniteDTO save(@RequestBody UniteRequestDTO dto);
+  UniteDTO save(@RequestBody UniteRequestDTO dto);
 
-  public List<LiteUniteDTO> saveAll(@RequestBody List<ImportUniteRequestDTO> dtos);
+  List<LiteUniteDTO> saveAll(@RequestBody List<ImportUniteRequestDTO> dtos);
 
-  public UniteDTO findById(@PathVariable("id") Long id);
+  UniteDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LiteUniteDTO> list();
+  List<LiteUniteDTO> list();
 
-  public Page<LiteUniteDTO> pageQuery(Pageable pageable);
+  Page<LiteUniteDTO> pageQuery(Pageable pageable);
 
-  public UniteDTO update(@RequestBody UniteRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody UniteRequestDTO dto, @PathVariable("id") Long id);
 }

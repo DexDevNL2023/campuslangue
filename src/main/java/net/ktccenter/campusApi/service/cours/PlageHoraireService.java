@@ -7,7 +7,11 @@ import net.ktccenter.campusApi.dto.request.cours.PlageHoraireRequestDTO;
 import net.ktccenter.campusApi.entities.cours.PlageHoraire;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface PlageHoraireService extends GenericService<PlageHoraire, PlageHoraireRequestDTO, PlageHoraireDTO, LitePlageHoraireDTO, ImportPlageHoraireRequestDTO> {
+    List<LitePlageHoraireDTO> findAll();
+
     boolean existsByCode(String code);
 
     boolean equalsByDto(PlageHoraireRequestDTO dto, Long id);

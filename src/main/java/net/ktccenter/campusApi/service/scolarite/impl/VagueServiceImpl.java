@@ -102,10 +102,10 @@ public class VagueServiceImpl implements VagueService {
   }
 
   @Override
-  public VagueDTO update(VagueRequestDTO dto, Long id) {
+  public void update(VagueRequestDTO dto, Long id) {
     Vague exist = findById(id);
     dto.setId(exist.getId());
-    return buildVagueDto(repository.save(mapper.asEntity(dto)));
+    buildVagueDto(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

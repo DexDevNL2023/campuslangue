@@ -104,10 +104,10 @@ public class ModePaiementServiceImpl implements ModePaiementService {
 
 
   @Override
-  public ModePaiementDTO update(ModePaiementRequestDTO dto, Long id) {
+  public void update(ModePaiementRequestDTO dto, Long id) {
     ModePaiement exist = findById(id);
     dto.setId(exist.getId());
-    return buildModePaiementDto(repository.save(mapper.asEntity(dto)));
+    buildModePaiementDto(repository.save(mapper.asEntity(dto)));
   }
 
 

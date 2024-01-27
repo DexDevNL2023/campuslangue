@@ -7,8 +7,12 @@ import net.ktccenter.campusApi.dto.request.cours.UniteRequestDTO;
 import net.ktccenter.campusApi.entities.cours.Unite;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface UniteService extends GenericService<Unite, UniteRequestDTO, UniteDTO, LiteUniteDTO, ImportUniteRequestDTO> {
-  boolean existsByCode(String code);
+    List<LiteUniteDTO> findAll();
+
+    boolean existsByCode(String code);
 
   boolean equalsByDto(UniteRequestDTO dto, Long id);
 

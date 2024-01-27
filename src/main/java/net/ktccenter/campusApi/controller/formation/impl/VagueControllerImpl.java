@@ -72,10 +72,10 @@ public class VagueControllerImpl implements VagueController {
 
   @Override
   @PutMapping("/{id}")
-  public VagueDTO update(@Valid @RequestBody VagueRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody VagueRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new APIException("La vague avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new APIException("La vague avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+    service.update(dto, id);
   }
 }

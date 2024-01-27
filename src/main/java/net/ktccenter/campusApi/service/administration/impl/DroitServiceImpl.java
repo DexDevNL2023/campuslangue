@@ -8,6 +8,7 @@ import net.ktccenter.campusApi.dto.request.administration.DroitRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Droit;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.DroitMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.DroitService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class DroitServiceImpl implements DroitService {
+public class DroitServiceImpl extends MainService implements DroitService {
     private final DroitRepository repository;
     private final DroitMapper mapper;
 
@@ -73,10 +74,10 @@ public class DroitServiceImpl implements DroitService {
 
 
     @Override
-    public DroitDTO update(DroitRequestDTO entity, Long id) {
+    public void update(DroitRequestDTO entity, Long id) {
       Droit exist =  findById(id);
       entity.setId(exist.getId());
-      return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        mapper.asDTO(repository.save(mapper.asEntity(entity)));
     }
 
     @Override

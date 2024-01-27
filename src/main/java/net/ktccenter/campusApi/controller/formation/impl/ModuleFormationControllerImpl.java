@@ -72,10 +72,10 @@ public class ModuleFormationControllerImpl implements ModuleFormationController 
 
   @Override
   @PutMapping("/{id}")
-  public ModuleFormationDTO update(@Valid @RequestBody ModuleFormationRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody ModuleFormationRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new APIException("Le module formation avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new APIException("Le module formation avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+    service.update(dto, id);
   }
 }

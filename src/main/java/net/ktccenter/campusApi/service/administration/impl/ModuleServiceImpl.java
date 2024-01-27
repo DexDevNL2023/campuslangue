@@ -85,10 +85,10 @@ public class ModuleServiceImpl implements ModuleService {
 
 
     @Override
-    public ModuleDTO update(ModuleRequestDTO entity, Long id) {
+    public void update(ModuleRequestDTO entity, Long id) {
       Module exist = findById(id);
       entity.setId(exist.getId());
-      return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        mapper.asDTO(repository.save(mapper.asEntity(entity)));
     }
 
     @Override

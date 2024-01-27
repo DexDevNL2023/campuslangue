@@ -110,7 +110,7 @@ public class PaiementServiceImpl implements PaiementService {
 
 
   @Override
-  public PaiementDTO update(PaiementRequestDTO dto, Long id) {
+  public void update(PaiementRequestDTO dto, Long id) {
     Paiement exist = findById(id);
       Paiement paiement = mapper.asEntity(dto);
       paiement.setId(exist.getId());
@@ -119,7 +119,7 @@ public class PaiementServiceImpl implements PaiementService {
       BigDecimal resteAPayer = netApayer.subtract(netPayee);
       if (paiement.getMontant().compareTo(resteAPayer) > 0)
           throw new ResourceNotFoundException("Le montant paiement " + paiement.getMontant() + " n'peut pas supèrieur au reste à payer " + resteAPayer);
-      return buildPaiementDto(repository.save(paiement));
+    buildPaiementDto(repository.save(paiement));
   }
 
 

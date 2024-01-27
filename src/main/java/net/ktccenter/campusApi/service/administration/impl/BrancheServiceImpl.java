@@ -123,12 +123,12 @@ public class BrancheServiceImpl implements BrancheService {
     }
 
     @Override
-    public BrancheDTO update(BrancheRequestDTO dto, Long id) {
+    public void update(BrancheRequestDTO dto, Long id) {
         if(!MyUtils.isValidEmailAddress(dto.getEmail()))
             throw new ResourceNotFoundException("L'email " + dto.getEmail() + " est invalide.");
         Branche exist =  findById(id);
         dto.setId(exist.getId());
-        return buildBrancheDto(repository.save(mapper.asEntity(dto)));
+        buildBrancheDto(repository.save(mapper.asEntity(dto)));
     }
 
     @Override

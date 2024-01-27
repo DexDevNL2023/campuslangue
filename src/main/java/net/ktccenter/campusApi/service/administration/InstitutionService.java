@@ -7,8 +7,12 @@ import net.ktccenter.campusApi.dto.request.administration.InstitutionRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Institution;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface InstitutionService extends GenericService<Institution, InstitutionRequestDTO, InstitutionDTO, LiteInstitutionDTO, ImportInstitutionRequestDTO> {
-  InstitutionDTO getCurrentInstitution();
+    List<LiteInstitutionDTO> findAll();
+
+    InstitutionDTO getCurrentInstitution();
   boolean existsByName(String name);
   boolean equalsByDto(InstitutionRequestDTO dto, Long id);
 }

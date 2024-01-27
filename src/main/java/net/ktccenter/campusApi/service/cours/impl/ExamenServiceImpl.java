@@ -80,7 +80,7 @@ public class ExamenServiceImpl implements ExamenService {
     );
     List<Unite> unites = uniteRepository.findAllByNiveau(niveau);
     if (unites.isEmpty()) throw new ResourceNotFoundException("Avant d'effectuer une inscription veillez ajouter au moins une unité de formation pour le niveau "+niveau.getLibelle());
-    log.info("Get all unite by niveau "+unites.toString());
+    log.info("Get all unite by niveau " + unites);
     log.info("add test to test module");
     for (Unite unite : unites) {
       Epreuve epreuve = new Epreuve();
@@ -88,7 +88,7 @@ public class ExamenServiceImpl implements ExamenService {
       epreuve.setExamen(examen);
       epreuve = epreuveRepository.save(epreuve);
       list.add(buildEpreuveLiteDto(epreuve));
-      log.info("new epreuve " + epreuve.toString());
+      log.info("new epreuve " + epreuve);
     }
     return list;
   }
@@ -172,10 +172,10 @@ public class ExamenServiceImpl implements ExamenService {
   }
 
   @Override
-  public ExamenDTO update(ExamenRequestDTO dto, Long id) {
+  public void update(ExamenRequestDTO dto, Long id) {
     Examen exist =  findById(id);
     dto.setId(exist.getId());
-    return buildExamenDto(repository.save(mapper.asEntity(dto)));
+    buildExamenDto(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

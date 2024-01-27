@@ -7,11 +7,15 @@ import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Compte;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface CompteService extends GenericService<Compte, CompteRequestDTO, CompteDTO, LiteCompteDTO, ImportCompteRequestDTO> {
 
     boolean equalsByDto(CompteRequestDTO dto, Long id);
 
     Compte findByCode(String code);
+
+    List<LiteCompteDTO> findAll();
 
     boolean existByCode(String code);
 }

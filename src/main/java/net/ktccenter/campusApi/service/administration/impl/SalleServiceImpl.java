@@ -10,13 +10,16 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteSalleDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LitePlageHoraireDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.OccupationSalleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.SalleDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SalleBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.OccupationSalleRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SalleRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.OccupationSalle;
 import net.ktccenter.campusApi.entities.administration.Salle;
 import net.ktccenter.campusApi.entities.cours.PlageHoraire;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.SalleMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.SalleService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,13 +27,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class SalleServiceImpl implements SalleService {
+public class SalleServiceImpl extends MainService implements SalleService {
   private final SalleRepository repository;
   private final SalleMapper mapper;
   private final PlageHoraireRepository plageHoraireRepository;
@@ -110,10 +114,7 @@ public class SalleServiceImpl implements SalleService {
     );
   }
 
-  @Override
-  public List<LiteSalleDTO> findAll() {
-    return ((List<Salle>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
-  }
+
 
   @Override
   public Page<LiteSalleDTO> findAll(Pageable pageable) {
@@ -123,7 +124,7 @@ public class SalleServiceImpl implements SalleService {
   }
 
   @Override
-  public SalleDTO update(SalleRequestDTO dto, Long id) {
+  public void update(SalleRequestDTO dto, Long id) {
     Salle exist = findById(id);
     dto.setId(exist.getId());
     exist = repository.save(mapper.asEntity(dto));
@@ -131,7 +132,7 @@ public class SalleServiceImpl implements SalleService {
       List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
       ajouteOccupation(exist, plages);
     }
-    return mapper.asDTO(exist);
+
   }
 
   @Override
@@ -186,7 +187,7 @@ public class SalleServiceImpl implements SalleService {
     Salle salle = repository.findById(salleId).orElseThrow(
             () ->  new ResourceNotFoundException("La salle avec l'id " + salleId + " n'existe pas")
     );
-    return ((List<OccupationSalle>) occupationSalleRepository.findAllBySalleAndEstOccupee(salle, false)).stream().map(this::buildOccupationLiteDto).collect(Collectors.toList());
+    return occupationSalleRepository.findAllBySalleAndEstOccupee(salle, false).stream().map(this::buildOccupationLiteDto).collect(Collectors.toList());
   }
 
   @Override
@@ -194,7 +195,7 @@ public class SalleServiceImpl implements SalleService {
     Salle salle = repository.findById(salleId).orElseThrow(
             () ->  new ResourceNotFoundException("La salle avec l'id " + salleId + " n'existe pas")
     );
-    return ((List<OccupationSalle>) occupationSalleRepository.findAllBySalle(salle)).stream().map(this::buildOccupationLiteDto).collect(Collectors.toList());
+    return occupationSalleRepository.findAllBySalle(salle).stream().map(this::buildOccupationLiteDto).collect(Collectors.toList());
   }
 
     @Override
@@ -208,6 +209,26 @@ public class SalleServiceImpl implements SalleService {
         if (ressource == null) return false;
         return !ressource.getId().equals(id);
     }
+
+  @Override
+  public List<SalleBranchDTO> findAll() {
+    List<SalleBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b));
+      }
+    } else {
+      result.add(this.buildData(getCurrentUserBranch()));
+    }
+    return result;
+  }
+
+  SalleBranchDTO buildData(Branche branche) {
+    SalleBranchDTO dto = new SalleBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(mapper.asDTOList(repository.findAllByBranche(branche)));
+    return dto;
+  }
 
   @Override
   public Salle findByCode(String code) {

@@ -6,20 +6,21 @@ import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dao.administration.UserRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.InstitutionDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Role;
-import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.enums.TypeUser;
 import net.ktccenter.campusApi.exceptions.APIException;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.UserMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.InstitutionService;
 import net.ktccenter.campusApi.service.administration.UserService;
 import net.ktccenter.campusApi.utils.MyUtils;
@@ -29,10 +30,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,13 +38,14 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends MainService implements UserService {
     private final UserRepository repository;
     private final UserMapper mapper;
     private final JavaMailSender javaMailSender;
@@ -218,11 +216,7 @@ public class UserServiceImpl implements UserService {
         return mapper.asDTO(findById(id));
     }
 
-    @Override
-    public List<LiteUserDTO> findAll() {
-        return ((List<User>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
 
-    }
 
     @Override
     public Page<LiteUserDTO> findAll(Pageable pageable) {
@@ -232,10 +226,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO update(UserRequestDTO entity, Long id) {
+    public void update(UserRequestDTO entity, Long id) {
         User exist =  findById(id);
         entity.setId(exist.getId());
-        return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        repository.save(mapper.asEntity(entity));
     }
 
     @Override
@@ -326,46 +320,25 @@ public class UserServiceImpl implements UserService {
         return !ressource.getId().equals(id);
     }
 
-    @Override
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
-            throw new ResourceNotFoundException("Impossible de retouver l'utilisateur courant!");
-        }
-        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
-        User user = repository.findByNomOrEmail(userPrincipal.getUsername());
-        if (user == null)
-            throw new ResourceNotFoundException("Aucun utilisateur n'existe avec le nom utilisateur " + userPrincipal.getUsername());
-        return user;
-    }
+
 
     @Override
-    public boolean isAuthorized(String actionKey) {
-        for (Role role : getCurrentUser().getRoles()) {
-            if (role.getIsSuper()) {
-                return true;
-            } else {
-                List<RoleDroit> permissions = roleDroitRepository.findAllByRole(role);
-                for (RoleDroit permission : permissions) {
-                    if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) return true;
-                }
+    public List<UserBranchDTO> findAll() {
+        List<UserBranchDTO> result = new ArrayList<>();
+        if (hasGrantAuthorized()) {
+            for (Branche b : getAllBranches()) {
+                result.add(buildData(b));
             }
+        } else {
+            result.add(this.buildData(getCurrentUserBranch()));
         }
-        return false;
+        return result;
     }
 
-    @Override
-    public LiteBrancheDTO getCurrentBranche() {
-        return new LiteBrancheDTO(getCurrentUser().getBranche());
-    }
-
-    @Override
-    public boolean hasGrantAuthorized() {
-        for (Role role : getCurrentUser().getRoles()) {
-            if (role.getIsGrant()) {
-                return true;
-            }
-        }
-        return false;
+    UserBranchDTO buildData(Branche branche) {
+        UserBranchDTO dto = new UserBranchDTO();
+        dto.setBranche(brancheMapper.asLite(branche));
+        dto.setData(mapper.asDTOList(repository.findAllByBranche(branche)));
+        return dto;
     }
 }

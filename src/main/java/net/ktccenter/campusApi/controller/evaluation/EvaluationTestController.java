@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface EvaluationTestController {
-  public EvaluationTestDTO save(@RequestBody EvaluationTestRequestDTO dto);
+  EvaluationTestDTO save(@RequestBody EvaluationTestRequestDTO dto);
 
-  public List<LiteEvaluationTestDTO> saveAll(@RequestBody List<ImportEvaluationTestRequestDTO> dtos);
+  List<LiteEvaluationTestDTO> saveAll(@RequestBody List<ImportEvaluationTestRequestDTO> dtos);
 
-  public EvaluationTestDTO findById(@PathVariable("id") Long id);
+  EvaluationTestDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LiteEvaluationTestDTO> list();
+  List<LiteEvaluationTestDTO> list();
 
-  public Page<LiteEvaluationTestDTO> pageQuery(Pageable pageable);
+  Page<LiteEvaluationTestDTO> pageQuery(Pageable pageable);
 
-  public EvaluationTestDTO update(@RequestBody EvaluationTestRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody EvaluationTestRequestDTO dto, @PathVariable("id") Long id);
 }

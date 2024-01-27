@@ -66,11 +66,11 @@ public class SessionControllerImpl implements SessionController {
 
   @Override
   @PutMapping("/{id}")
-  public SessionDTO update(@Valid @RequestBody SessionRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody SessionRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new APIException("La session avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new APIException("La session avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+    service.update(dto, id);
   }
 
   @Override

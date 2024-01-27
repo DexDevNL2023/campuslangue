@@ -87,10 +87,10 @@ public class UniteServiceImpl implements UniteService {
   }
 
   @Override
-  public UniteDTO update(UniteRequestDTO dto, Long id) {
+  public void update(UniteRequestDTO dto, Long id) {
     Unite exist =  findById(id);
     dto.setId(exist.getId());
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    repository.save(mapper.asEntity(dto));
   }
 
   @Override

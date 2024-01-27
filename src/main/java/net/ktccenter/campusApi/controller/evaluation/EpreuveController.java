@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface EpreuveController {
-  public EpreuveDTO save(@RequestBody EpreuveRequestDTO dto);
+  EpreuveDTO save(@RequestBody EpreuveRequestDTO dto);
 
-  public List<LiteEpreuveDTO> saveAll(@RequestBody List<ImportEpreuveRequestDTO> dtos);
+  List<LiteEpreuveDTO> saveAll(@RequestBody List<ImportEpreuveRequestDTO> dtos);
 
-  public EpreuveDTO findById(@PathVariable("id") Long id);
+  EpreuveDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LiteEpreuveDTO> list();
+  List<LiteEpreuveDTO> list();
 
-  public Page<LiteEpreuveDTO> pageQuery(Pageable pageable);
+  Page<LiteEpreuveDTO> pageQuery(Pageable pageable);
 
-  public EpreuveDTO update(@RequestBody EpreuveRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody EpreuveRequestDTO dto, @PathVariable("id") Long id);
 }

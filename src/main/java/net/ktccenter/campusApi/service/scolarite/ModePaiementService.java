@@ -7,11 +7,15 @@ import net.ktccenter.campusApi.dto.request.scolarite.ModePaiementRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.ModePaiement;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface ModePaiementService extends GenericService<ModePaiement, ModePaiementRequestDTO, ModePaiementDTO, LiteModePaiementDTO, ImportModePaiementRequestDTO> {
 
   boolean equalsByDto(ModePaiementRequestDTO dto, Long id);
 
   ModePaiement findByCode(String code);
+
+  List<LiteModePaiementDTO> findAll();
 
   boolean existByCode(String code);
 

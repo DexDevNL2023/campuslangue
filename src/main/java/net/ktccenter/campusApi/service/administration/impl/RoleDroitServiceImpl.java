@@ -74,9 +74,9 @@ public class RoleDroitServiceImpl implements RoleDroitService {
 
 
     @Override
-    public RoleDroitDTO update(RoleDroitRequestDTO entity, Long id) {
+    public void update(RoleDroitRequestDTO entity, Long id) {
       RoleDroit exist = findById(id);
       entity.setId(exist.getId());
-      return mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        mapper.asDTO(repository.save(mapper.asEntity(entity)));
     }
 }

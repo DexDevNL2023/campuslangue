@@ -72,10 +72,10 @@ public class DroitControllerImpl implements DroitController {
 
     @Override
     @PutMapping("/{id}")
-    public DroitDTO update(@Valid @RequestBody DroitRequestDTO dto, @PathVariable("id") Long id) {
+    public void update(@Valid @RequestBody DroitRequestDTO dto, @PathVariable("id") Long id) {
         if (service.findById(id) == null) throw new RuntimeException("Le droit avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))
             throw new RuntimeException("Le droit avec les données suivante : " + dto.toString() + " existe déjà");
-        return service.update(dto, id);
+        service.update(dto, id);
     }
 }

@@ -7,11 +7,15 @@ import net.ktccenter.campusApi.dto.request.scolarite.DiplomeRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Diplome;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface DiplomeService extends GenericService<Diplome, DiplomeRequestDTO, DiplomeDTO, LiteDiplomeDTO, ImportDiplomeRequestDTO> {
 
     boolean equalsByDto(DiplomeRequestDTO dto, Long id);
 
     Diplome findByCode(String code);
+
+    List<LiteDiplomeDTO> findAll();
 
     boolean existByCode(String code);
 

@@ -7,10 +7,15 @@ import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface FormateurService extends GenericService<Formateur, FormateurRequestDTO, FormateurDTO, LiteFormateurDTO, ImportFormateurRequestDTO> {
 
   boolean equalsByDto(FormateurRequestDTO dto, Long id);
   boolean existByEmail(String email);
+
+  List<LiteFormateurDTO> findAll();
+
   boolean existByTelephone(String telephone);
   boolean findByTelephoneAndEmail(String telephone, String email);
   Formateur findByMatricule(String matricule);

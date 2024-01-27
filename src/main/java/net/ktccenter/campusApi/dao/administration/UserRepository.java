@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.dao.administration;
 
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.User;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -33,4 +34,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 
     @Query("SELECT DISTINCT e FROM User e WHERE e.nom = :nomOremail OR e.email = :nomOremail")
     User findByNomOrEmail(String nomOremail);
+
+    List<User> findAllByBranche(Branche branche);
 }

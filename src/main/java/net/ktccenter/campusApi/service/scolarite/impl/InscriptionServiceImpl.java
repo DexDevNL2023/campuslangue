@@ -247,7 +247,7 @@ public class InscriptionServiceImpl implements InscriptionService {
   }
 
   @Override
-  public InscriptionDTO update(InscriptionRequestDTO dto, Long id) {
+  public void update(InscriptionRequestDTO dto, Long id) {
     Session session = sessionRepository.findById(dto.getSessionId()).orElseThrow(
             () -> new ResourceNotFoundException("La session avec l'id " + dto.getSessionId() + " n'existe pas")
     );
@@ -256,7 +256,7 @@ public class InscriptionServiceImpl implements InscriptionService {
     log.info("Find session entity " + session);
     Inscription exist = findById(id);
     dto.setId(exist.getId());
-    return buildInscriptionDto(repository.save(mapper.asEntity(dto)));
+    buildInscriptionDto(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

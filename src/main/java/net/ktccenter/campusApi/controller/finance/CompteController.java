@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface CompteController {
-    public CompteDTO save(@RequestBody CompteRequestDTO dto);
+    CompteDTO save(@RequestBody CompteRequestDTO dto);
 
-    public List<LiteCompteDTO> saveAll(@RequestBody List<ImportCompteRequestDTO> dtos);
+    List<LiteCompteDTO> saveAll(@RequestBody List<ImportCompteRequestDTO> dtos);
 
-    public CompteDTO findById(@PathVariable("id") Long id);
+    CompteDTO findById(@PathVariable("id") Long id);
 
-    public void delete(@PathVariable("id") Long id);
+    void delete(@PathVariable("id") Long id);
 
-    public List<LiteCompteDTO> list();
+    List<LiteCompteDTO> list();
 
-    public Page<LiteCompteDTO> pageQuery(Pageable pageable);
+    Page<LiteCompteDTO> pageQuery(Pageable pageable);
 
-    public CompteDTO update(@RequestBody CompteRequestDTO dto, @PathVariable("id") Long id);
+    void update(@RequestBody CompteRequestDTO dto, @PathVariable("id") Long id);
 }

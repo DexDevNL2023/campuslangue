@@ -24,7 +24,7 @@ public interface SessionController {
 
   Page<LiteSessionDTO> pageQuery(Pageable pageable);
 
-  SessionDTO update(@RequestBody SessionRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody SessionRequestDTO dto, @PathVariable("id") Long id);
 
   SessionDTO close(@PathVariable("id") Long id);
 }

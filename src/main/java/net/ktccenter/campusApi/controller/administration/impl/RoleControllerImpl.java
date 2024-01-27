@@ -80,11 +80,11 @@ public class RoleControllerImpl implements RoleController {
 
     @Override
     @PutMapping("/{id}")
-    public RoleDTO update(@Valid @RequestBody RoleRequestDTO dto, @PathVariable("id") Long id) {
+    public void update(@Valid @RequestBody RoleRequestDTO dto, @PathVariable("id") Long id) {
         autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Modifier une autorisation", "autorisation-edit", "PUT", false));
         if (service.findById(id) == null) throw new RuntimeException("Le role avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))
             throw new RuntimeException("Le role avec les données suivante : " + dto.toString() + " existe déjà");
-        return service.update(dto, id);
+        service.update(dto, id);
     }
 }

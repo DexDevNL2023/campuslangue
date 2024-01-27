@@ -7,6 +7,10 @@ import net.ktccenter.campusApi.dto.request.cours.EpreuveRequestDTO;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface EpreuveService extends GenericService<Epreuve, EpreuveRequestDTO, EpreuveDTO, LiteEpreuveDTO, ImportEpreuveRequestDTO> {
+    List<LiteEpreuveDTO> findAll();
+
   boolean equalsByDto(EpreuveRequestDTO dto, Long id);
 }

@@ -94,12 +94,12 @@ public class EtudiantControllerImpl implements EtudiantController {
 
     @Override
     @PutMapping("/{id}")
-    public EtudiantDTO update(@Valid @RequestBody EtudiantRequestDTO dto, @PathVariable("id") Long id) {
+    public void update(@Valid @RequestBody EtudiantRequestDTO dto, @PathVariable("id") Long id) {
         if(!MyUtils.isValidEmailAddress(dto.getEmail()))
             throw new APIException("L'email " + dto.getEmail() + " est invalide.");
         if (service.findById(id) == null) throw new APIException("L'apprenant avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))
             throw new APIException("L'apprenant avec les données suivante : " + dto + " existe déjà");
-        return service.update(dto, id);
+        service.update(dto, id);
     }
 }

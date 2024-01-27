@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface PlageHoraireController {
-  public PlageHoraireDTO save(@RequestBody PlageHoraireRequestDTO dto);
+  PlageHoraireDTO save(@RequestBody PlageHoraireRequestDTO dto);
 
-  public List<LitePlageHoraireDTO> saveAll(@RequestBody List<ImportPlageHoraireRequestDTO> dtos);
+  List<LitePlageHoraireDTO> saveAll(@RequestBody List<ImportPlageHoraireRequestDTO> dtos);
 
-  public PlageHoraireDTO findById(@PathVariable("id") Long id);
+  PlageHoraireDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LitePlageHoraireDTO> list();
+  List<LitePlageHoraireDTO> list();
 
-  public Page<LitePlageHoraireDTO> pageQuery(Pageable pageable);
+  Page<LitePlageHoraireDTO> pageQuery(Pageable pageable);
 
-  public PlageHoraireDTO update(@RequestBody PlageHoraireRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody PlageHoraireRequestDTO dto, @PathVariable("id") Long id);
 }

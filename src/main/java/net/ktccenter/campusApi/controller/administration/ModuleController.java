@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface ModuleController {
-    public ModuleDTO save(@RequestBody ModuleRequestDTO module);
+    ModuleDTO save(@RequestBody ModuleRequestDTO module);
 
-    public List<LiteModuleDTO> saveAll(@RequestBody List<ImportModuleRequestDTO> dtos);
+    List<LiteModuleDTO> saveAll(@RequestBody List<ImportModuleRequestDTO> dtos);
 
-    public ModuleDTO findById(@PathVariable("id") Long id);
+    ModuleDTO findById(@PathVariable("id") Long id);
 
-    public void delete(@PathVariable("id") Long id);
+    void delete(@PathVariable("id") Long id);
 
-    public List<LiteModuleDTO> list();
+    List<LiteModuleDTO> list();
 
-    public Page<LiteModuleDTO> pageQuery(Pageable pageable);
+    Page<LiteModuleDTO> pageQuery(Pageable pageable);
 
-    public ModuleDTO update(@RequestBody ModuleRequestDTO dto, @PathVariable("id") Long id);
+    void update(@RequestBody ModuleRequestDTO dto, @PathVariable("id") Long id);
 }

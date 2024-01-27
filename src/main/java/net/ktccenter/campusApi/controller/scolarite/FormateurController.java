@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface FormateurController {
-  public FormateurDTO save(@RequestBody FormateurRequestDTO dto);
+  FormateurDTO save(@RequestBody FormateurRequestDTO dto);
 
-  public List<LiteFormateurDTO> saveAll(@RequestBody List<ImportFormateurRequestDTO> dtos);
+  List<LiteFormateurDTO> saveAll(@RequestBody List<ImportFormateurRequestDTO> dtos);
 
-  public FormateurDTO findById(@PathVariable("id") Long id);
+  FormateurDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LiteFormateurDTO> list();
+  List<LiteFormateurDTO> list();
 
-  public Page<LiteFormateurDTO> pageQuery(Pageable pageable);
+  Page<LiteFormateurDTO> pageQuery(Pageable pageable);
 
-  public FormateurDTO update(@RequestBody FormateurRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody FormateurRequestDTO dto, @PathVariable("id") Long id);
 }

@@ -3,18 +3,19 @@ package net.ktccenter.campusApi.controller.structure.impl;
 import net.ktccenter.campusApi.controller.structure.CampusController;
 import net.ktccenter.campusApi.dto.importation.administration.ImportCampusRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
-import net.ktccenter.campusApi.dto.reponse.RessourceResponse;
 import net.ktccenter.campusApi.dto.reponse.administration.CampusDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.CampusBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.CampusRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.CampusService;
 import net.ktccenter.campusApi.service.administration.UserService;
 import net.ktccenter.campusApi.validators.AuthorizeUser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -27,6 +28,10 @@ public class CampusControllerImpl implements CampusController {
   private final CampusService service;
   private final AutorisationService autorisationService;
   private final UserService userService;
+
+  @Autowired
+  private MainService mainService;
+
 
   public CampusControllerImpl(CampusService service, AutorisationService autorisationService, UserService userService) {
     this.service = service;
@@ -78,9 +83,9 @@ public class CampusControllerImpl implements CampusController {
   @Override
   @GetMapping
   @AuthorizeUser(actionKey = "campus-list")
-  public ResponseEntity<?> list() {
+  public List<CampusBranchDTO> list() {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
-    return new ResponseEntity<>(new RessourceResponse(userService.getCurrentBranche(), service.findAll()), HttpStatus.OK);
+    return service.findAll();
   }
 
   @Override
@@ -92,11 +97,11 @@ public class CampusControllerImpl implements CampusController {
   @Override
   @PutMapping("/{id}")
   @AuthorizeUser(actionKey = "campus-update")
-  public CampusDTO update(@Valid @RequestBody CampusRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody CampusRequestDTO dto, @PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Mttre à jour un campus", "campus-update", "PUT", true));
     if (service.findById(id) == null) throw new RuntimeException("Le campus avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new RuntimeException("Le campus avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+    service.update(dto, id);
   }
 }

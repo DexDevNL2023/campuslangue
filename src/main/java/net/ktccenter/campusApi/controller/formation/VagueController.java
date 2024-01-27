@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface VagueController {
-  public VagueDTO save(@RequestBody VagueRequestDTO dto);
+  VagueDTO save(@RequestBody VagueRequestDTO dto);
 
-  public List<LiteVagueDTO> saveAll(@RequestBody List<ImportVagueRequestDTO> dtos);
+  List<LiteVagueDTO> saveAll(@RequestBody List<ImportVagueRequestDTO> dtos);
 
-  public VagueDTO findById(@PathVariable("id") Long id);
+  VagueDTO findById(@PathVariable("id") Long id);
 
-  public void delete(@PathVariable("id") Long id);
+  void delete(@PathVariable("id") Long id);
 
-  public List<LiteVagueDTO> list();
+  List<LiteVagueDTO> list();
 
-  public Page<LiteVagueDTO> pageQuery(Pageable pageable);
+  Page<LiteVagueDTO> pageQuery(Pageable pageable);
 
-  public VagueDTO update(@RequestBody VagueRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody VagueRequestDTO dto, @PathVariable("id") Long id);
 }

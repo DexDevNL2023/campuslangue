@@ -72,10 +72,10 @@ public class RubriqueControllerImpl implements RubriqueController {
 
 	@Override
 	@PutMapping("/{id}")
-	public RubriqueDTO update(@Valid @RequestBody RubriqueRequestDTO dto, @PathVariable("id") Long id) {
+	public void update(@Valid @RequestBody RubriqueRequestDTO dto, @PathVariable("id") Long id) {
 		if (service.findById(id) == null) throw new APIException("Le rubrique avec l'id " + id + " n'existe pas");
 		if (service.equalsByDto(dto, id))
 			throw new APIException("Le rubrique avec les données suivante : " + dto.toString() + " existe déjà");
-		return service.update(dto, id);
+		service.update(dto, id);
 	}
 }

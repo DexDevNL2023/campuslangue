@@ -66,8 +66,8 @@ public class RoleDroitControllerImpl implements RoleDroitController {
 
     @Override
     @PutMapping("/{id}")
-    public RoleDroitDTO update(@Valid @RequestBody RoleDroitRequestDTO roleDroitDTO, @PathVariable("id") Long id) {
+    public void update(@Valid @RequestBody RoleDroitRequestDTO roleDroitDTO, @PathVariable("id") Long id) {
         if (service.findById(id) == null) throw new RuntimeException("La permission avec l'id " + id + " n'existe pas");
-        return service.update(roleDroitDTO, id);
+        service.update(roleDroitDTO, id);
     }
 }

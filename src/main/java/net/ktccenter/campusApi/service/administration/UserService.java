@@ -1,10 +1,10 @@
 package net.ktccenter.campusApi.service.administration;
 
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
 import net.ktccenter.campusApi.entities.administration.User;
@@ -13,6 +13,7 @@ import net.ktccenter.campusApi.service.GenericService;
 
 import javax.mail.MessagingException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 public interface UserService extends GenericService<User, UserRequestDTO, UserDTO, LiteUserDTO, ImportUserRequestDTO> {
   void passwordResetSendCode(String email, String siteUrl) throws UnsupportedEncodingException, MessagingException;
@@ -20,7 +21,7 @@ public interface UserService extends GenericService<User, UserRequestDTO, UserDT
   String verifyPasswordCode(String passwordResetCode);
   void resetPassword(UserPasswordResetDTO userPassword);
   String changePassword();
-  User getCurrentUser();
+
 
   User createUser(String nom, String prenom, String email, String roleName, String imageUrl, String passwordText, TypeUser typeUser);
   User updateUser(String email, String password, Long id);
@@ -28,9 +29,9 @@ public interface UserService extends GenericService<User, UserRequestDTO, UserDT
   boolean existsByNomAndEmail(String nom, String email);
   boolean equalsByDto(UserRequestDTO dto, Long id);
 
-  boolean isAuthorized(String actionKey);
 
-  LiteBrancheDTO getCurrentBranche();
 
   boolean hasGrantAuthorized();
+
+  List<UserBranchDTO> findAll();
 }

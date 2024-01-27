@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 public interface InstitutionController {
-    public InstitutionDTO save(@RequestBody InstitutionRequestDTO institution);
+    InstitutionDTO save(@RequestBody InstitutionRequestDTO institution);
 
-    public InstitutionDTO getInstitution();
+    InstitutionDTO getInstitution();
 
-    public InstitutionDTO update(@RequestBody InstitutionRequestDTO dto, @PathVariable("id") Long id);
+    void update(@RequestBody InstitutionRequestDTO dto, @PathVariable("id") Long id);
 }

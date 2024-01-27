@@ -65,10 +65,10 @@ public class EvaluationTestControllerImpl implements EvaluationTestController {
 
   @Override
   @PutMapping("/{id}")
-  public EvaluationTestDTO update(@Valid @RequestBody EvaluationTestRequestDTO dto, @PathVariable("id") Long id) {
+  public void update(@Valid @RequestBody EvaluationTestRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new RuntimeException("L'evaluation test avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new RuntimeException("L'evaluation test avec les données suivante : " + dto.toString() + " existe déjà");
-    return service.update(dto, id);
+    service.update(dto, id);
   }
 }

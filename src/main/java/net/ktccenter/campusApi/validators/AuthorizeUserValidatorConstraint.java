@@ -1,18 +1,18 @@
 package net.ktccenter.campusApi.validators;
 
-import net.ktccenter.campusApi.service.administration.UserService;
+import net.ktccenter.campusApi.service.MainService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class AuthorizeUserValidatorConstraint implements ConstraintValidator<AuthorizeUser, Object> {
 
-    private final UserService userService;
+
     private String actionKey;
 
-    public AuthorizeUserValidatorConstraint(UserService userService) {
-        this.userService = userService;
-    }
+    @Autowired
+    private MainService mainService;
 
     @Override
     public void initialize(AuthorizeUser authorize) {
@@ -21,6 +21,6 @@ public class AuthorizeUserValidatorConstraint implements ConstraintValidator<Aut
 
     @Override
     public boolean isValid(Object o, ConstraintValidatorContext constraintValidatorContext) {
-        return userService.isAuthorized(this.actionKey);
+        return mainService.isAuthorized(this.actionKey);
     }
 }

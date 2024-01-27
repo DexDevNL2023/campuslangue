@@ -24,7 +24,7 @@ public interface PaiementController {
 
   Page<LitePaiementDTO> pageQuery(Pageable pageable);
 
-  PaiementDTO update(@RequestBody PaiementRequestDTO dto, @PathVariable("id") Long id);
+  void update(@RequestBody PaiementRequestDTO dto, @PathVariable("id") Long id);
 
   List<LitePaiementDTO> listByCampus(@PathVariable("campusId") Long campusId);
 }

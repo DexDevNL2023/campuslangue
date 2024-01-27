@@ -12,17 +12,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 
 public interface RubriqueController {
-	public RubriqueDTO save(@RequestBody RubriqueRequestDTO dto);
+	RubriqueDTO save(@RequestBody RubriqueRequestDTO dto);
 
-	public List<LiteRubriqueDTO> saveAll(@RequestBody List<ImportRubriqueRequestDTO> dtos);
+	List<LiteRubriqueDTO> saveAll(@RequestBody List<ImportRubriqueRequestDTO> dtos);
 
-	public RubriqueDTO findById(@PathVariable("id") Long id);
+	RubriqueDTO findById(@PathVariable("id") Long id);
 
-	public void delete(@PathVariable("id") Long id);
+	void delete(@PathVariable("id") Long id);
 
-	public List<LiteRubriqueDTO> list();
+	List<LiteRubriqueDTO> list();
 
-	public Page<LiteRubriqueDTO> pageQuery(Pageable pageable);
+	Page<LiteRubriqueDTO> pageQuery(Pageable pageable);
 
-	public RubriqueDTO update(@RequestBody RubriqueRequestDTO dto, @PathVariable("id") Long id);
+	void update(@RequestBody RubriqueRequestDTO dto, @PathVariable("id") Long id);
 }

@@ -7,11 +7,15 @@ import net.ktccenter.campusApi.dto.request.scolarite.RubriqueRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Rubrique;
 import net.ktccenter.campusApi.service.GenericService;
 
+import java.util.List;
+
 public interface RubriqueService extends GenericService<Rubrique, RubriqueRequestDTO, RubriqueDTO, LiteRubriqueDTO, ImportRubriqueRequestDTO> {
 
 	boolean equalsByDto(RubriqueRequestDTO dto, Long id);
 
 	Rubrique findByCode(String code);
+
+	List<LiteRubriqueDTO> findAll();
 
 	boolean existByCode(String code);
 
