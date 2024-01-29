@@ -5,10 +5,7 @@ import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
 import net.ktccenter.campusApi.dao.cours.ExamenRepository;
 import net.ktccenter.campusApi.dao.cours.TestModuleRepository;
-import net.ktccenter.campusApi.dao.scolarite.CompteRepository;
-import net.ktccenter.campusApi.dao.scolarite.EtudiantRepository;
-import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
-import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
+import net.ktccenter.campusApi.dao.scolarite.*;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportEtudiantRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.cours.*;
@@ -16,6 +13,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.*;
 import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Campus;
 import net.ktccenter.campusApi.entities.administration.OccupationSalle;
 import net.ktccenter.campusApi.entities.administration.User;
@@ -26,6 +24,7 @@ import net.ktccenter.campusApi.entities.cours.TestModule;
 import net.ktccenter.campusApi.entities.scolarite.*;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.EtudiantMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.UserService;
 import net.ktccenter.campusApi.service.scolarite.EtudiantService;
 import net.ktccenter.campusApi.utils.MyUtils;
@@ -36,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class EtudiantServiceImpl implements EtudiantService {
+public class EtudiantServiceImpl extends MainService implements EtudiantService {
     private final EtudiantRepository repository;
     private final EtudiantMapper mapper;
     private final UserService userService;
@@ -55,8 +55,9 @@ public class EtudiantServiceImpl implements EtudiantService {
     private final ExamenRepository examenRepository;
     private final EvaluationTestRepository evaluationTestRepository;
     private final EpreuveRepository epreuveRepository;
+    private final SessionRepository sessionRepository;
 
-    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository) {
+    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository, SessionRepository sessionRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.userService = userService;
@@ -68,6 +69,7 @@ public class EtudiantServiceImpl implements EtudiantService {
         this.examenRepository = examenRepository;
         this.evaluationTestRepository = evaluationTestRepository;
         this.epreuveRepository = epreuveRepository;
+        this.sessionRepository = sessionRepository;
     }
 
     @Override
@@ -145,7 +147,7 @@ public class EtudiantServiceImpl implements EtudiantService {
         LiteInscriptionDTO lite = new LiteInscriptionDTO(entity);
         lite.setSession(new LiteSessionDTO(entity.getSession()));
         lite.setCampus(new LiteCampusDTO(getCampus(entity.getCampusId())));
-        lite.setCompte(getCompteForInscription(entity));
+        lite.setCompte(getCompteForInscription(entity.getId()));
         lite.setExamen(getExamenForInscription(entity));
         lite.setTestModule(getTestModuleForInscription(entity));
         return lite;
@@ -252,8 +254,8 @@ public class EtudiantServiceImpl implements EtudiantService {
         return totalFraisRattrapage;
     }
 
-    private LiteCompteDTO getCompteForInscription(Inscription inscription) {
-        return buildCompteLiteDto(compteRepository.findByInscription(inscription));
+    private LiteCompteDTO getCompteForInscription(Long inscriptionId) {
+        return buildCompteLiteDto(compteRepository.findByInscriptionId(inscriptionId));
     }
 
     private LiteCompteDTO buildCompteLiteDto(Compte entity) {
@@ -317,8 +319,34 @@ public class EtudiantServiceImpl implements EtudiantService {
 
     @Override
     public List<EtudiantBranchDTO> findAll() {
-        //return ((List<Etudiant>) repository.findAll()).stream().map(this::buildLiteEtudiantDto).collect(Collectors.toList());
-        return null;
+        List<Etudiant> etudiants = (List<Etudiant>) repository.findAll();
+        List<EtudiantBranchDTO> result = new ArrayList<>();
+        if (hasGrantAuthorized()) {
+            for (Branche b : getAllBranches()) {
+                result.add(buildData(b, etudiants));
+            }
+        } else {
+            result.add(buildData(getCurrentUserBranch(), etudiants));
+        }
+        return result;
+    }
+
+    private EtudiantBranchDTO buildData(Branche branche, List<Etudiant> etudiants) {
+        EtudiantBranchDTO dto = new EtudiantBranchDTO();
+        dto.setBranche(brancheMapper.asLite(branche));
+        dto.setData(etudiants.stream()
+                .filter(e -> belongsToTheCurrentBranch(branche, e))
+                .map(mapper::asLite)
+                .collect(Collectors.toList()));
+        return dto;
+    }
+
+    private boolean belongsToTheCurrentBranch(Branche branche, Etudiant e) {
+        List<Inscription> inscriptions = getAllInscriptionsForEtudiant(e);
+        for (Inscription inscription : inscriptions) {
+            if (Objects.equals(inscription.getSession().getBranche().getId(), branche.getId())) return true;
+        }
+        return false;
     }
 
     @Override
@@ -368,72 +396,76 @@ public class EtudiantServiceImpl implements EtudiantService {
 
     @Override
     public List<EtudiantBranchDTO> getAllBySession(Long sessionId, Long salleId, Long niveauId) {
-        /*List<LiteEtudiantDTO> list = new ArrayList<>();
         if (sessionId == null || sessionId <= 0) {
-            return ((List<Etudiant>) repository.findAll())
+            return findAll()
                     .stream()
                     .filter(e -> findBySession(e, sessionId))
-                    .map(this::buildLiteEtudiantDto)
                     .collect(Collectors.toList());
         } else if (salleId == null || salleId <= 0 && niveauId > 0) {
-            return ((List<Etudiant>) repository.findAll())
+            return findAll()
                     .stream()
                     .filter(e -> findByNiveau(e, niveauId))
-                    .map(this::buildLiteEtudiantDto)
                     .collect(Collectors.toList());
         } else if (niveauId == null || niveauId <= 0 && salleId > 0) {
-            return ((List<Etudiant>) repository.findAll())
+            return findAll()
                     .stream()
                     .filter(e -> findBySalle(e, salleId))
-                    .map(this::buildLiteEtudiantDto)
                     .collect(Collectors.toList());
         } else {
-            return ((List<Etudiant>) repository.findAll())
+            return findAll()
                     .stream()
                     .filter(e -> findBySalleAndNiveau(e, salleId, niveauId))
-                    .map(this::buildLiteEtudiantDto)
                     .collect(Collectors.toList());
-        }*/
-        return null;
+        }
     }
 
-    private boolean findBySession(Etudiant etudiant, Long sessionId) {
-        List<Inscription> inscriptions = getAllInscriptionsForEtudiant(etudiant);
-        for (Inscription inscription : inscriptions) {
-            if (Objects.equals(inscription.getSession().getId(), sessionId)) return true;
+    private boolean findBySession(EtudiantBranchDTO etudiant, Long sessionId) {
+        List<LiteEtudiantDTO> etudiants = etudiant.getData();
+        for (LiteEtudiantDTO e : etudiants) {
+            for (LiteInscriptionDTO inscription : e.getInscriptions()) {
+                if (Objects.equals(inscription.getSession().getId(), sessionId)) return true;
+            }
         }
         return false;
     }
 
-    private boolean findByNiveau(Etudiant etudiant, Long niveauId) {
-        List<Inscription> inscriptions = getAllInscriptionsForEtudiant(etudiant);
-        for (Inscription inscription : inscriptions) {
-            if (Objects.equals(inscription.getSession().getNiveau().getId(), niveauId))
-                return true;
+    private boolean findByNiveau(EtudiantBranchDTO etudiant, Long niveauId) {
+        List<LiteEtudiantDTO> etudiants = etudiant.getData();
+        for (LiteEtudiantDTO e : etudiants) {
+            for (LiteInscriptionDTO inscription : e.getInscriptions()) {
+                if (Objects.equals(inscription.getSession().getNiveau().getId(), niveauId))
+                    return true;
+            }
         }
         return false;
     }
 
-    private boolean findBySalle(Etudiant etudiant, Long salleId) {
-        List<Inscription> inscriptions = getAllInscriptionsForEtudiant(etudiant);
-        for (Inscription inscription : inscriptions) {
-            if (findBySalleInOccupations(inscription.getSession().getOccupations(), salleId))
-                return true;
+    private boolean findBySalle(EtudiantBranchDTO etudiant, Long salleId) {
+        List<LiteEtudiantDTO> etudiants = etudiant.getData();
+        for (LiteEtudiantDTO e : etudiants) {
+            for (LiteInscriptionDTO inscription : e.getInscriptions()) {
+                if (findBySalleInOccupations(inscription.getSession(), salleId))
+                    return true;
+            }
         }
         return false;
     }
 
-    private boolean findBySalleAndNiveau(Etudiant etudiant, Long salleId, Long niveauId) {
-        List<Inscription> inscriptions = getAllInscriptionsForEtudiant(etudiant);
-        for (Inscription inscription : inscriptions) {
-            if (Objects.equals(inscription.getSession().getNiveau().getId(), niveauId) && findBySalleInOccupations(inscription.getSession().getOccupations(), salleId))
-                return true;
+    private boolean findBySalleAndNiveau(EtudiantBranchDTO etudiant, Long salleId, Long niveauId) {
+        List<LiteEtudiantDTO> etudiants = etudiant.getData();
+        for (LiteEtudiantDTO e : etudiants) {
+            for (LiteInscriptionDTO inscription : e.getInscriptions()) {
+                if (Objects.equals(inscription.getSession().getNiveau().getId(), niveauId) && findBySalleInOccupations(inscription.getSession(), salleId))
+                    return true;
+            }
         }
         return false;
     }
 
-    private boolean findBySalleInOccupations(Set<OccupationSalle> occupations, Long salleId) {
-        for (OccupationSalle Occupation : occupations) {
+    private boolean findBySalleInOccupations(LiteSessionDTO dto, Long salleId) {
+        Session session = sessionRepository.findById(dto.getId()).orElse(null);
+        if (session == null) return false;
+        for (OccupationSalle Occupation : session.getOccupations()) {
             if (Objects.equals(Occupation.getSalle().getId(), salleId)) return true;
         }
         return false;
@@ -441,20 +473,20 @@ public class EtudiantServiceImpl implements EtudiantService {
 
     @Override
     public List<EtudiantBranchDTO> getAllWithUnpaid() {
-        /*return ((List<Etudiant>) repository.findAll())
+        return findAll()
                 .stream()
                 .filter(this::unpaid)
-                .map(this::buildLiteEtudiantDto)
-                .collect(Collectors.toList());*/
-        return null;
+                .collect(Collectors.toList());
     }
 
-    private boolean unpaid(Etudiant etudiant) {
-        List<Inscription> inscriptions = getAllInscriptionsForEtudiant(etudiant);
-        for (Inscription inscription : inscriptions) {
-            BigDecimal netApayer = inscription.getSession().getNiveau().getFraisPension().add(inscription.getSession().getNiveau().getFraisInscription());
-            LiteCompteDTO liteCompte = getCompteForInscription(inscription);
-            if (liteCompte.getSolde().compareTo(netApayer) != 0) return true;
+    private boolean unpaid(EtudiantBranchDTO etudiant) {
+        List<LiteEtudiantDTO> etudiants = etudiant.getData();
+        for (LiteEtudiantDTO e : etudiants) {
+            for (LiteInscriptionDTO inscription : e.getInscriptions()) {
+                BigDecimal netApayer = inscription.getSession().getNiveau().getFraisPension().add(inscription.getSession().getNiveau().getFraisInscription());
+                LiteCompteDTO liteCompte = getCompteForInscription(inscription.getId());
+                if (liteCompte.getSolde().compareTo(netApayer) != 0) return true;
+            }
         }
         return false;
     }

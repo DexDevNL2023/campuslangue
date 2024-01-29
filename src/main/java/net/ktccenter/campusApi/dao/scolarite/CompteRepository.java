@@ -16,4 +16,7 @@ public interface CompteRepository extends PagingAndSortingRepository<Compte, Lon
 
     @Query("SELECT DISTINCT e FROM Compte e WHERE e.inscription = :inscription")
     Compte findByInscription(Inscription inscription);
+
+    @Query("SELECT DISTINCT e FROM Compte e WHERE e.inscription.id = :inscriptionId")
+    Compte findByInscriptionId(Long inscriptionId);
 }
