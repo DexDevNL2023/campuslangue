@@ -57,7 +57,7 @@ public class AuthorizeUserAspect {
 
     private boolean hasAuthorized(Set<Role> authoritie, String actionKey) {
         for (Role role : authoritie) {
-            if (role.getIsGrant() || role.getIsSuper()) {
+            if (role.getIsSuper()) {
                 return true;
             } else {
                 List<RoleDroit> permissions = roleDroitRepository.findAllByRole(role);
