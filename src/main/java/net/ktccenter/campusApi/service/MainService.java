@@ -41,9 +41,10 @@ public class MainService {
     }
 
     public Branche getCurrentUserBranch() {
-        if (getCurrentUser().getBranche() == null)
+       /* if (getCurrentUser().getBranche() == null)
             throw new ResourceNotFoundException("L'utilisateur courant n'est pas associé à une branche!");
-        return getCurrentUser().getBranche();
+        return getCurrentUser().getBranche();*/
+        return getDefaultBranch();
     }
 
     public Branche getDefaultBranch() {
