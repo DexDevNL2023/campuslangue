@@ -8,10 +8,12 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Campus;
 import net.ktccenter.campusApi.entities.scolarite.Paiement;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.PaiementMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.scolarite.PaiementService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class PaiementServiceImpl implements PaiementService {
+public class PaiementServiceImpl extends MainService implements PaiementService {
   private final PaiementRepository repository;
   private final PaiementMapper mapper;
   private final CampusRepository campusRepository;
@@ -99,8 +101,30 @@ public class PaiementServiceImpl implements PaiementService {
 
   @Override
   public List<PaiementBranchDTO> findAll() {
-      //return ((List<Paiement>) repository.findAll()).stream().map(this::buildLitePaiementDto).collect(Collectors.toList());
-      return null;
+    List<Paiement> paiements = (List<Paiement>) repository.findAll();
+    List<PaiementBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, paiements));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), paiements));
+    }
+    return result;
+  }
+
+  private PaiementBranchDTO buildData(Branche branche, List<Paiement> paiements) {
+    PaiementBranchDTO dto = new PaiementBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(paiements.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, Paiement e) {
+    return e.getCompte().getInscription().getSession().getBranche().getId().equals(branche.getId());
   }
 
   @Override
