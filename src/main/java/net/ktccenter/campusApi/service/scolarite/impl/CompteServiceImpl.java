@@ -12,12 +12,14 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteRubriqueDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Campus;
 import net.ktccenter.campusApi.entities.scolarite.CalculTotals;
 import net.ktccenter.campusApi.entities.scolarite.Compte;
 import net.ktccenter.campusApi.entities.scolarite.Paiement;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.CompteMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.scolarite.CompteService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,13 +28,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class CompteServiceImpl implements CompteService {
+public class CompteServiceImpl extends MainService implements CompteService {
     private final CompteRepository repository;
     private final CompteMapper mapper;
     private final PaiementRepository paiementRepository;
@@ -138,7 +141,30 @@ public class CompteServiceImpl implements CompteService {
     @Override
     public List<CompteBranchDTO> findAll() {
         //return ((List<Compte>) repository.findAll()).stream().map(this::buildLiteCompteDto).collect(Collectors.toList());
-        return null;
+        List<Compte> comptes = (List<Compte>) repository.findAll();
+        List<CompteBranchDTO> result = new ArrayList<>();
+        if (hasGrantAuthorized()) {
+            for (Branche b : getAllBranches()) {
+                result.add(buildData(b, comptes));
+            }
+        } else {
+            result.add(buildData(getCurrentUserBranch(), comptes));
+        }
+        return result;
+    }
+
+    private CompteBranchDTO buildData(Branche branche, List<Compte> comptes) {
+        CompteBranchDTO dto = new CompteBranchDTO();
+        dto.setBranche(brancheMapper.asLite(branche));
+        dto.setData(comptes.stream()
+                .filter(e -> belongsToTheCurrentBranch(branche, e))
+                .map(mapper::asLite)
+                .collect(Collectors.toList()));
+        return dto;
+    }
+
+    private boolean belongsToTheCurrentBranch(Branche branche, Compte e) {
+        return e.getInscription().getSession().getBranche().getId().equals(branche.getId());
     }
 
     @Override

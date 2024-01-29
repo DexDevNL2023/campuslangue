@@ -16,12 +16,14 @@ import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
 import net.ktccenter.campusApi.entities.cours.TestModule;
 import net.ktccenter.campusApi.entities.scolarite.ModuleFormation;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.TestModuleMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -38,7 +40,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
-public class TestModuleServiceImpl implements TestModuleService {
+public class TestModuleServiceImpl extends MainService implements TestModuleService {
   private final TestModuleRepository repository;
   private final TestModuleMapper mapper;
   private final EvaluationTestRepository evaluationTestRepository;
@@ -130,8 +132,30 @@ public class TestModuleServiceImpl implements TestModuleService {
 
   @Override
   public List<TestModuleBranchDTO> findAll() {
-      //return ((List<TestModule>) repository.findAll()).stream().map(this::buildTestModuleLiteDto).collect(Collectors.toList());
-      return null;
+    List<TestModule> tests = (List<TestModule>) repository.findAll();
+    List<TestModuleBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, tests));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), tests));
+    }
+    return result;
+  }
+
+  private TestModuleBranchDTO buildData(Branche branche, List<TestModule> tests) {
+    TestModuleBranchDTO dto = new TestModuleBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(tests.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, TestModule e) {
+    return e.getInscription().getSession().getBranche().getId().equals(branche.getId());
   }
 
   private LiteTestModuleDTO buildTestModuleLiteDto(TestModule testModule) {
