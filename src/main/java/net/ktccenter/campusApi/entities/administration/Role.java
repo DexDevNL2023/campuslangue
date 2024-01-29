@@ -23,6 +23,4 @@ public class Role extends BaseAuditingEntity {
     private String libelle;
 
     private Boolean isSuper = false;
-
-    private Boolean isGrant = false;
 }

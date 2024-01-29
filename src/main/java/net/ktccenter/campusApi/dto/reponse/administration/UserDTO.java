@@ -22,6 +22,7 @@ public class UserDTO {
     private Set<LiteRoleDTO> roles;
     private TypeUser typeUser;
     private LiteBrancheDTO branche;
+    private Boolean isGrant;
     private String fullName;
 
     public String getFullName() {

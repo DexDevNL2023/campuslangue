@@ -18,6 +18,7 @@ public class LiteUserDTO {
     private String imageUrl;
     private Set<LiteRoleDTO> roles;
     private TypeUser typeUser;
+    private Boolean isGrant;
     private String fullName;
 
     public String getFullName() {

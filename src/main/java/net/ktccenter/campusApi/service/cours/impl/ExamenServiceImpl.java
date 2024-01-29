@@ -12,17 +12,20 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EpreuveBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.cours.Unite;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.ExamenMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -40,7 +43,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
-public class ExamenServiceImpl implements ExamenService {
+public class ExamenServiceImpl extends MainService implements ExamenService {
   private final ExamenRepository repository;
   private final ExamenMapper mapper;
   private final EpreuveRepository epreuveRepository;
@@ -137,7 +140,30 @@ public class ExamenServiceImpl implements ExamenService {
   @Override
   public List<ExamenBranchDTO> findAll() {
       //return ((List<Examen>) repository.findAll()).stream().map(this::buildExamenLiteDto).collect(Collectors.toList());
-      return null;
+    List<Examen> examens = (List<Examen>) repository.findAll();
+    List<EpreuveBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, epreuves));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), epreuves));
+    }
+    return result;
+  }
+
+  private EpreuveBranchDTO buildData(Branche branche, List<Examen> epreuves) {
+    EpreuveBranchDTO dto = new EpreuveBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(epreuves.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, Examen e) {
+    return e.getExamen().getInscription().getSession().getBranche().getId().equals(branche.getId());
   }
 
   private LiteExamenDTO buildExamenLiteDto(Examen examen) {

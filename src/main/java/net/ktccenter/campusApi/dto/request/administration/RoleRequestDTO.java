@@ -15,5 +15,4 @@ public class RoleRequestDTO {
     @NotBlank(message = "le libelle du role est obligatoire")
     private String libelle;
     private Boolean isSuper;
-    private Boolean isGrant = false;
 }

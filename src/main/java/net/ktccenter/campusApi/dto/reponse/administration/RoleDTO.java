@@ -15,13 +15,11 @@ import java.util.List;
 public class RoleDTO extends AbstractDTO {
     private String libelle;
     private Boolean isSuper;
-    private Boolean isGrant;
     private List<LiteRoleDroitDTO> permissions;
 
     public RoleDTO(Role role) {
         this.setId(role.getId());
         this.libelle = role.getLibelle();
         this.isSuper = role.getIsSuper();
-        this.isGrant = role.getIsGrant();
     }
 }

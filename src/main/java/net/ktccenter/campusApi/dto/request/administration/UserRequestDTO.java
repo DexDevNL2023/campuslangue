@@ -28,4 +28,5 @@ public class UserRequestDTO {
     @EnumValidator(enumClass = TypeUser.class)
     private TypeUser typeUser;
     private Long brancheId;
+    private Boolean isGrant = false;
 }

@@ -23,6 +23,7 @@ public class ImportUserRequestDTO {
     @Size(max = 256, message = "La taille de l'image doit être inférieur ou égale à 256")
     private String imageUrl;
     private String roleLibelle;
+    private Boolean isGrant = false;
     @EnumValidator(enumClass = TypeUser.class)
     private TypeUser typeUser;
     private String brancheCode;

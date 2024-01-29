@@ -59,11 +59,8 @@ public class MainService {
     }
 
     public boolean hasGrantAuthorized() {
-        if (getCurrentUser() != null) {
-            Role role = getCurrentUser().getRoles().iterator().next();
-            return role.getIsGrant();
-        }
-        return true;
+        if (getCurrentUser() != null) return getCurrentUser().getIsGrant();
+        return false;
     }
 
 

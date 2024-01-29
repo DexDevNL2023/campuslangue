@@ -88,6 +88,8 @@ public class User implements UserDetails {
     @JsonIgnore
     private Branche branche;
 
+    private Boolean isGrant = false;
+
   public void setAuthorities(Role authority) {
     this.roles.add(authority);
   }
