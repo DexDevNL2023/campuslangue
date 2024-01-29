@@ -64,8 +64,16 @@ public class EpreuveServiceImpl implements EpreuveService {
 
   @Override
   public List<EpreuveBranchDTO> findAll() {
-    //return ((List<Epreuve>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList()ss);
-      return null;
+    /*return ((List<Epreuve>) repository.findAll())
+            .stream()
+            .filter(e -> belongsToTheCurrentBranch(e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList());*/
+    return null;
+  }
+
+  private boolean belongsToTheCurrentBranch(Epreuve e) {
+    return true;
   }
 
   @Override
