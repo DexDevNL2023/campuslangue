@@ -11,10 +11,12 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.VagueBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.VagueDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.VagueRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.scolarite.Session;
 import net.ktccenter.campusApi.entities.scolarite.Vague;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.VagueMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.scolarite.VagueService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -22,13 +24,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class VagueServiceImpl implements VagueService {
+public class VagueServiceImpl extends MainService implements VagueService {
   private final VagueRepository repository;
   private final VagueMapper mapper;
   private final SessionRepository sessionRepository;
@@ -92,8 +96,34 @@ public class VagueServiceImpl implements VagueService {
 
   @Override
   public List<VagueBranchDTO> findAll() {
-      //return ((List<Vague>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
-      return null;
+    List<Vague> vagues = (List<Vague>) repository.findAll();
+    List<VagueBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, vagues));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), vagues));
+    }
+    return result;
+  }
+
+  private VagueBranchDTO buildData(Branche branche, List<Vague> vagues) {
+    VagueBranchDTO dto = new VagueBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(vagues.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, Vague e) {
+    Set<LiteSessionDTO> sessions = getAllSessionsForVague(e);
+    for (LiteSessionDTO session : sessions) {
+      if (Objects.equals(session.getBranche().getId(), branche.getId())) return true;
+    }
+    return false;
   }
 
   @Override

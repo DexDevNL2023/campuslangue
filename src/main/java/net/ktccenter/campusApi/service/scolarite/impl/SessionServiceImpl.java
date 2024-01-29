@@ -16,12 +16,13 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.SessionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.OccupationSalle;
 import net.ktccenter.campusApi.entities.scolarite.Inscription;
 import net.ktccenter.campusApi.entities.scolarite.Session;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.SessionMapper;
-import net.ktccenter.campusApi.reports.ReportService;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.scolarite.SessionService;
 import net.ktccenter.campusApi.utils.MyUtils;
 import org.springframework.data.domain.Page;
@@ -41,23 +42,21 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @Slf4j
-public class SessionServiceImpl implements SessionService {
+public class SessionServiceImpl extends MainService implements SessionService {
   private final SessionRepository repository;
   private final SessionMapper mapper;
   private final OccupationSalleRepository occupationSalleRepository;
   private final InscriptionRepository inscriptionRepository;
   private final ModuleFormationRepository moduleFormationRepository;
   private final UniteRepository uniteRepository;
-  private final ReportService reportService;
 
-  public SessionServiceImpl(SessionRepository repository, SessionMapper mapper, OccupationSalleRepository occupationSalleRepository, InscriptionRepository inscriptionRepository, ModuleFormationRepository moduleFormationRepository, UniteRepository uniteRepository, ReportService reportService) {
+  public SessionServiceImpl(SessionRepository repository, SessionMapper mapper, OccupationSalleRepository occupationSalleRepository, InscriptionRepository inscriptionRepository, ModuleFormationRepository moduleFormationRepository, UniteRepository uniteRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.occupationSalleRepository = occupationSalleRepository;
     this.inscriptionRepository = inscriptionRepository;
     this.moduleFormationRepository = moduleFormationRepository;
     this.uniteRepository = uniteRepository;
-    this.reportService = reportService;
   }
 
   @Override
@@ -185,7 +184,30 @@ public class SessionServiceImpl implements SessionService {
   @Override
   public List<SessionBranchDTO> findAll() {
       //return ((List<Session>) repository.findAll()).stream().map(this::buildSessionLiteDto).collect(Collectors.toList());
-      return null;
+    List<Session> sessions = (List<Session>) repository.findAll();
+    List<SessionBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, sessions));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), sessions));
+    }
+    return result;
+  }
+
+  private SessionBranchDTO buildData(Branche branche, List<Session> sessions) {
+    SessionBranchDTO dto = new SessionBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(sessions.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, Session e) {
+    return e.getBranche().getId().equals(branche.getId());
   }
 
   private LiteSessionDTO buildSessionLiteDto(Session session) {
