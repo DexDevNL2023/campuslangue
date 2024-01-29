@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.finance;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportCompteRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface CompteController {
 
     void delete(@PathVariable("id") Long id);
 
-    List<LiteCompteDTO> list();
+    List<CompteBranchDTO> list();
 
     Page<LiteCompteDTO> pageQuery(Pageable pageable);
 

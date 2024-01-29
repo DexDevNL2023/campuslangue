@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.controller.structure.impl;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import net.ktccenter.campusApi.controller.structure.CampusController;
 import net.ktccenter.campusApi.dto.importation.administration.ImportCampusRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
@@ -10,7 +11,6 @@ import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.CampusService;
-import net.ktccenter.campusApi.service.administration.UserService;
 import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,22 +27,19 @@ import java.util.List;
 public class CampusControllerImpl implements CampusController {
   private final CampusService service;
   private final AutorisationService autorisationService;
-  private final UserService userService;
 
   @Autowired
   private MainService mainService;
 
 
-  public CampusControllerImpl(CampusService service, AutorisationService autorisationService, UserService userService) {
+    public CampusControllerImpl(CampusService service, AutorisationService autorisationService) {
     this.service = service;
     this.autorisationService = autorisationService;
-    this.userService = userService;
   }
 
   @Override
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @AuthorizeUser(actionKey = "campus-add")
   public CampusDTO save(@Valid @RequestBody CampusRequestDTO dto) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Ajouter un campus", "campus-add", "POST", true));
       if (service.existsByCodeAndLibelle(dto.getCode(), dto.getLibelle()))
@@ -82,7 +79,8 @@ public class CampusControllerImpl implements CampusController {
 
   @Override
   @GetMapping
-  @AuthorizeUser(actionKey = "campus-list")
+  //@AuthorizeUser(actionKey = "campus-list")
+  @SecurityRequirement(name = "Authorization")
   public List<CampusBranchDTO> list() {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
     return service.findAll();

@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.evaluation;
 
 import net.ktccenter.campusApi.dto.importation.cours.ImportEpreuveRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EpreuveBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.EpreuveDTO;
 import net.ktccenter.campusApi.dto.request.cours.EpreuveRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface EpreuveController {
 
   void delete(@PathVariable("id") Long id);
 
-  List<LiteEpreuveDTO> list();
+    List<EpreuveBranchDTO> list();
 
   Page<LiteEpreuveDTO> pageQuery(Pageable pageable);
 

@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.service.scolarite;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscrireExitStudientRequestDTO;
@@ -17,7 +18,7 @@ import java.util.List;
 
 public interface InscriptionService extends GenericService<Inscription, InscriptionRequestDTO, InscriptionDTO, LiteInscriptionDTO, ImportInscriptionRequestDTO> {
 
-    List<LiteInscriptionDTO> findAll();
+    List<InscriptionBranchDTO> findAll();
 
     boolean equalsByDto(InscriptionRequestDTO dto, Long id);
 

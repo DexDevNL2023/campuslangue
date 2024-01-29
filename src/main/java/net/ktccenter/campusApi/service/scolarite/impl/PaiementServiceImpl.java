@@ -5,6 +5,7 @@ import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Campus;
@@ -97,8 +98,9 @@ public class PaiementServiceImpl implements PaiementService {
   }
 
   @Override
-  public List<LitePaiementDTO> findAll() {
-    return ((List<Paiement>) repository.findAll()).stream().map(this::buildLitePaiementDto).collect(Collectors.toList());
+  public List<PaiementBranchDTO> findAll() {
+      //return ((List<Paiement>) repository.findAll()).stream().map(this::buildLitePaiementDto).collect(Collectors.toList());
+      return null;
   }
 
   @Override

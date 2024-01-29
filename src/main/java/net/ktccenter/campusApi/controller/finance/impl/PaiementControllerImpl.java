@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.finance.impl;
 import net.ktccenter.campusApi.controller.finance.PaiementController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -60,7 +61,7 @@ public class PaiementControllerImpl implements PaiementController {
 
   @Override
   @GetMapping
-  public List<LitePaiementDTO> list() {
+  public List<PaiementBranchDTO> list() {
     return service.findAll();
   }
 

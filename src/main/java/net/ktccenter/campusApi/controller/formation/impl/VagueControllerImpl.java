@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.formation.impl;
 import net.ktccenter.campusApi.controller.formation.VagueController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportVagueRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.VagueBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.VagueDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.VagueRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -60,7 +61,7 @@ public class VagueControllerImpl implements VagueController {
 
   @Override
   @GetMapping
-  public List<LiteVagueDTO> list() {
+  public List<VagueBranchDTO> list() {
     return service.findAll();
   }
 

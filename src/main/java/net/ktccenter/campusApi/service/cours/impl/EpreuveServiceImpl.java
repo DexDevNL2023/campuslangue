@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dto.importation.cours.ImportEpreuveRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EpreuveBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.EpreuveDTO;
 import net.ktccenter.campusApi.dto.request.cours.EpreuveRequestDTO;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
@@ -62,8 +63,9 @@ public class EpreuveServiceImpl implements EpreuveService {
   }
 
   @Override
-  public List<LiteEpreuveDTO> findAll() {
-    return ((List<Epreuve>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+  public List<EpreuveBranchDTO> findAll() {
+      //return ((List<Epreuve>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+      return null;
   }
 
   @Override

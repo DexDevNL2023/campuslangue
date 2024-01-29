@@ -13,6 +13,7 @@ import net.ktccenter.campusApi.dto.importation.scolarite.ImportEtudiantRequestDT
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.cours.*;
 import net.ktccenter.campusApi.dto.lite.scolarite.*;
+import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Campus;
@@ -35,7 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -316,8 +316,9 @@ public class EtudiantServiceImpl implements EtudiantService {
     }
 
     @Override
-    public List<LiteEtudiantDTO> findAll() {
-        return ((List<Etudiant>) repository.findAll()).stream().map(this::buildLiteEtudiantDto).collect(Collectors.toList());
+    public List<EtudiantBranchDTO> findAll() {
+        //return ((List<Etudiant>) repository.findAll()).stream().map(this::buildLiteEtudiantDto).collect(Collectors.toList());
+        return null;
     }
 
     @Override
@@ -366,8 +367,8 @@ public class EtudiantServiceImpl implements EtudiantService {
     }
 
     @Override
-    public List<LiteEtudiantDTO> getAllBySession(Long sessionId, Long salleId, Long niveauId) {
-        List<LiteEtudiantDTO> list = new ArrayList<>();
+    public List<EtudiantBranchDTO> getAllBySession(Long sessionId, Long salleId, Long niveauId) {
+        /*List<LiteEtudiantDTO> list = new ArrayList<>();
         if (sessionId == null || sessionId <= 0) {
             return ((List<Etudiant>) repository.findAll())
                     .stream()
@@ -392,7 +393,8 @@ public class EtudiantServiceImpl implements EtudiantService {
                     .filter(e -> findBySalleAndNiveau(e, salleId, niveauId))
                     .map(this::buildLiteEtudiantDto)
                     .collect(Collectors.toList());
-        }
+        }*/
+        return null;
     }
 
     private boolean findBySession(Etudiant etudiant, Long sessionId) {
@@ -438,12 +440,13 @@ public class EtudiantServiceImpl implements EtudiantService {
     }
 
     @Override
-    public List<LiteEtudiantDTO> getAllWithUnpaid() {
-        return ((List<Etudiant>) repository.findAll())
+    public List<EtudiantBranchDTO> getAllWithUnpaid() {
+        /*return ((List<Etudiant>) repository.findAll())
                 .stream()
                 .filter(this::unpaid)
                 .map(this::buildLiteEtudiantDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
+        return null;
     }
 
     private boolean unpaid(Etudiant etudiant) {

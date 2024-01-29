@@ -14,4 +14,6 @@ public interface BrancheRepository extends PagingAndSortingRepository<Branche, L
 
     @Query("SELECT DISTINCT e FROM Branche e WHERE e.code = :code OR e.ville = :ville")
     Optional<Branche> findByCodeAndVille(String code, String ville);
+
+    Branche findByParDefaut(Boolean b);
 }

@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.service.scolarite;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportVagueRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.VagueBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.VagueDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.VagueRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Vague;
@@ -15,7 +16,7 @@ public interface VagueService extends GenericService<Vague, VagueRequestDTO, Vag
 
   Vague findByCode(String code);
 
-  List<LiteVagueDTO> findAll();
+    List<VagueBranchDTO> findAll();
 
   boolean existByCode(String code);
 }

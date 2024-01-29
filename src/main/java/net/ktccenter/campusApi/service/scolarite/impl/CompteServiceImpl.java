@@ -9,6 +9,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModePaiementDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteRubriqueDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Campus;
@@ -135,8 +136,9 @@ public class CompteServiceImpl implements CompteService {
     }
 
     @Override
-    public List<LiteCompteDTO> findAll() {
-        return ((List<Compte>) repository.findAll()).stream().map(this::buildLiteCompteDto).collect(Collectors.toList());
+    public List<CompteBranchDTO> findAll() {
+        //return ((List<Compte>) repository.findAll()).stream().map(this::buildLiteCompteDto).collect(Collectors.toList());
+        return null;
     }
 
     @Override

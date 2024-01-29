@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.evaluation;
 
 import net.ktccenter.campusApi.dto.importation.cours.ImportTestModuleRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteTestModuleDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.TestModuleBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface TestModuleController {
 
   void delete(@PathVariable("id") Long id);
 
-  List<LiteTestModuleDTO> list();
+    List<TestModuleBranchDTO> list();
 
   Page<LiteTestModuleDTO> pageQuery(Pageable pageable);
 

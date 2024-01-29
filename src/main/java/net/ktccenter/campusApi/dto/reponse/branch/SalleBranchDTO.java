@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteSalleDTO;
-import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-public class SalleBranchDTO extends AbstractDTO {
+public class SalleBranchDTO {
     private LiteBrancheDTO branche;
     private List<LiteSalleDTO> data = new ArrayList<>();
 }

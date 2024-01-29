@@ -13,6 +13,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.SessionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
 import net.ktccenter.campusApi.entities.administration.OccupationSalle;
@@ -182,8 +183,9 @@ public class SessionServiceImpl implements SessionService {
   }
 
   @Override
-  public List<LiteSessionDTO> findAll() {
-    return ((List<Session>) repository.findAll()).stream().map(this::buildSessionLiteDto).collect(Collectors.toList());
+  public List<SessionBranchDTO> findAll() {
+      //return ((List<Session>) repository.findAll()).stream().map(this::buildSessionLiteDto).collect(Collectors.toList());
+      return null;
   }
 
   private LiteSessionDTO buildSessionLiteDto(Session session) {

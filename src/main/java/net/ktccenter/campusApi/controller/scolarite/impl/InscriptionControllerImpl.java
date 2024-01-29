@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.controller.scolarite.InscriptionController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscrireExitStudientRequestDTO;
@@ -79,7 +80,7 @@ public class InscriptionControllerImpl implements InscriptionController {
 
   @Override
   @GetMapping
-  public List<LiteInscriptionDTO> list() {
+  public List<InscriptionBranchDTO> list() {
     return service.findAll();
   }
 

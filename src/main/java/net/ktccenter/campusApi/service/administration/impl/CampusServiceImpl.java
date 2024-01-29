@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.service.administration.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.CampusRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportCampusRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class CampusServiceImpl extends MainService implements CampusService {
   private final CampusRepository repository;
   private final CampusMapper mapper;
@@ -105,21 +107,28 @@ public class CampusServiceImpl extends MainService implements CampusService {
 
   @Override
   public List<CampusBranchDTO> findAll() {
+    log.info("1");
     List<CampusBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
+      log.info("2");
       for (Branche b : getAllBranches()) {
         result.add(buildData(b));
+        log.info("3");
       }
     } else {
       result.add(this.buildData(getCurrentUserBranch()));
+      log.info(getCurrentUserBranch().getCode());
     }
     return result;
   }
 
   CampusBranchDTO buildData(Branche branche) {
     CampusBranchDTO dto = new CampusBranchDTO();
+    log.info("5");
     dto.setBranche(brancheMapper.asLite(branche));
+    log.info("6");
     dto.setData(mapper.asDTOList(repository.findAllByBranche(branche)));
+    log.info("7");
     return dto;
   }
 }

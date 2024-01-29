@@ -9,6 +9,7 @@ import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionReques
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscrireExitStudientRequestDTO;
@@ -235,8 +236,9 @@ public class InscriptionServiceImpl implements InscriptionService {
   }
 
   @Override
-  public List<LiteInscriptionDTO> findAll() {
-    return ((List<Inscription>) repository.findAll()).stream().map(this::buildLiteInscriptionDto).collect(Collectors.toList());
+  public List<InscriptionBranchDTO> findAll() {
+      //return ((List<Inscription>) repository.findAll()).stream().map(this::buildLiteInscriptionDto).collect(Collectors.toList());
+      return null;
   }
 
   @Override

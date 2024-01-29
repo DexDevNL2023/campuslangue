@@ -29,4 +29,6 @@ public class Branche extends BaseEntity {
   private String telephone;
 
   private String email;
+
+  private Boolean parDefaut = false;
 }

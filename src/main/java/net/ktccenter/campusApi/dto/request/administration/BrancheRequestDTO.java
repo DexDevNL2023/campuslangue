@@ -21,4 +21,5 @@ public class BrancheRequestDTO {
   @NotBlank(message = "Le telephone est obligatoire")
   private String telephone;
   private String email;
+  private Boolean parDefaut = false;
 }

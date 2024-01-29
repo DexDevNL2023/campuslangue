@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-public class UserBranchDTO {
+public class CompteBranchDTO {
     private LiteBrancheDTO branche;
-    private List<LiteUserDTO> data = new ArrayList<>();
+    private List<LiteCompteDTO> data = new ArrayList<>();
 }

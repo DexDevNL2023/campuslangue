@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.service.scolarite;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportCompteRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Compte;
@@ -15,7 +16,7 @@ public interface CompteService extends GenericService<Compte, CompteRequestDTO, 
 
     Compte findByCode(String code);
 
-    List<LiteCompteDTO> findAll();
+    List<CompteBranchDTO> findAll();
 
     boolean existByCode(String code);
 }

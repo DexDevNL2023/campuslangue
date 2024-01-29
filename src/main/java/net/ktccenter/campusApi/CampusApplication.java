@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import lombok.extern.slf4j.Slf4j;
+import net.ktccenter.campusApi.dao.administration.BrancheRepository;
 import net.ktccenter.campusApi.dao.administration.InstitutionRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dao.administration.UserRepository;
@@ -13,6 +14,7 @@ import net.ktccenter.campusApi.dao.cours.PlageHoraireRepository;
 import net.ktccenter.campusApi.dao.scolarite.FormateurRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModePaiementRepository;
 import net.ktccenter.campusApi.dao.scolarite.RubriqueRepository;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Institution;
 import net.ktccenter.campusApi.entities.administration.Role;
 import net.ktccenter.campusApi.entities.administration.User;
@@ -23,7 +25,9 @@ import net.ktccenter.campusApi.entities.scolarite.Rubrique;
 import net.ktccenter.campusApi.enums.Jour;
 import net.ktccenter.campusApi.enums.Sexe;
 import net.ktccenter.campusApi.enums.TypeUser;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.utils.MyUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -45,6 +49,10 @@ import java.time.LocalTime;
 		in = SecuritySchemeIn.HEADER
 )
 public class CampusApplication implements CommandLineRunner {
+    @Autowired
+    private MainService mainService;
+    @Autowired
+    private BrancheRepository brancheRepository;
   private final UserRepository userRepository;
   private  final RoleRepository roleRepository;
   private  final InstitutionRepository institutionRepository;
@@ -52,9 +60,9 @@ public class CampusApplication implements CommandLineRunner {
   private  final ModePaiementRepository modePaiementRepository;
   private final FormateurRepository formateurRepository;
   private final PlageHoraireRepository plageHoraireRepository;
-  private String password = "passwords";
-  private String username = "admin@admin.com";
-  private PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
+  private final String password = "passwords";
+  private final String username = "admin@admin.com";
+  private final PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
 
     public CampusApplication(UserRepository userRepository, RoleRepository roleRepository, InstitutionRepository institutionRepository, RubriqueRepository rubriqueRepository, ModePaiementRepository modePaiementRepository, FormateurRepository formateurRepository, PlageHoraireRepository plageHoraireRepository) {
         this.userRepository = userRepository;
@@ -72,6 +80,7 @@ public class CampusApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
+        buildDefaultBranch();
       buildRole();
       buildAdmin();
       buildDefaultInstitution();
@@ -81,11 +90,21 @@ public class CampusApplication implements CommandLineRunner {
       buildDefautPlage();
 	}
 
+    private void buildDefaultBranch() {
+        if (brancheRepository.findByParDefaut(true) == null) brancheRepository.save(new Branche()
+                .setCode("YDE")
+                .setVille("Yaoundé")
+                .setTelephone("237674746071")
+                .setEmail("yaounde@kamer-center.net")
+                .setParDefaut(true)
+        );
+    }
+
     private void buildDefautPlage() {
         if (plageHoraireRepository.count() > 0) return;
         for (Jour jour : Jour.values()) {
             for (int i = 7; i < 17; i++) {
-                String code = jour.getValue().substring(0, 3) + "-" + String.valueOf(i)+ "h" + "-" + String.valueOf(i+1) + "h";
+                String code = jour.getValue().substring(0, 3) + "-" + i + "h" + "-" + (i + 1) + "h";
                 if (!plageHoraireRepository.findByCode(code).isPresent()) {
                     PlageHoraire plage = new PlageHoraire();
                     plage.setCode(code);
@@ -135,7 +154,7 @@ public class CampusApplication implements CommandLineRunner {
       newUser.setAuthorities(authority);
       userRepository.save(newUser);
       formateur.setUser(newUser);
-      log.info("user create successful "+newUser.toString());
+      log.info("user create successful "+ newUser);
 
       String matricule = MyUtils.GenerateMatricule("DEFAULT-TRAINER");
       log.info("Personnel-Formateur 4");
@@ -147,7 +166,7 @@ public class CampusApplication implements CommandLineRunner {
       formateur.setEmail("sonnymba@gmail.com");
       formateur.setIsDefault(true);
       formateur = formateurRepository.save(formateur);
-      log.info("Personnel-Formateur : "+ formateur.toString());
+      log.info("Personnel-Formateur : "+ formateur);
       return formateur;
   }
 
@@ -317,6 +336,7 @@ public class CampusApplication implements CommandLineRunner {
     String encodedPassword = bCryptPasswordEncoder.encode(password);
     newUser.setPassword(encodedPassword);
     newUser.setAuthorities(authority);
+      newUser.setBranche(mainService.getDefaultBranch());
     userRepository.save(newUser);
   }
 }

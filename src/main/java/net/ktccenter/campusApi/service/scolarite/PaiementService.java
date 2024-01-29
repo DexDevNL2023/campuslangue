@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.service.scolarite;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Paiement;
@@ -15,7 +16,7 @@ public interface PaiementService extends GenericService<Paiement, PaiementReques
 
   Paiement findByRefPaiement(String code);
 
-  List<LitePaiementDTO> findAll();
+    List<PaiementBranchDTO> findAll();
 
   boolean existByRefPaiement(String code);
 

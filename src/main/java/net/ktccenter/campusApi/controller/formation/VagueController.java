@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.formation;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportVagueRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.VagueBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.VagueDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.VagueRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface VagueController {
 
   void delete(@PathVariable("id") Long id);
 
-  List<LiteVagueDTO> list();
+    List<VagueBranchDTO> list();
 
   Page<LiteVagueDTO> pageQuery(Pageable pageable);
 

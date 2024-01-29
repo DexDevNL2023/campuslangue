@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.finance.impl;
 import net.ktccenter.campusApi.controller.finance.CompteController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportCompteRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -60,7 +61,7 @@ public class CompteControllerImpl implements CompteController {
 
     @Override
     @GetMapping
-    public List<LiteCompteDTO> list() {
+    public List<CompteBranchDTO> list() {
         return service.findAll();
     }
 

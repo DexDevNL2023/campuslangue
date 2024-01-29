@@ -27,7 +27,6 @@ public class MainService {
     @Autowired
     public BrancheRepository brancheRepository;
 
-
     @Autowired
     public BrancheMapper brancheMapper;
 
@@ -42,9 +41,17 @@ public class MainService {
     }
 
     public Branche getCurrentUserBranch() {
+        if (getCurrentUser().getBranche() == null)
+            throw new ResourceNotFoundException("L'utilisateur courant n'est pas associé à une branche!");
         return getCurrentUser().getBranche();
     }
 
+    public Branche getDefaultBranch() {
+        Branche branche = brancheRepository.findByParDefaut(true);
+        if (branche == null)
+            throw new ResourceNotFoundException("Aucune branche par défaut trouvée!");
+        return branche;
+    }
 
     public MainService() {
 
@@ -55,20 +62,20 @@ public class MainService {
             Role role = getCurrentUser().getRoles().iterator().next();
             return role.getIsGrant();
         }
-        return false;
+        return true;
     }
 
 
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
-            return null;
-            // throw new ResourceNotFoundException("Impossible de retouver l'utilisateur courant!");
+            throw new ResourceNotFoundException("Impossible de retouver l'utilisateur courant!");
         }
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
         User user = userRepository.findByNomOrEmail(userPrincipal.getUsername());
         if (user == null)
             throw new ResourceNotFoundException("Aucun utilisateur n'existe avec le nom utilisateur " + userPrincipal.getUsername());
+
         return user;
     }
 

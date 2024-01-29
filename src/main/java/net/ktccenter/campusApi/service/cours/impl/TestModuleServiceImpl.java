@@ -11,6 +11,7 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteTestModuleDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.TestModuleBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleForNoteDTO;
@@ -128,8 +129,9 @@ public class TestModuleServiceImpl implements TestModuleService {
   }
 
   @Override
-  public List<LiteTestModuleDTO> findAll() {
-    return ((List<TestModule>) repository.findAll()).stream().map(this::buildTestModuleLiteDto).collect(Collectors.toList());
+  public List<TestModuleBranchDTO> findAll() {
+      //return ((List<TestModule>) repository.findAll()).stream().map(this::buildTestModuleLiteDto).collect(Collectors.toList());
+      return null;
   }
 
   private LiteTestModuleDTO buildTestModuleLiteDto(TestModule testModule) {

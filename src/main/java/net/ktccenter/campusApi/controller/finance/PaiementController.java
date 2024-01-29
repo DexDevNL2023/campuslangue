@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.finance;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface PaiementController {
 
   void delete(@PathVariable("id") Long id);
 
-  List<LitePaiementDTO> list();
+    List<PaiementBranchDTO> list();
 
   Page<LitePaiementDTO> pageQuery(Pageable pageable);
 

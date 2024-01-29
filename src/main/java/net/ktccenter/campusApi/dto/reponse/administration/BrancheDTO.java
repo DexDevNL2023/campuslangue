@@ -20,6 +20,7 @@ public class BrancheDTO extends AbstractDTO {
   private String ville;
   private String telephone;
   private String email;
+  private Boolean parDefaut;
   private Set<LiteCampusDTO> campus = new HashSet<>();
   private Set<LiteSessionDTO> sessions = new HashSet<>();
 }

@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.evaluation.impl;
 import net.ktccenter.campusApi.controller.evaluation.EpreuveController;
 import net.ktccenter.campusApi.dto.importation.cours.ImportEpreuveRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EpreuveBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.EpreuveDTO;
 import net.ktccenter.campusApi.dto.request.cours.EpreuveRequestDTO;
 import net.ktccenter.campusApi.service.cours.EpreuveService;
@@ -53,7 +54,7 @@ public class EpreuveControllerImpl implements EpreuveController {
 
   @Override
   @GetMapping
-  public List<LiteEpreuveDTO> list() {
+  public List<EpreuveBranchDTO> list() {
     return service.findAll();
   }
 

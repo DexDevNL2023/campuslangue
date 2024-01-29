@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.formation.impl;
 import net.ktccenter.campusApi.controller.formation.SessionController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportSessionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.SessionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -54,7 +55,7 @@ public class SessionControllerImpl implements SessionController {
 
   @Override
   @GetMapping
-  public List<LiteSessionDTO> list() {
+  public List<SessionBranchDTO> list() {
     return service.findAll();
   }
 

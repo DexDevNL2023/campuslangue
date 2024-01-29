@@ -8,6 +8,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.entities.administration.User;
@@ -105,8 +106,9 @@ public class FormateurServiceImpl implements FormateurService {
   }
 
   @Override
-  public List<LiteFormateurDTO> findAll() {
-    return ((List<Formateur>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+  public List<FormateurBranchDTO> findAll() {
+      //return ((List<Formateur>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+      return null;
   }
 
   @Override

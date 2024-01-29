@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.formation;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportSessionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.SessionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface SessionController {
 
   void delete(@PathVariable("id") Long id);
 
-  List<LiteSessionDTO> list();
+    List<SessionBranchDTO> list();
 
   Page<LiteSessionDTO> pageQuery(Pageable pageable);
 

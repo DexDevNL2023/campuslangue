@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.scolarite.impl;
 import net.ktccenter.campusApi.controller.scolarite.EtudiantController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportEtudiantRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -70,19 +71,19 @@ public class EtudiantControllerImpl implements EtudiantController {
 
     @Override
     @GetMapping
-    public List<LiteEtudiantDTO> list() {
+    public List<EtudiantBranchDTO> list() {
         return service.findAll();
     }
 
     @Override
     @GetMapping("/by/session/{sessionId}/{salleId}/{niveauId}")
-    public List<LiteEtudiantDTO> getAllBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("salleId") Long salleId, @PathVariable("niveauId") Long niveauId) {
+    public List<EtudiantBranchDTO> getAllBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("salleId") Long salleId, @PathVariable("niveauId") Long niveauId) {
         return service.getAllBySession(sessionId, salleId, niveauId);
     }
 
     @Override
     @GetMapping("/with/unpaid")
-    public List<LiteEtudiantDTO> getAllWithUnpaid() {
+    public List<EtudiantBranchDTO> getAllWithUnpaid() {
         return service.getAllWithUnpaid();
     }
 

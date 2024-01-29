@@ -16,6 +16,7 @@ public class LiteBrancheDTO {
   private String ville;
   private String telephone;
   private String email;
+  private Boolean parDefaut;
 
   public LiteBrancheDTO(Branche branche) {
     this.id = branche.getId();

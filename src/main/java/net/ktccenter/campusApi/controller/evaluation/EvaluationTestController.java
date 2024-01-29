@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.evaluation;
 
 import net.ktccenter.campusApi.dto.importation.cours.ImportEvaluationTestRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEvaluationTestDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EvaluationTestBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.EvaluationTestDTO;
 import net.ktccenter.campusApi.dto.request.cours.EvaluationTestRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface EvaluationTestController {
 
   void delete(@PathVariable("id") Long id);
 
-  List<LiteEvaluationTestDTO> list();
+    List<EvaluationTestBranchDTO> list();
 
   Page<LiteEvaluationTestDTO> pageQuery(Pageable pageable);
 

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
 import net.ktccenter.campusApi.dto.importation.cours.ImportEvaluationTestRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEvaluationTestDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EvaluationTestBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.EvaluationTestDTO;
 import net.ktccenter.campusApi.dto.request.cours.EvaluationTestRequestDTO;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
@@ -62,8 +63,9 @@ public class EvaluationTestServiceImpl implements EvaluationTestService {
   }
 
   @Override
-  public List<LiteEvaluationTestDTO> findAll() {
-    return ((List<EvaluationTest>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+  public List<EvaluationTestBranchDTO> findAll() {
+      //return ((List<EvaluationTest>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+      return null;
   }
 
   @Override

@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.scolarite.impl;
 import net.ktccenter.campusApi.controller.scolarite.FormateurController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -69,7 +70,7 @@ public class FormateurControllerImpl implements FormateurController {
 
   @Override
   @GetMapping
-  public List<LiteFormateurDTO> list() {
+  public List<FormateurBranchDTO> list() {
     return service.findAll();
   }
 

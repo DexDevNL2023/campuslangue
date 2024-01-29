@@ -12,6 +12,7 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
@@ -134,8 +135,9 @@ public class ExamenServiceImpl implements ExamenService {
   }
 
   @Override
-  public List<LiteExamenDTO> findAll() {
-    return ((List<Examen>) repository.findAll()).stream().map(this::buildExamenLiteDto).collect(Collectors.toList());
+  public List<ExamenBranchDTO> findAll() {
+      //return ((List<Examen>) repository.findAll()).stream().map(this::buildExamenLiteDto).collect(Collectors.toList());
+      return null;
   }
 
   private LiteExamenDTO buildExamenLiteDto(Examen examen) {

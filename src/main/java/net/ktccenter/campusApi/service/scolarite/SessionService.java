@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.service.scolarite;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportSessionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.SessionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
 import net.ktccenter.campusApi.entities.scolarite.Session;
@@ -17,7 +18,7 @@ public interface SessionService extends GenericService<Session, SessionRequestDT
 
   boolean existByCode(String code);
 
-  List<LiteSessionDTO> findAll();
+    List<SessionBranchDTO> findAll();
 
   SessionDTO close(Long id);
 }
