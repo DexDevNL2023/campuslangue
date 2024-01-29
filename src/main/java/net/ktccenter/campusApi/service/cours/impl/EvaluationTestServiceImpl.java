@@ -7,9 +7,11 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteEvaluationTestDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.EvaluationTestBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.EvaluationTestDTO;
 import net.ktccenter.campusApi.dto.request.cours.EvaluationTestRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.EvaluationTestMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.cours.EvaluationTestService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,13 +19,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @Slf4j
-public class EvaluationTestServiceImpl implements EvaluationTestService {
+public class EvaluationTestServiceImpl extends MainService implements EvaluationTestService {
   private final EvaluationTestRepository repository;
   private final EvaluationTestMapper mapper;
 
@@ -64,8 +67,30 @@ public class EvaluationTestServiceImpl implements EvaluationTestService {
 
   @Override
   public List<EvaluationTestBranchDTO> findAll() {
-      //return ((List<EvaluationTest>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
-      return null;
+    List<EvaluationTest> evaluations = (List<EvaluationTest>) repository.findAll();
+    List<EvaluationTestBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, evaluations));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), evaluations));
+    }
+    return result;
+  }
+
+  private EvaluationTestBranchDTO buildData(Branche branche, List<EvaluationTest> evaluations) {
+    EvaluationTestBranchDTO dto = new EvaluationTestBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(evaluations.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, EvaluationTest e) {
+    return e.getTestModule().getInscription().getSession().getBranche().getId().equals(branche.getId());
   }
 
   @Override
