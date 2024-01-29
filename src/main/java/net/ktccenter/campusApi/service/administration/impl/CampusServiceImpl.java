@@ -122,7 +122,7 @@ public class CampusServiceImpl extends MainService implements CampusService {
     return result;
   }
 
-  CampusBranchDTO buildData(Branche branche) {
+  private CampusBranchDTO buildData(Branche branche) {
     CampusBranchDTO dto = new CampusBranchDTO();
     log.info("5");
     dto.setBranche(brancheMapper.asLite(branche));

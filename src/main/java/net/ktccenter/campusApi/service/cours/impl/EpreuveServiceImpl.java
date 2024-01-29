@@ -7,9 +7,11 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.EpreuveBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.EpreuveDTO;
 import net.ktccenter.campusApi.dto.request.cours.EpreuveRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.EpreuveMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.cours.EpreuveService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,13 +19,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @Slf4j
-public class EpreuveServiceImpl implements EpreuveService {
+public class EpreuveServiceImpl extends MainService implements EpreuveService {
   private final EpreuveRepository repository;
   private final EpreuveMapper mapper;
 
@@ -64,16 +67,30 @@ public class EpreuveServiceImpl implements EpreuveService {
 
   @Override
   public List<EpreuveBranchDTO> findAll() {
-    /*return ((List<Epreuve>) repository.findAll())
-            .stream()
-            .filter(e -> belongsToTheCurrentBranch(e))
-            .map(mapper::asLite)
-            .collect(Collectors.toList());*/
-    return null;
+    List<Epreuve> epreuves = (List<Epreuve>) repository.findAll();
+    List<EpreuveBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, epreuves));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), epreuves));
+    }
+    return result;
   }
 
-  private boolean belongsToTheCurrentBranch(Epreuve e) {
-    return true;
+  private EpreuveBranchDTO buildData(Branche branche, List<Epreuve> epreuves) {
+    EpreuveBranchDTO dto = new EpreuveBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(epreuves.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, Epreuve e) {
+    return e.getExamen().getInscription().getSession().getBranche().getId().equals(branche.getId());
   }
 
   @Override
