@@ -47,7 +47,14 @@ public class BrancheServiceImpl implements BrancheService {
     public BrancheDTO save(BrancheRequestDTO dto) {
         if(!MyUtils.isValidEmailAddress(dto.getEmail()))
             throw new ResourceNotFoundException("L'email " + dto.getEmail() + " est invalide.");
+        if (dto.getParDefaut()) changeDefaultBranche();
         return buildBrancheDto(repository.save(mapper.asEntity(dto)));
+    }
+
+    private void changeDefaultBranche() {
+        Branche branche = repository.findByParDefaut(true);
+        branche.setParDefaut(false);
+        repository.save(branche);
     }
 
     private BrancheDTO buildBrancheDto(Branche branche) {
@@ -72,6 +79,8 @@ public class BrancheServiceImpl implements BrancheService {
     @Override
     public void deleteById(Long id) {
         Branche branche = findById(id);
+        if (branche.getParDefaut())
+            throw new ResourceNotFoundException("Vous ne pouvez pas supprimer cette branche, car c'est une branche par défaut!");
         if (!getAllCampusForBranche(branche).isEmpty() || !getSessionsForBranche(branche).isEmpty())
             throw new ResourceNotFoundException("La branche avec l'id " + id + " ne peut pas être supprimée car elle est utilisée par d'autres ressources");
         repository.deleteById(id);
@@ -126,6 +135,7 @@ public class BrancheServiceImpl implements BrancheService {
     public void update(BrancheRequestDTO dto, Long id) {
         if(!MyUtils.isValidEmailAddress(dto.getEmail()))
             throw new ResourceNotFoundException("L'email " + dto.getEmail() + " est invalide.");
+        if (dto.getParDefaut()) changeDefaultBranche();
         Branche exist =  findById(id);
         dto.setId(exist.getId());
         buildBrancheDto(repository.save(mapper.asEntity(dto)));
