@@ -14,6 +14,7 @@ import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscrireExitStudientRequestDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscrireNewStudientRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Campus;
 import net.ktccenter.campusApi.entities.administration.Institution;
 import net.ktccenter.campusApi.entities.administration.User;
@@ -22,6 +23,7 @@ import net.ktccenter.campusApi.entities.scolarite.*;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.InscriptionMapper;
 import net.ktccenter.campusApi.reports.ReportService;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.UserService;
 import net.ktccenter.campusApi.service.scolarite.InscriptionService;
 import net.ktccenter.campusApi.utils.MyUtils;
@@ -41,16 +43,13 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
 @Slf4j
-public class InscriptionServiceImpl implements InscriptionService {
+public class InscriptionServiceImpl extends MainService implements InscriptionService {
   private final InscriptionRepository repository;
   private final InscriptionMapper mapper;
   private final EtudiantRepository etudiantRepository;
@@ -237,8 +236,30 @@ public class InscriptionServiceImpl implements InscriptionService {
 
   @Override
   public List<InscriptionBranchDTO> findAll() {
-      //return ((List<Inscription>) repository.findAll()).stream().map(this::buildLiteInscriptionDto).collect(Collectors.toList());
-      return null;
+    List<Inscription> inscriptions = (List<Inscription>) repository.findAll();
+    List<InscriptionBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, inscriptions));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), inscriptions));
+    }
+    return result;
+  }
+
+  private InscriptionBranchDTO buildData(Branche branche, List<Inscription> inscriptions) {
+    InscriptionBranchDTO dto = new InscriptionBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(inscriptions.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, Inscription e) {
+    return e.getSession().getBranche().getId().equals(branche.getId());
   }
 
   @Override
