@@ -11,11 +11,13 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.entities.scolarite.Session;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.FormateurMapper;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.UserService;
 import net.ktccenter.campusApi.service.scolarite.FormateurService;
 import net.ktccenter.campusApi.utils.MyUtils;
@@ -25,13 +27,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class FormateurServiceImpl implements FormateurService {
+public class FormateurServiceImpl extends MainService implements FormateurService {
   private final FormateurRepository repository;
   private final FormateurMapper mapper;
   private final UserService userService;
@@ -107,8 +111,34 @@ public class FormateurServiceImpl implements FormateurService {
 
   @Override
   public List<FormateurBranchDTO> findAll() {
-      //return ((List<Formateur>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
-      return null;
+    List<Formateur> formateurs = (List<Formateur>) repository.findAll();
+    List<FormateurBranchDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildData(b, formateurs));
+      }
+    } else {
+      result.add(buildData(getCurrentUserBranch(), formateurs));
+    }
+    return result;
+  }
+
+  private FormateurBranchDTO buildData(Branche branche, List<Formateur> formateurs) {
+    FormateurBranchDTO dto = new FormateurBranchDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    dto.setData(formateurs.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLite)
+            .collect(Collectors.toList()));
+    return dto;
+  }
+
+  private boolean belongsToTheCurrentBranch(Branche branche, Formateur e) {
+    Set<LiteSessionDTO> sessions = getAllSessionsForFormateur(e);
+    for (LiteSessionDTO session : sessions) {
+      if (Objects.equals(session.getBranche().getId(), branche.getId())) return true;
+    }
+    return false;
   }
 
   @Override
