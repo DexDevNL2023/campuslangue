@@ -12,7 +12,6 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
-import net.ktccenter.campusApi.dto.reponse.branch.EpreuveBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
@@ -44,273 +43,274 @@ import java.util.stream.Collectors;
 @Transactional
 @Slf4j
 public class ExamenServiceImpl extends MainService implements ExamenService {
-  private final ExamenRepository repository;
-  private final ExamenMapper mapper;
-  private final EpreuveRepository epreuveRepository;
-  private final NiveauRepository niveauRepository;
-  private final UniteRepository uniteRepository;
+    private final ExamenRepository repository;
+    private final ExamenMapper mapper;
+    private final EpreuveRepository epreuveRepository;
+    private final NiveauRepository niveauRepository;
+    private final UniteRepository uniteRepository;
 
-  public ExamenServiceImpl(ExamenRepository repository, ExamenMapper mapper, EpreuveRepository epreuveRepository, NiveauRepository niveauRepository, UniteRepository uniteRepository) {
-    this.repository = repository;
-    this.mapper = mapper;
-    this.epreuveRepository = epreuveRepository;
-    this.niveauRepository = niveauRepository;
-    this.uniteRepository = uniteRepository;
-  }
-
-  @Override
-  public ExamenDTO save(ExamenRequestDTO dto) {
-    return buildExamenDto(repository.save(mapper.asEntity(dto)));
-  }
-
-  private ExamenDTO buildExamenDto(Examen examen) {
-    ExamenDTO dto = mapper.asDTO(examen);
-    Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
-    if (epreuves.isEmpty()) {
-      epreuves = createAllEpreuvesForExamen(examen);
+    public ExamenServiceImpl(ExamenRepository repository, ExamenMapper mapper, EpreuveRepository epreuveRepository, NiveauRepository niveauRepository, UniteRepository uniteRepository) {
+        this.repository = repository;
+        this.mapper = mapper;
+        this.epreuveRepository = epreuveRepository;
+        this.niveauRepository = niveauRepository;
+        this.uniteRepository = uniteRepository;
     }
-    dto.setEpreuves(epreuves);
-    dto.setMoyenne(calculMoyenne(epreuves));
-    dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
-    dto.setTotalFraisPension(calculTotalPension(epreuves));
-    dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
-    return dto;
-  }
 
-  private Set<LiteEpreuveDTO> createAllEpreuvesForExamen(Examen examen) {
-    Set<LiteEpreuveDTO> list = new HashSet<>();
-    Niveau niveau = niveauRepository.findById(examen.getInscription().getSession().getNiveau().getId()).orElseThrow(
-            () ->  new ResourceNotFoundException("Le niveau avec l'id "+examen.getInscription().getSession().getNiveau().getId()+" n'existe pas")
-    );
-    List<Unite> unites = uniteRepository.findAllByNiveau(niveau);
-    if (unites.isEmpty()) throw new ResourceNotFoundException("Avant d'effectuer une inscription veillez ajouter au moins une unité de formation pour le niveau "+niveau.getLibelle());
-    log.info("Get all unite by niveau " + unites);
-    log.info("add test to test module");
-    for (Unite unite : unites) {
-      Epreuve epreuve = new Epreuve();
-      epreuve.setUnite(unite);
-      epreuve.setExamen(examen);
-      epreuve = epreuveRepository.save(epreuve);
-      list.add(buildEpreuveLiteDto(epreuve));
-      log.info("new epreuve " + epreuve);
+    @Override
+    public ExamenDTO save(ExamenRequestDTO dto) {
+        return buildExamenDto(repository.save(mapper.asEntity(dto)));
     }
-    return list;
-  }
 
-  @Override
-  public List<LiteExamenDTO> save(List<ImportExamenRequestDTO> dtos) {
-    return  ((List<Examen>) repository.saveAll(mapper.asEntityList(dtos)))
-            .stream()
-            .map(this::buildExamenLiteDto)
-            .collect(Collectors.toList());
-  }
-
-  @Override
-  public void deleteById(Long id) {
-    Examen examen = findById(id);
-    if (!getAllEpreuvessForExamen(examen).isEmpty())
-        throw new ResourceNotFoundException("L'examen avec l'id " + id + " ne peut pas etre supprimée car elle est utilisée par d'autre ressource");
-    repository.deleteById(id);
-  }
-
-  private Set<LiteEpreuveDTO> getAllEpreuvessForExamen(Examen examen) {
-    return epreuveRepository.findAllByExamen(examen).stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
-  }
-
-  private LiteEpreuveDTO buildEpreuveLiteDto(Epreuve entity) {
-    LiteEpreuveDTO lite = new LiteEpreuveDTO(entity);
-    LiteUniteDTO liteUniteDTO = new LiteUniteDTO(entity.getUnite());
-    liteUniteDTO.setNiveau(new LiteNiveauDTO(entity.getUnite().getNiveau()));
-    lite.setUnite(liteUniteDTO);
-    return lite;
-  }
-
-  @Override
-  public ExamenDTO getOne(Long id) {
-    return buildExamenDto(findById(id));
-  }
-
-  @Override
-  public Examen findById(Long id) {
-    return repository.findById(id).orElseThrow(
-            () ->  new ResourceNotFoundException("L'examen avec l'id " + id + " n'existe pas")
-    );
-  }
-
-  @Override
-  public List<ExamenBranchDTO> findAll() {
-      //return ((List<Examen>) repository.findAll()).stream().map(this::buildExamenLiteDto).collect(Collectors.toList());
-    List<Examen> examens = (List<Examen>) repository.findAll();
-    List<EpreuveBranchDTO> result = new ArrayList<>();
-    if (hasGrantAuthorized()) {
-      for (Branche b : getAllBranches()) {
-        result.add(buildData(b, epreuves));
-      }
-    } else {
-      result.add(buildData(getCurrentUserBranch(), epreuves));
-    }
-    return result;
-  }
-
-  private EpreuveBranchDTO buildData(Branche branche, List<Examen> epreuves) {
-    EpreuveBranchDTO dto = new EpreuveBranchDTO();
-    dto.setBranche(brancheMapper.asLite(branche));
-    dto.setData(epreuves.stream()
-            .filter(e -> belongsToTheCurrentBranch(branche, e))
-            .map(mapper::asLite)
-            .collect(Collectors.toList()));
-    return dto;
-  }
-
-  private boolean belongsToTheCurrentBranch(Branche branche, Examen e) {
-    return e.getExamen().getInscription().getSession().getBranche().getId().equals(branche.getId());
-  }
-
-  private LiteExamenDTO buildExamenLiteDto(Examen examen) {
-    LiteExamenDTO dto = mapper.asLite(examen);
-    Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
-    dto.setEpreuves(epreuves);
-    dto.setMoyenne(calculMoyenne(epreuves));
-    dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
-    dto.setTotalFraisPension(calculTotalPension(epreuves));
-    dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
-    return dto;
-  }
-
-  // 20/20, Excellent ; 16/20 à 19/20, Très bien ; 14/20 à 16/20, Bien ; 12/20 à 13/20, Assez bien ;
-  // 10/20 à 11/20, Passable ; 5/20 à 8/20, Insuffisant ; 0/20 à 4/20, Médiocre.
-  private String buildAppreciation(Float moyenne) {
-    int note = moyenne.intValue();
-    if (note >= 17) {
-      return "Sehr Gut Bestanden";
-    } else if (note >= 13) {
-      return "Gut Bestanden";
-    } else if (note >= 10) {
-      return "Bestanden";
-    } else {
-      return "Nicht Bestanden";
-    }
-  }
-
-  @Override
-  public Page<LiteExamenDTO> findAll(Pageable pageable) {
-    Page<Examen> entityPage = repository.findAll(pageable);
-    List<Examen> entities = entityPage.getContent();
-    return new PageImpl<>(mapper.asDTOList(entities), pageable, entityPage.getTotalElements());
-  }
-
-  @Override
-  public void update(ExamenRequestDTO dto, Long id) {
-    Examen exist =  findById(id);
-    dto.setId(exist.getId());
-    buildExamenDto(repository.save(mapper.asEntity(dto)));
-  }
-
-  @Override
-  public boolean existsByCode(String code) {
-    return repository.findByCode(code).isPresent();
-  }
-
-  @Override
-  public boolean equalsByDto(ExamenRequestDTO dto, Long id) {
-    Examen ressource = repository.findByCode(dto.getCode()).orElse(null);
-    if (ressource == null) return false;
-    return !ressource.getId().equals(id);
-  }
-
-  @Override
-  public Examen findByCode(String code) {
-    return repository.findByCode(code).orElseThrow(
-            () ->  new ResourceNotFoundException("L'examen avec le code " + code + " n'existe pas")
-    );
-  }
-
-  @Override
-  public List<ExamenForNoteReponseDTO> getAllExamenBySession(Long sessionId, Long uniteId) {
-    return buildExamenForNoteDto(sessionId, uniteId);
-  }
-
-  private List<ExamenForNoteReponseDTO>  buildExamenForNoteDto(Long sessionId, Long uniteId) {
-    List<ExamenForNoteReponseDTO> listExamenDto = new ArrayList<>();
-    List<Examen> listExamen = repository.findAllBySessionId(sessionId);
-    for (Examen examen : listExamen) {
-      List<Epreuve> epreuves = epreuveRepository.findAllByExamenIdAndUniteId(examen.getId(), uniteId);
-      if (epreuves.isEmpty()) {
-        continue;
-      }
-      for (Epreuve epreuve : epreuves) {
-        listExamenDto.add(buildExamenForNoteDto(examen, epreuve));
-      }
-    }
-    return listExamenDto;
-  }
-
-  @Override
-  public List<ExamenForNoteReponseDTO> saisieNotesexamen(List<ExamenForNoteDTO> dtos) {
-    List<ExamenForNoteReponseDTO> listDto = new ArrayList<>();
-    for (ExamenForNoteDTO dto : dtos) {
-      Examen examen = repository.findById(dto.getExamenId()).orElse(null);
-      if (examen != null) {
-        Epreuve epreuve = epreuveRepository.findById(dto.getEpreuve().getEpreuveId()).orElse(null);
-        if (epreuve != null) {
-          if (epreuve.getEstRattrapee()) {
-            epreuve.setNoteRattrapage(dto.getEpreuve().getNoteRattrapage());
-          } else {
-            epreuve.setNoteObtenue(dto.getEpreuve().getNoteObtenue());
-            boolean success = (dto.getEpreuve().getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
-            epreuve.setEstValidee(success);
-            if (!success) epreuve.setEstRattrapee(true);
-          }
-          epreuve = epreuveRepository.save(epreuve);
+    private ExamenDTO buildExamenDto(Examen examen) {
+        ExamenDTO dto = mapper.asDTO(examen);
+        Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
+        if (epreuves.isEmpty()) {
+            epreuves = createAllEpreuvesForExamen(examen);
         }
-        examen.setDateExamen(dto.getDateExamen());
-        examen = repository.save(examen);
-        listDto.add(buildExamenForNoteDto(examen, epreuve));
-      }
+        dto.setEpreuves(epreuves);
+        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
+        dto.setTotalFraisPension(calculTotalPension(epreuves));
+        dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
+        return dto;
     }
-    return listDto;
-  }
 
-  private ExamenForNoteReponseDTO buildExamenForNoteDto(Examen examen, Epreuve epreuve) {
-    ExamenForNoteReponseDTO dto = new ExamenForNoteReponseDTO(examen);
-    Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
-    LiteEpreuveDTO epreuveLite = new LiteEpreuveDTO(epreuve);
-    epreuveLite.setUnite(new LiteUniteDTO(epreuve.getUnite()));
-    dto.setEpreuve(epreuveLite);
-    LiteInscriptionForNoteDTO inscriptionLite = new LiteInscriptionForNoteDTO(examen.getInscription());
-    inscriptionLite.setEtudiant(new LiteEtudiantForNoteDTO(examen.getInscription().getEtudiant()));
-    dto.setInscription(inscriptionLite);
-    dto.setMoyenne(calculMoyenne(epreuves));
-    dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
-    dto.setTotalFraisPension(calculTotalPension(epreuves));
-    dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
-    return dto;
-  }
-
-  private Float calculMoyenne(Set<LiteEpreuveDTO> epreuves) {
-    Float moyenne = 0F;
-    for (LiteEpreuveDTO epreuve : epreuves) {
-      if (!epreuve.getEstValidee()) {
-        return 0F;
-      }
-      moyenne += epreuve.getNoteObtenue();
+    private Set<LiteEpreuveDTO> createAllEpreuvesForExamen(Examen examen) {
+        Set<LiteEpreuveDTO> list = new HashSet<>();
+        Niveau niveau = niveauRepository.findById(examen.getInscription().getSession().getNiveau().getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Le niveau avec l'id " + examen.getInscription().getSession().getNiveau().getId() + " n'existe pas")
+        );
+        List<Unite> unites = uniteRepository.findAllByNiveau(niveau);
+        if (unites.isEmpty())
+            throw new ResourceNotFoundException("Avant d'effectuer une inscription veillez ajouter au moins une unité de formation pour le niveau " + niveau.getLibelle());
+        log.info("Get all unite by niveau " + unites);
+        log.info("add test to test module");
+        for (Unite unite : unites) {
+            Epreuve epreuve = new Epreuve();
+            epreuve.setUnite(unite);
+            epreuve.setExamen(examen);
+            epreuve = epreuveRepository.save(epreuve);
+            list.add(buildEpreuveLiteDto(epreuve));
+            log.info("new epreuve " + epreuve);
+        }
+        return list;
     }
-    return !epreuves.isEmpty() ? moyenne/epreuves.size() : 0;
-  }
 
-  private BigDecimal calculTotalRatrappage(Set<LiteEpreuveDTO> epreuves) {
-    BigDecimal totalFraisPension = BigDecimal.valueOf(0.0);
-    for (LiteEpreuveDTO epreuve : epreuves) {
-      totalFraisPension = totalFraisPension.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
+    @Override
+    public List<LiteExamenDTO> save(List<ImportExamenRequestDTO> dtos) {
+        return ((List<Examen>) repository.saveAll(mapper.asEntityList(dtos)))
+                .stream()
+                .map(this::buildExamenLiteDto)
+                .collect(Collectors.toList());
     }
-    return totalFraisPension;
-  }
 
-  private BigDecimal calculTotalPension(Set<LiteEpreuveDTO> epreuves) {
-    BigDecimal totalFraisRattrapage = BigDecimal.valueOf(0.0);
-    for (LiteEpreuveDTO epreuve : epreuves) {
-      if (!epreuve.getEstValidee()) totalFraisRattrapage = totalFraisRattrapage.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
+    @Override
+    public void deleteById(Long id) {
+        Examen examen = findById(id);
+        if (!getAllEpreuvessForExamen(examen).isEmpty())
+            throw new ResourceNotFoundException("L'examen avec l'id " + id + " ne peut pas etre supprimée car elle est utilisée par d'autre ressource");
+        repository.deleteById(id);
     }
-    return totalFraisRattrapage;
-  }
+
+    private Set<LiteEpreuveDTO> getAllEpreuvessForExamen(Examen examen) {
+        return epreuveRepository.findAllByExamen(examen).stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
+    }
+
+    private LiteEpreuveDTO buildEpreuveLiteDto(Epreuve entity) {
+        LiteEpreuveDTO lite = new LiteEpreuveDTO(entity);
+        LiteUniteDTO liteUniteDTO = new LiteUniteDTO(entity.getUnite());
+        liteUniteDTO.setNiveau(new LiteNiveauDTO(entity.getUnite().getNiveau()));
+        lite.setUnite(liteUniteDTO);
+        return lite;
+    }
+
+    @Override
+    public ExamenDTO getOne(Long id) {
+        return buildExamenDto(findById(id));
+    }
+
+    @Override
+    public Examen findById(Long id) {
+        return repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("L'examen avec l'id " + id + " n'existe pas")
+        );
+    }
+
+    @Override
+    public List<ExamenBranchDTO> findAll() {
+        List<Examen> examens = (List<Examen>) repository.findAll();
+        List<ExamenBranchDTO> result = new ArrayList<>();
+        if (hasGrantAuthorized()) {
+            for (Branche b : getAllBranches()) {
+                result.add(buildData(b, examens));
+            }
+        } else {
+            result.add(buildData(getCurrentUserBranch(), examens));
+        }
+        return result;
+    }
+
+    private ExamenBranchDTO buildData(Branche branche, List<Examen> examens) {
+        ExamenBranchDTO dto = new ExamenBranchDTO();
+        dto.setBranche(brancheMapper.asLite(branche));
+        dto.setData(examens.stream()
+                .filter(e -> belongsToTheCurrentBranch(branche, e))
+                .map(mapper::asLite)
+                .collect(Collectors.toList()));
+        return dto;
+    }
+
+    private boolean belongsToTheCurrentBranch(Branche branche, Examen e) {
+        return e.getInscription().getSession().getBranche().getId().equals(branche.getId());
+    }
+
+    private LiteExamenDTO buildExamenLiteDto(Examen examen) {
+        LiteExamenDTO dto = mapper.asLite(examen);
+        Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
+        dto.setEpreuves(epreuves);
+        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
+        dto.setTotalFraisPension(calculTotalPension(epreuves));
+        dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
+        return dto;
+    }
+
+    // 20/20, Excellent ; 16/20 à 19/20, Très bien ; 14/20 à 16/20, Bien ; 12/20 à 13/20, Assez bien ;
+    // 10/20 à 11/20, Passable ; 5/20 à 8/20, Insuffisant ; 0/20 à 4/20, Médiocre.
+    private String buildAppreciation(Float moyenne) {
+        int note = moyenne.intValue();
+        if (note >= 17) {
+            return "Sehr Gut Bestanden";
+        } else if (note >= 13) {
+            return "Gut Bestanden";
+        } else if (note >= 10) {
+            return "Bestanden";
+        } else {
+            return "Nicht Bestanden";
+        }
+    }
+
+    @Override
+    public Page<LiteExamenDTO> findAll(Pageable pageable) {
+        Page<Examen> entityPage = repository.findAll(pageable);
+        List<Examen> entities = entityPage.getContent();
+        return new PageImpl<>(mapper.asDTOList(entities), pageable, entityPage.getTotalElements());
+    }
+
+    @Override
+    public void update(ExamenRequestDTO dto, Long id) {
+        Examen exist = findById(id);
+        dto.setId(exist.getId());
+        buildExamenDto(repository.save(mapper.asEntity(dto)));
+    }
+
+    @Override
+    public boolean existsByCode(String code) {
+        return repository.findByCode(code).isPresent();
+    }
+
+    @Override
+    public boolean equalsByDto(ExamenRequestDTO dto, Long id) {
+        Examen ressource = repository.findByCode(dto.getCode()).orElse(null);
+        if (ressource == null) return false;
+        return !ressource.getId().equals(id);
+    }
+
+    @Override
+    public Examen findByCode(String code) {
+        return repository.findByCode(code).orElseThrow(
+                () -> new ResourceNotFoundException("L'examen avec le code " + code + " n'existe pas")
+        );
+    }
+
+    @Override
+    public List<ExamenForNoteReponseDTO> getAllExamenBySession(Long sessionId, Long uniteId) {
+        return buildExamenForNoteDto(sessionId, uniteId);
+    }
+
+    private List<ExamenForNoteReponseDTO> buildExamenForNoteDto(Long sessionId, Long uniteId) {
+        List<ExamenForNoteReponseDTO> listExamenDto = new ArrayList<>();
+        List<Examen> listExamen = repository.findAllBySessionId(sessionId);
+        for (Examen examen : listExamen) {
+            List<Epreuve> epreuves = epreuveRepository.findAllByExamenIdAndUniteId(examen.getId(), uniteId);
+            if (epreuves.isEmpty()) {
+                continue;
+            }
+            for (Epreuve epreuve : epreuves) {
+                listExamenDto.add(buildExamenForNoteDto(examen, epreuve));
+            }
+        }
+        return listExamenDto;
+    }
+
+    @Override
+    public List<ExamenForNoteReponseDTO> saisieNotesexamen(List<ExamenForNoteDTO> dtos) {
+        List<ExamenForNoteReponseDTO> listDto = new ArrayList<>();
+        for (ExamenForNoteDTO dto : dtos) {
+            Examen examen = repository.findById(dto.getExamenId()).orElse(null);
+            if (examen != null) {
+                Epreuve epreuve = epreuveRepository.findById(dto.getEpreuve().getEpreuveId()).orElse(null);
+                if (epreuve != null) {
+                    if (epreuve.getEstRattrapee()) {
+                        epreuve.setNoteRattrapage(dto.getEpreuve().getNoteRattrapage());
+                    } else {
+                        epreuve.setNoteObtenue(dto.getEpreuve().getNoteObtenue());
+                        boolean success = (dto.getEpreuve().getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
+                        epreuve.setEstValidee(success);
+                        if (!success) epreuve.setEstRattrapee(true);
+                    }
+                    epreuve = epreuveRepository.save(epreuve);
+                }
+                examen.setDateExamen(dto.getDateExamen());
+                examen = repository.save(examen);
+                listDto.add(buildExamenForNoteDto(examen, epreuve));
+            }
+        }
+        return listDto;
+    }
+
+    private ExamenForNoteReponseDTO buildExamenForNoteDto(Examen examen, Epreuve epreuve) {
+        ExamenForNoteReponseDTO dto = new ExamenForNoteReponseDTO(examen);
+        Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
+        LiteEpreuveDTO epreuveLite = new LiteEpreuveDTO(epreuve);
+        epreuveLite.setUnite(new LiteUniteDTO(epreuve.getUnite()));
+        dto.setEpreuve(epreuveLite);
+        LiteInscriptionForNoteDTO inscriptionLite = new LiteInscriptionForNoteDTO(examen.getInscription());
+        inscriptionLite.setEtudiant(new LiteEtudiantForNoteDTO(examen.getInscription().getEtudiant()));
+        dto.setInscription(inscriptionLite);
+        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
+        dto.setTotalFraisPension(calculTotalPension(epreuves));
+        dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
+        return dto;
+    }
+
+    private Float calculMoyenne(Set<LiteEpreuveDTO> epreuves) {
+        Float moyenne = 0F;
+        for (LiteEpreuveDTO epreuve : epreuves) {
+            if (!epreuve.getEstValidee()) {
+                return 0F;
+            }
+            moyenne += epreuve.getNoteObtenue();
+        }
+        return !epreuves.isEmpty() ? moyenne / epreuves.size() : 0;
+    }
+
+    private BigDecimal calculTotalRatrappage(Set<LiteEpreuveDTO> epreuves) {
+        BigDecimal totalFraisPension = BigDecimal.valueOf(0.0);
+        for (LiteEpreuveDTO epreuve : epreuves) {
+            totalFraisPension = totalFraisPension.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
+        }
+        return totalFraisPension;
+    }
+
+    private BigDecimal calculTotalPension(Set<LiteEpreuveDTO> epreuves) {
+        BigDecimal totalFraisRattrapage = BigDecimal.valueOf(0.0);
+        for (LiteEpreuveDTO epreuve : epreuves) {
+            if (!epreuve.getEstValidee())
+                totalFraisRattrapage = totalFraisRattrapage.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
+        }
+        return totalFraisRattrapage;
+    }
 }
