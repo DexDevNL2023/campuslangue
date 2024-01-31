@@ -5,6 +5,7 @@ import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestD
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
+import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -79,11 +80,11 @@ public class UserControllerImpl implements UserController {
 
     @Override
     @PutMapping("/{id}")
-    public void update(@Valid @RequestBody UserRequestDTO dto, @PathVariable("id") Long id) {
+    public UserDTO update(@Valid @RequestBody UpdateUserRequestDTO dto, @PathVariable("id") Long id) {
         if (service.findById(id) == null) throw new RuntimeException("L'utilisateur avec l'id " + id + " n'existe pas");
-        if (service.equalsByDto(dto, id))
-            throw new RuntimeException("L'utilisateur avec les données suivante : " + dto.toString() + " existe déjà");
-        service.update(dto, id);
+        /*if (service.equalsByDto(dto, id))
+            throw new RuntimeException("L'utilisateur avec les données suivante : " + dto.toString() + " existe déjà");*/
+        return service.updateUserFrom(dto, id);
     }
 
     @GetMapping(path= "/users/profile")

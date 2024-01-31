@@ -74,10 +74,10 @@ public class DroitServiceImpl extends MainService implements DroitService {
 
 
     @Override
-    public void update(DroitRequestDTO entity, Long id) {
+    public DroitDTO update(DroitRequestDTO entity, Long id) {
       Droit exist =  findById(id);
       entity.setId(exist.getId());
-        mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        return mapper.asDTO(repository.save(mapper.asEntity(entity)));
     }
 
     @Override

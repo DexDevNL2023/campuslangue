@@ -174,10 +174,10 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
   }
 
   @Override
-  public void update(TestModuleRequestDTO dto, Long id) {
+  public TestModuleDTO update(TestModuleRequestDTO dto, Long id) {
     TestModule exist = findById(id);
     dto.setId(exist.getId());
-    buildTestModuleDto(repository.save(mapper.asEntity(dto)));
+    return buildTestModuleDto(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

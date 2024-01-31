@@ -110,7 +110,7 @@ public class RoleServiceImpl implements RoleService {
 
 
     @Override
-    public void update(RoleRequestDTO entity, Long id) {
+    public RoleDTO update(RoleRequestDTO entity, Long id) {
         Role exist = findById(id);
         Role role = mapper.asEntity(entity);
         role.setId(exist.getId());
@@ -121,7 +121,7 @@ public class RoleServiceImpl implements RoleService {
                 roleDroitRepository.save(permission);
             }
         }
-        mapper.asDTO(repository.save(role));
+        return mapper.asDTO(repository.save(role));
     }
 
     @Override

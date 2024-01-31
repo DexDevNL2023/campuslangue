@@ -13,5 +13,5 @@ public interface GenericService<E, D, R, L, I> {
     E findById(Long id);
     Page<L> findAll(Pageable pageable);
 
-    void update(D dto, Long id);
+    R update(D dto, Long id);
 }

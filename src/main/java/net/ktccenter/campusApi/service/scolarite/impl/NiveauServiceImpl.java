@@ -124,10 +124,10 @@ public class NiveauServiceImpl implements NiveauService {
     }
 
     @Override
-    public void update(NiveauRequestDTO dto, Long id) {
+    public NiveauDTO update(NiveauRequestDTO dto, Long id) {
         Niveau exist = findById(id);
         dto.setId(exist.getId());
-        buildNiveauDto(repository.save(mapper.asEntity(dto)));
+        return buildNiveauDto(repository.save(mapper.asEntity(dto)));
     }
 
     @Override

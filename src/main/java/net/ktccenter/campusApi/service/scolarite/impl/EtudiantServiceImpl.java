@@ -377,12 +377,12 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     @Override
-    public void update(EtudiantRequestDTO dto, Long id) {
+    public EtudiantDTO update(EtudiantRequestDTO dto, Long id) {
         if (dto.getTelephone().equals(dto.getContactTuteur()))
             throw new ResourceNotFoundException("L'apprenant ne saurais avoir le même numéro de téléphone que son tuteur");
         Etudiant exist = findById(id);
         dto.setId(exist.getId());
-        buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId())));
+        return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId())));
     }
 
     @Override

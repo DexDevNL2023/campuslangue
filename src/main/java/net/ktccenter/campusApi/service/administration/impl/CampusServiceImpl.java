@@ -80,10 +80,10 @@ public class CampusServiceImpl extends MainService implements CampusService {
 
 
   @Override
-  public void update(CampusRequestDTO dto, Long id) {
+  public CampusDTO update(CampusRequestDTO dto, Long id) {
     Campus exist =  findById(id);
     dto.setId(exist.getId());
-    repository.save(mapper.asEntity(dto));
+    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
   }
 
   @Override

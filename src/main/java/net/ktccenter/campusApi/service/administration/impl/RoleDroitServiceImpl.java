@@ -72,11 +72,10 @@ public class RoleDroitServiceImpl implements RoleDroitService {
         return new PageImpl<>(mapper.asDTOList(entities), pageable, entityPage.getTotalElements());
     }
 
-
     @Override
-    public void update(RoleDroitRequestDTO entity, Long id) {
+    public RoleDroitDTO update(RoleDroitRequestDTO entity, Long id) {
       RoleDroit exist = findById(id);
       entity.setId(exist.getId());
-        mapper.asDTO(repository.save(mapper.asEntity(entity)));
+        return mapper.asDTO(repository.save(mapper.asEntity(entity)));
     }
 }

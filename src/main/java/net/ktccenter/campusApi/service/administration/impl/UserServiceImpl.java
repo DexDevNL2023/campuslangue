@@ -12,6 +12,7 @@ import net.ktccenter.campusApi.dto.reponse.administration.InstitutionDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
+import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
@@ -235,7 +236,7 @@ public class UserServiceImpl extends MainService implements UserService {
     }
 
     @Override
-    public void update(UserRequestDTO dto, Long id) {
+    public UserDTO update(UserRequestDTO dto, Long id) {
         User exist =  findById(id);
         dto.setId(exist.getId());
         exist = mapper.asEntity(dto);
@@ -247,7 +248,7 @@ public class UserServiceImpl extends MainService implements UserService {
         if (authority == null)
             throw new ResourceNotFoundException("Le rôle avec l'id " + dto.getRoleId() + " n'existe pas!");
         exist.setAuthorities(authority);
-        repository.save(exist);
+        return mapper.asDTO(repository.save(exist));
     }
 
     @Override
@@ -348,6 +349,25 @@ public class UserServiceImpl extends MainService implements UserService {
         } else {
             result.add(buildData(getCurrentUserBranch()));
         }
+        return result;
+    }
+
+    @Override
+    public UserDTO updateUserFrom(UpdateUserRequestDTO dto, Long id) {
+        User exist = findById(id);
+        dto.setId(exist.getId());
+        exist = mapper.asEntity(dto);
+        Branche branche = brancheRepository.findById(dto.getBrancheId()).orElse(null);
+        if (branche == null)
+            throw new ResourceNotFoundException("Aucune branche avec l'id " + dto.getBrancheId());
+        exist.setBranche(branche);
+        Role authority = roleRepository.findById(dto.getRoleId()).orElse(null);
+        if (authority == null)
+            throw new ResourceNotFoundException("Le rôle avec l'id " + dto.getRoleId() + " n'existe pas!");
+        exist.setAuthorities(authority);
+        exist = repository.save(exist);
+        UserDTO result = mapper.asDTO(exist);
+        result.setRole(new LiteRoleDTO(exist.getRoles().stream().findFirst().get()));
         return result;
     }
 

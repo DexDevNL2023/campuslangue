@@ -5,6 +5,7 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
+import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
@@ -22,11 +23,12 @@ public interface UserService extends GenericService<User, UserRequestDTO, UserDT
   String verifyPasswordCode(String passwordResetCode);
   void resetPassword(UserPasswordResetDTO userPassword);
   String changePassword();
-
   User createUser(String nom, String prenom, String email, String roleName, String imageUrl, String passwordText, TypeUser typeUser, Boolean isGrant, Branche branche);
   User updateUser(String email, String password, Long id);
   ProfileDTO findProfileByEmail(String email);
   boolean existsByNomAndEmail(String nom, String email);
   boolean equalsByDto(UserRequestDTO dto, Long id);
   List<UserBranchDTO> findAll();
+
+  UserDTO updateUserFrom(UpdateUserRequestDTO dto, Long id);
 }

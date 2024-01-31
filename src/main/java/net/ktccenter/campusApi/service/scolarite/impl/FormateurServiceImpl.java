@@ -168,10 +168,10 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
 
 
   @Override
-  public void update(FormateurRequestDTO dto, Long id) {
+  public FormateurDTO update(FormateurRequestDTO dto, Long id) {
     Formateur exist = findById(id);
     dto.setId(exist.getId());
-    buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId())));
+    return buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId())));
   }
 
   @Override

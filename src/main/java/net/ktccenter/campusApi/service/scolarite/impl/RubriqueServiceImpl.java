@@ -104,10 +104,10 @@ public class RubriqueServiceImpl implements RubriqueService {
 
 
 	@Override
-	public void update(RubriqueRequestDTO dto, Long id) {
+	public RubriqueDTO update(RubriqueRequestDTO dto, Long id) {
 		Rubrique exist = findById(id);
 		dto.setId(exist.getId());
-		buildRubriqueDto(repository.save(mapper.asEntity(dto)));
+		return buildRubriqueDto(repository.save(mapper.asEntity(dto)));
 	}
 
 

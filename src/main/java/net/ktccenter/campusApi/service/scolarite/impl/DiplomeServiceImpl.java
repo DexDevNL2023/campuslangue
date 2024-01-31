@@ -105,10 +105,10 @@ public class DiplomeServiceImpl implements DiplomeService {
 
 
     @Override
-    public void update(DiplomeRequestDTO dto, Long id) {
+    public DiplomeDTO update(DiplomeRequestDTO dto, Long id) {
         Diplome exist = findById(id);
         dto.setId(exist.getId());
-        mapper.asDTO(repository.save(mapper.asEntity(dto)));
+        return mapper.asDTO(repository.save(mapper.asEntity(dto)));
     }
 
 

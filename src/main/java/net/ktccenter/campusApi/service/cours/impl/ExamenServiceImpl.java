@@ -199,10 +199,10 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
     }
 
     @Override
-    public void update(ExamenRequestDTO dto, Long id) {
+    public ExamenDTO update(ExamenRequestDTO dto, Long id) {
         Examen exist = findById(id);
         dto.setId(exist.getId());
-        buildExamenDto(repository.save(mapper.asEntity(dto)));
+        return buildExamenDto(repository.save(mapper.asEntity(dto)));
     }
 
     @Override

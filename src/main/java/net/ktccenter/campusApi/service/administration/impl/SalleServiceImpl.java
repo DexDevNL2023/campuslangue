@@ -124,7 +124,7 @@ public class SalleServiceImpl extends MainService implements SalleService {
   }
 
   @Override
-  public void update(SalleRequestDTO dto, Long id) {
+  public SalleDTO update(SalleRequestDTO dto, Long id) {
     Salle exist = findById(id);
     dto.setId(exist.getId());
     exist = repository.save(mapper.asEntity(dto));
@@ -132,7 +132,7 @@ public class SalleServiceImpl extends MainService implements SalleService {
       List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
       ajouteOccupation(exist, plages);
     }
-
+    return mapper.asDTO(exist);
   }
 
   @Override
