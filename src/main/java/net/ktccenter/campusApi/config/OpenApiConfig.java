@@ -7,14 +7,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/*@SecurityScheme(
-        name = "Authorization",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
-        scheme = "bearer"
-)*/
 @Configuration
-//@EnableSwagger2
 public class OpenApiConfig {
     @Bean
     public OpenAPI openAPI() {

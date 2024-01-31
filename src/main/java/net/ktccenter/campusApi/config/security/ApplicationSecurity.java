@@ -31,7 +31,7 @@ public class ApplicationSecurity { // extends WebSecurityConfigurerAdapter {
     @Autowired
     private AuthEntryPointJwt unauthorizedHandler;
 
-    private PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
+    private final PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -69,7 +69,6 @@ public class ApplicationSecurity { // extends WebSecurityConfigurerAdapter {
             // Public routes
             "/api/public/**",
             "/api/account/**",
-            "/api/**",
 
             // Report paths downloading
             "/app/generated-reports/**",
