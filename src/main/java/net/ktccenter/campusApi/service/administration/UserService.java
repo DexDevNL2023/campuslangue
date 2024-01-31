@@ -21,17 +21,10 @@ public interface UserService extends GenericService<User, UserRequestDTO, UserDT
   String verifyPasswordCode(String passwordResetCode);
   void resetPassword(UserPasswordResetDTO userPassword);
   String changePassword();
-
-
   User createUser(String nom, String prenom, String email, String roleName, String imageUrl, String passwordText, TypeUser typeUser);
   User updateUser(String email, String password, Long id);
   ProfileDTO findProfileByEmail(String email);
   boolean existsByNomAndEmail(String nom, String email);
   boolean equalsByDto(UserRequestDTO dto, Long id);
-
-
-
-  boolean hasGrantAuthorized();
-
   List<UserBranchDTO> findAll();
 }
