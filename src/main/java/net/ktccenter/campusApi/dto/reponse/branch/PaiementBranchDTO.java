@@ -7,6 +7,7 @@ import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,4 +18,11 @@ import java.util.List;
 public class PaiementBranchDTO {
     private LiteBrancheDTO branche;
     private List<LitePaiementDTO> data = new ArrayList<>();
+    private BigDecimal soldeTotal = BigDecimal.valueOf(0.0);
+
+    private BigDecimal getSoldeTotal() {
+        BigDecimal soldeTotal = BigDecimal.valueOf(0.0);
+        data.stream().map(e -> soldeTotal.add(e.getMontant()));
+        return soldeTotal;
+    }
 }

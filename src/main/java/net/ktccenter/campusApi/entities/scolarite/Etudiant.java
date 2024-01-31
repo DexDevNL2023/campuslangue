@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.Accessors;
 import net.ktccenter.campusApi.entities.BaseEntity;
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.enums.Sexe;
 
@@ -51,6 +52,10 @@ public class Etudiant extends BaseEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JsonIgnore
   private Diplome dernierDiplome;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Branche branche;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JsonIgnore

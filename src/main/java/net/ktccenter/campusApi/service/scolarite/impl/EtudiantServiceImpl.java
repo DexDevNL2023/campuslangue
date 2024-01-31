@@ -108,7 +108,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         // On vérifie que l'etudiant à une adresse mail, si oui on creer son compte utilisateur
         User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl(), null, null, false, branche);
         etudiant.setUser(user);
-
+        etudiant.setBranche(branche);
         // On génére le matricule de l"étudiant
         etudiant.setMatricule(MyUtils.GenerateMatricule("DEFAULT-STUDENT"));
         return etudiant;
@@ -355,7 +355,8 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         EtudiantBranchDTO dto = new EtudiantBranchDTO();
         dto.setBranche(brancheMapper.asLite(branche));
         dto.setData(etudiants.stream()
-                .filter(e -> belongsToTheCurrentBranch(branche, e))
+                //.filter(e -> belongsToTheCurrentBranch(branche, e))
+                .filter(e -> e.getBranche().getId().equals(branche.getId()))
                 .map(mapper::asLite)
                 .collect(Collectors.toList()));
         return dto;
@@ -364,7 +365,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     private boolean belongsToTheCurrentBranch(Branche branche, Etudiant e) {
         List<Inscription> inscriptions = getAllInscriptionsForEtudiant(e);
         for (Inscription inscription : inscriptions) {
-            if (Objects.equals(inscription.getSession().getBranche().getId(), branche.getId())) return true;
+            if (Objects.equals(e.getBranche().getId(), branche.getId())) return true;
         }
         return false;
     }

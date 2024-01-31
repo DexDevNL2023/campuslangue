@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.dto.reponse.scolarite;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteDiplomeDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
@@ -25,6 +26,7 @@ public class FormateurDTO extends AbstractDTO {
   private String email;
   private Integer experience;
   private LiteDiplomeDTO diplome;
+    private LiteBrancheDTO branche;
   private String fullName;
   Set<LiteSessionDTO> sessions = new HashSet<>();
 

@@ -66,6 +66,7 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     // On vérifie que l'Formateur à une adresse mail, si oui on creer son compte utilisateur
     User user = userService.createUser(formateur.getNom(), formateur.getPrenom(), formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", formateur.getImageUrl(), null, null, false, branche);
     formateur.setUser(user);
+    formateur.setBranche(branche);
     if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule("DEFAULT-TRAINER"));
     return formateur;
   }
@@ -145,7 +146,8 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     FormateurBranchDTO dto = new FormateurBranchDTO();
     dto.setBranche(brancheMapper.asLite(branche));
     dto.setData(formateurs.stream()
-            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            //.filter(e -> belongsToTheCurrentBranch(branche, e))
+            .filter(e -> e.getBranche().getId().equals(branche.getId()))
             .map(mapper::asLite)
             .collect(Collectors.toList()));
     return dto;

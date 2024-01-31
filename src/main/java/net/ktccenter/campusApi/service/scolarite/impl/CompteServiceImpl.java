@@ -174,7 +174,6 @@ public class CompteServiceImpl extends MainService implements CompteService {
         return new PageImpl<>(mapper.asDTOList(entities), pageable, entityPage.getTotalElements());
     }
 
-
     @Override
     public CompteDTO update(CompteRequestDTO dto, Long id) {
         Compte exist = findById(id);

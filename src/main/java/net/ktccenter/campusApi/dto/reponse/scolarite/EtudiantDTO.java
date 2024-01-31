@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.dto.reponse.scolarite;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteDiplomeDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
@@ -28,6 +29,7 @@ public class EtudiantDTO extends AbstractDTO {
   private String tuteur;
   private String contactTuteur;
   private LiteDiplomeDTO dernierDiplome;
+    private LiteBrancheDTO branche;
   private String fullName;
   private Set<LiteInscriptionDTO> inscriptions = new HashSet<>();
   private BigDecimal soldeTotal;
