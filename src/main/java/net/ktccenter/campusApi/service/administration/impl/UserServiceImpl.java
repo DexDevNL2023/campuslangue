@@ -6,6 +6,7 @@ import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dao.administration.UserRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.InstitutionDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
@@ -189,7 +190,10 @@ public class UserServiceImpl extends MainService implements UserService {
         Role authority = roleRepository.findById(dto.getRoleId()).orElse(null);
         if (authority == null)
             throw new ResourceNotFoundException("Le rôle avec l'id " + dto.getRoleId() + " n'existe pas!");
-        return mapper.asDTO(createUser(dto.getNom(), dto.getPrenom(), dto.getEmail(), authority.getLibelle(), dto.getImageUrl(), dto.getPassword(), dto.getTypeUser(), dto.getIsGrant(), branche));
+        User user = createUser(dto.getNom(), dto.getPrenom(), dto.getEmail(), authority.getLibelle(), dto.getImageUrl(), dto.getPassword(), dto.getTypeUser(), dto.getIsGrant(), branche);
+        UserDTO result = mapper.asDTO(user);
+        result.setRole(new LiteRoleDTO(user.getRoles().stream().findFirst().get()));
+        return result;
     }
 
     @Override
@@ -217,10 +221,11 @@ public class UserServiceImpl extends MainService implements UserService {
 
     @Override
     public UserDTO getOne(Long id) {
-        return mapper.asDTO(findById(id));
+        User user = findById(id);
+        UserDTO result = mapper.asDTO(user);
+        result.setRole(new LiteRoleDTO(user.getRoles().stream().findFirst().get()));
+        return result;
     }
-
-
 
     @Override
     public Page<LiteUserDTO> findAll(Pageable pageable) {
@@ -333,8 +338,6 @@ public class UserServiceImpl extends MainService implements UserService {
         return !ressource.getId().equals(id);
     }
 
-
-
     @Override
     public List<UserBranchDTO> findAll() {
         List<UserBranchDTO> result = new ArrayList<>();
@@ -343,7 +346,7 @@ public class UserServiceImpl extends MainService implements UserService {
                 result.add(buildData(b));
             }
         } else {
-            result.add(this.buildData(getCurrentUserBranch()));
+            result.add(buildData(getCurrentUserBranch()));
         }
         return result;
     }
@@ -351,7 +354,14 @@ public class UserServiceImpl extends MainService implements UserService {
     UserBranchDTO buildData(Branche branche) {
         UserBranchDTO dto = new UserBranchDTO();
         dto.setBranche(brancheMapper.asLite(branche));
-        dto.setData(mapper.asDTOList(repository.findAllByBranche(branche)));
+        List<LiteUserDTO> list = new ArrayList<>();
+        List<User> users = repository.findAllByBranche(branche);
+        for (User user : users) {
+            LiteUserDTO result = new LiteUserDTO(user);
+            result.setRole(new LiteRoleDTO(user.getRoles().stream().findFirst().get()));
+            list.add(result);
+        }
+        dto.setData(list);
         return dto;
     }
 }
