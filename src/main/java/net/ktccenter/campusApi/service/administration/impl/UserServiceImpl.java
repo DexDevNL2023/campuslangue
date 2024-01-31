@@ -99,7 +99,7 @@ public class UserServiceImpl extends MainService implements UserService {
   }
 
   @Override
-  public User createUser(String nom, String prenom, String email, String roleName, String imageUrl, String passwordText, TypeUser typeUser) {
+  public User createUser(String nom, String prenom, String email, String roleName, String imageUrl, String passwordText, TypeUser typeUser, Boolean isGrant, Branche branche) {
       log.info("User 1");
       if (repository.existsByEmail(email)) {
         log.info("User 2");
@@ -146,6 +146,8 @@ public class UserServiceImpl extends MainService implements UserService {
       newUser.setAccountNonLocked(false);
       newUser.setCredentialsNonExpired(false);
       newUser.setEnabled(true);
+      newUser.setIsGrant(isGrant);
+      newUser.setBranche(branche);
       newUser = repository.save(newUser);
       log.info("User 10 : "+newUser.getId());
       //sendHtmlMail(newUser);
@@ -180,12 +182,14 @@ public class UserServiceImpl extends MainService implements UserService {
     }
 
     @Override
-    public UserDTO save(UserRequestDTO entity) {
-        //return mapper.asDTO(repository.save(mapper.asEntity(entity)));
-        Role authority = roleRepository.findById(entity.getRoleId()).orElse(null);
+    public UserDTO save(UserRequestDTO dto) {
+        Branche branche = brancheRepository.findById(dto.getBrancheId()).orElse(null);
+        if (branche == null)
+            throw new ResourceNotFoundException("Aucune branche avec l'id " + dto.getBrancheId());
+        Role authority = roleRepository.findById(dto.getRoleId()).orElse(null);
         if (authority == null)
-            throw new ResourceNotFoundException("Le rôle avec l'id " + entity.getRoleId() + " n'existe pas!");
-        return mapper.asDTO(createUser(entity.getNom(), entity.getPrenom(), entity.getEmail(), authority.getLibelle(), entity.getImageUrl(), entity.getPassword(), entity.getTypeUser()));
+            throw new ResourceNotFoundException("Le rôle avec l'id " + dto.getRoleId() + " n'existe pas!");
+        return mapper.asDTO(createUser(dto.getNom(), dto.getPrenom(), dto.getEmail(), authority.getLibelle(), dto.getImageUrl(), dto.getPassword(), dto.getTypeUser(), dto.getIsGrant(), branche));
     }
 
     @Override
@@ -226,10 +230,19 @@ public class UserServiceImpl extends MainService implements UserService {
     }
 
     @Override
-    public void update(UserRequestDTO entity, Long id) {
+    public void update(UserRequestDTO dto, Long id) {
         User exist =  findById(id);
-        entity.setId(exist.getId());
-        repository.save(mapper.asEntity(entity));
+        dto.setId(exist.getId());
+        exist = mapper.asEntity(dto);
+        Branche branche = brancheRepository.findById(dto.getBrancheId()).orElse(null);
+        if (branche == null)
+            throw new ResourceNotFoundException("Aucune branche avec l'id " + dto.getBrancheId());
+        exist.setBranche(branche);
+        Role authority = roleRepository.findById(dto.getRoleId()).orElse(null);
+        if (authority == null)
+            throw new ResourceNotFoundException("Le rôle avec l'id " + dto.getRoleId() + " n'existe pas!");
+        exist.setAuthorities(authority);
+        repository.save(exist);
     }
 
     @Override

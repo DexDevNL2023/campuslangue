@@ -30,4 +30,5 @@ public class ImportEtudiantRequestDTO {
   @NotBlank(message = "Contact du tuteur est obligatoire")
   private String contactTuteur;
   private String dernierDiplomeCode;
+  private String brancheCode;
 }

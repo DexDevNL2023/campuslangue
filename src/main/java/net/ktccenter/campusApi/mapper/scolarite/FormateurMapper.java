@@ -21,4 +21,7 @@ public interface FormateurMapper extends GenericMapper<Formateur, FormateurReque
     @Override
     @Mapping(source = "diplomeCode", target = "diplome")
     List<Formateur> asEntityList(List<ImportFormateurRequestDTO> dtoList);
+
+    @Mapping(source = "diplomeCode", target = "diplome")
+    Formateur asEntity(ImportFormateurRequestDTO dto);
 }

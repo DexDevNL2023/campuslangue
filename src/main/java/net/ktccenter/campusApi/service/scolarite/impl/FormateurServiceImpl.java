@@ -50,7 +50,7 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
 
   @Override
   public FormateurDTO save(FormateurRequestDTO dto) {
-    return buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto))));
+    return buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId())));
   }
 
   private FormateurDTO buildFormateurDto(Formateur formateur) {
@@ -59,22 +59,40 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     return dto;
   }
 
-  private Formateur construitFormateur(Formateur Formateur) {
+  private Formateur construitFormateur(Formateur formateur, Long brancheId) {
+    Branche branche = brancheRepository.findById(brancheId).orElse(null);
+    if (branche == null)
+      throw new ResourceNotFoundException("Aucune branche avec l'id " + brancheId);
     // On vérifie que l'Formateur à une adresse mail, si oui on creer son compte utilisateur
-    User user = userService.createUser(Formateur.getNom(), Formateur.getPrenom(), Formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", Formateur.getImageUrl(), null, null);
-    Formateur.setUser(user);
-    if (Formateur.getMatricule().isEmpty()) Formateur.setMatricule(MyUtils.GenerateMatricule("DEFAULT-TRAINER"));
-    return Formateur;
+    User user = userService.createUser(formateur.getNom(), formateur.getPrenom(), formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", formateur.getImageUrl(), null, null, false, branche);
+    formateur.setUser(user);
+    if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule("DEFAULT-TRAINER"));
+    return formateur;
   }
 
   @Override
   public List<LiteFormateurDTO> save(List<ImportFormateurRequestDTO> dtos) {
-    List<Formateur> list = mapper.asEntityList(dtos);
-    list.forEach(this::construitFormateur);
+    List<Formateur> list = new ArrayList<>();
+    for (ImportFormateurRequestDTO dto : dtos) {
+      Formateur formateur = mapper.asEntity(dto);
+      formateur = importConstruitFormateur(formateur, dto.getBrancheCode());
+      list.add(formateur);
+    }
     return  ((List<Formateur>) repository.saveAll(list))
             .stream()
             .map(mapper::asLite)
             .collect(Collectors.toList());
+  }
+
+  private Formateur importConstruitFormateur(Formateur formateur, String brancheCode) {
+    Branche branche = brancheRepository.findByCode(brancheCode).orElse(null);
+    if (branche == null)
+      throw new ResourceNotFoundException("Aucune branche avec le code " + brancheCode);
+    // On vérifie que l'Formateur à une adresse mail, si oui on creer son compte utilisateur
+    User user = userService.createUser(formateur.getNom(), formateur.getPrenom(), formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", formateur.getImageUrl(), null, null, false, branche);
+    formateur.setUser(user);
+    if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule("DEFAULT-TRAINER"));
+    return formateur;
   }
 
   @Override
@@ -153,7 +171,7 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
   public void update(FormateurRequestDTO dto, Long id) {
     Formateur exist = findById(id);
     dto.setId(exist.getId());
-    buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto))));
+    buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId())));
   }
 
   @Override

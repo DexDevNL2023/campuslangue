@@ -22,7 +22,7 @@ public interface UserMapper extends GenericMapper<User, UserRequestDTO, UserDTO,
     User asEntity(UserRequestDTO dto);
 
     @Override
-    @Mapping(source = "roleLibelle", target = "roles")
+    //@Mapping(source = "roleLibelle", target = "roles")
     @Mapping(source = "brancheCode", target = "branche")
     List<User> asEntityList(List<ImportUserRequestDTO> dtoList);
 }

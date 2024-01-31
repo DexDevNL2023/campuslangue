@@ -28,4 +28,5 @@ public class FormateurRequestDTO {
   private String email;
   private Integer experience;
   private Long diplomeId;
+    private Long brancheId;
 }

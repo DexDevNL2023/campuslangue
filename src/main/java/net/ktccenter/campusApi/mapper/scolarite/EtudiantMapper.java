@@ -21,4 +21,7 @@ public interface EtudiantMapper extends GenericMapper<Etudiant, EtudiantRequestD
     @Override
     @Mapping(source = "dernierDiplomeCode", target = "dernierDiplome")
     List<Etudiant> asEntityList(List<ImportEtudiantRequestDTO> dtoList);
+
+    @Mapping(source = "dernierDiplomeCode", target = "dernierDiplome")
+    Etudiant asEntity(ImportEtudiantRequestDTO dto);
 }

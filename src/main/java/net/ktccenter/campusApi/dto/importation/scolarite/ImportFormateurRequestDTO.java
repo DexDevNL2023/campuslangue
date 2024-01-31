@@ -26,4 +26,5 @@ public class ImportFormateurRequestDTO {
   private String email;
   private Integer experience;
   private String diplomeCode;
+    private String brancheCode;
 }

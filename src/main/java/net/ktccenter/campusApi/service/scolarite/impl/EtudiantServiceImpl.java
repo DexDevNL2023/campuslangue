@@ -76,7 +76,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     public EtudiantDTO save(EtudiantRequestDTO dto) {
         if (dto.getTelephone().equals(dto.getContactTuteur()))
             throw new ResourceNotFoundException("L'apprenant ne saurais avoir le même numéro de téléphone que son tuteur");
-        return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto))));
+        return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId())));
     }
 
     private EtudiantDTO buildEtudiantDto(Etudiant etudiant) {
@@ -101,20 +101,23 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return dto;
     }
 
-    private LiteEtudiantDTO buildLiteEtudiantDto(Etudiant etudiant) {
-        LiteEtudiantDTO dto = mapper.asLite(etudiant);
-        dto.setInscriptions(getAllInscriptionsForEtudiantDto(etudiant));
-        return dto;
-    }
-
-    private Etudiant construitEtudiant(Etudiant etudiant) {
+    private Etudiant construitEtudiant(Etudiant etudiant, Long brancheId) {
+        Branche branche = brancheRepository.findById(brancheId).orElse(null);
+        if (branche == null)
+            throw new ResourceNotFoundException("Aucune branche avec l'id " + brancheId);
         // On vérifie que l'etudiant à une adresse mail, si oui on creer son compte utilisateur
-        User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl(), null, null);
+        User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl(), null, null, false, branche);
         etudiant.setUser(user);
 
         // On génére le matricule de l"étudiant
         etudiant.setMatricule(MyUtils.GenerateMatricule("DEFAULT-STUDENT"));
         return etudiant;
+    }
+
+    private LiteEtudiantDTO buildLiteEtudiantDto(Etudiant etudiant) {
+        LiteEtudiantDTO dto = mapper.asLite(etudiant);
+        dto.setInscriptions(getAllInscriptionsForEtudiantDto(etudiant));
+        return dto;
     }
 
     @Override
@@ -123,12 +126,29 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
             if (dto.getTelephone().equals(dto.getContactTuteur()))
                 throw new ResourceNotFoundException("L'apprenant ne saurais avoir le même numéro de téléphone que son tuteur");
         }
-        List<Etudiant> list = mapper.asEntityList(dtos);
-        list.forEach(this::construitEtudiant);
+        List<Etudiant> list = new ArrayList<>();
+        for (ImportEtudiantRequestDTO dto : dtos) {
+            Etudiant etudiant = mapper.asEntity(dto);
+            etudiant = importConstruitEtudiant(etudiant, dto.getBrancheCode());
+            list.add(etudiant);
+        }
         return  ((List<Etudiant>) repository.saveAll(list))
                 .stream()
                 .map(this::buildLiteEtudiantDto)
                 .collect(Collectors.toList());
+    }
+
+    private Etudiant importConstruitEtudiant(Etudiant etudiant, String brancheCode) {
+        Branche branche = brancheRepository.findByCode(brancheCode).orElse(null);
+        if (branche == null)
+            throw new ResourceNotFoundException("Aucune branche avec le code " + brancheCode);
+        // On vérifie que l'etudiant à une adresse mail, si oui on creer son compte utilisateur
+        User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl(), null, null, false, branche);
+        etudiant.setUser(user);
+
+        // On génére le matricule de l"étudiant
+        etudiant.setMatricule(MyUtils.GenerateMatricule("DEFAULT-STUDENT"));
+        return etudiant;
     }
 
     @Override
@@ -362,7 +382,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
             throw new ResourceNotFoundException("L'apprenant ne saurais avoir le même numéro de téléphone que son tuteur");
         Etudiant exist = findById(id);
         dto.setId(exist.getId());
-        buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto))));
+        buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId())));
     }
 
     @Override

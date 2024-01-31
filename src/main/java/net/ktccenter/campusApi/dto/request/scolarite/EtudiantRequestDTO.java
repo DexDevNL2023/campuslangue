@@ -32,4 +32,5 @@ public class EtudiantRequestDTO {
   @NotBlank(message = "Contact du tuteur est obligatoire")
   private String contactTuteur;
   private Long dernierDiplomeId;
+  private Long brancheId;
 }
