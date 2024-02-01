@@ -17,6 +17,7 @@ public class LiteUserDTO {
     private String imageUrl;
     private LiteRoleDTO role;
     private TypeUser typeUser;
+    private LiteBrancheDTO branche;
     private Boolean isGrant;
     private String fullName;
 
