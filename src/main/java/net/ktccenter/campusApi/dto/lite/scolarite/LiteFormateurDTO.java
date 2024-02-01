@@ -3,7 +3,6 @@ package net.ktccenter.campusApi.dto.lite.scolarite;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.enums.Sexe;
 
@@ -22,7 +21,6 @@ public class LiteFormateurDTO {
   private String email;
   private Integer experience;
   private LiteDiplomeDTO diplome;
-  private LiteBrancheDTO branche;
   private String fullName;
 
   public LiteFormateurDTO(Formateur formateur) {

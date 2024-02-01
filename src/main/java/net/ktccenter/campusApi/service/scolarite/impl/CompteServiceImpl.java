@@ -69,7 +69,7 @@ public class CompteServiceImpl extends MainService implements CompteService {
 
     private LiteCompteDTO buildLiteCompteDto(Compte compte) {
         LiteCompteDTO dto = mapper.asLite(compte);
-        dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
+        //dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
         CalculTotals calcul = calculSolde(getAllPaiementsForCompte(compte));
         dto.setSolde(calcul.getSolde());
         dto.setResteApayer(calcul.getResteApayer());

@@ -3,7 +3,6 @@ package net.ktccenter.campusApi.dto.lite.scolarite;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.enums.Sexe;
 
 import java.math.BigDecimal;
@@ -27,7 +26,6 @@ public class LiteEtudiantDTO {
   private String tuteur;
   private String contactTuteur;
   private LiteDiplomeDTO dernierDiplome;
-  private LiteBrancheDTO branche;
   private String fullName;
   private Set<LiteInscriptionDTO> inscriptions = new HashSet<>();
   private BigDecimal soldeTotal;

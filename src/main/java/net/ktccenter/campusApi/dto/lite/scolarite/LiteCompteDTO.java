@@ -17,7 +17,6 @@ public class LiteCompteDTO {
   private String code;
   private BigDecimal solde;
   private BigDecimal resteApayer;
-  private LiteInscriptionDTO inscription;
   private Set<LitePaiementDTO> paiements = new HashSet<>();
 
   public LiteCompteDTO(Compte compte) {
