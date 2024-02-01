@@ -24,5 +24,5 @@ public interface DiplomeController {
 
     Page<LiteDiplomeDTO> pageQuery(Pageable pageable);
 
-    void update(@RequestBody DiplomeRequestDTO dto, @PathVariable("id") Long id);
+    DiplomeDTO update(@RequestBody DiplomeRequestDTO dto, @PathVariable("id") Long id);
 }
