@@ -170,7 +170,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   private InscriptionDTO buildInscriptionDto(Inscription inscription) {
     InscriptionDTO dto = mapper.asDTO(inscription);
     dto.setCampus(new LiteCampusDTO(getCampus(inscription.getCampusId())));
-    dto.setCompte(getCompteForInscription(inscription));
+    //dto.setCompte(getCompteForInscription(inscription));
     return dto;
   }
 
