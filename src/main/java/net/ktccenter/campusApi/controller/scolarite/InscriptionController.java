@@ -19,8 +19,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public interface InscriptionController {
-  InscriptionDTO inscrireExitStudient(@RequestBody InscrireExitStudientRequestDTO dto);
-  InscriptionDTO inscrireNewStudient(@RequestBody InscrireNewStudientRequestDTO dto);
+  LiteInscriptionDTO inscrireExitStudient(@RequestBody InscrireExitStudientRequestDTO dto);
+
+  LiteInscriptionDTO inscrireNewStudient(@RequestBody InscrireNewStudientRequestDTO dto);
   InscriptionDTO save(@RequestBody InscriptionRequestDTO dto);
 
   List<LiteInscriptionDTO> saveAll(@RequestBody List<ImportInscriptionRequestDTO> dtos);

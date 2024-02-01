@@ -29,7 +29,7 @@ public class EtudiantDTO extends AbstractDTO {
   private String tuteur;
   private String contactTuteur;
   private LiteDiplomeDTO dernierDiplome;
-    private LiteBrancheDTO branche;
+  private LiteBrancheDTO branche;
   private String fullName;
   private Set<LiteInscriptionDTO> inscriptions = new HashSet<>();
   private BigDecimal soldeTotal;

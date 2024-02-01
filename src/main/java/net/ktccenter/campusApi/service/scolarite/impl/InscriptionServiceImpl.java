@@ -97,10 +97,10 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   }
 
   @Override
-  public InscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto) {
+  public LiteInscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto) {
     log.info("Make inscription for existing studient " + dto.toString());
     Inscription inscription = inscritExitStudient(dto);
-    return buildInscriptionDto(repository.save(inscription));
+    return buildLiteInscriptionDto(repository.save(inscription));
   }
 
   private Inscription inscritExitStudient(InscrireExitStudientRequestDTO dto) {
@@ -132,10 +132,10 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   }
 
   @Override
-  public InscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto) {
+  public LiteInscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto) {
     log.info("Make inscription for new studient " + dto.toString());
     Inscription inscription = inscritNewStudient(dto);
-    return buildInscriptionDto(repository.save(inscription));
+    return buildLiteInscriptionDto(repository.save(inscription));
   }
 
   private Inscription inscritNewStudient(InscrireNewStudientRequestDTO dto) {

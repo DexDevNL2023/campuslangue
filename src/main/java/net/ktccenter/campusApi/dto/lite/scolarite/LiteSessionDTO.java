@@ -20,9 +20,6 @@ public class LiteSessionDTO {
   private Date dateFin;
   private Boolean estTerminee;
   private LiteBrancheDTO branche;
-  private LiteNiveauDTO niveau;
-  private LiteVagueDTO vague;
-  private LiteFormateurDTO formateur;
 
   public LiteSessionDTO(Session session) {
     this.id = session.getId();

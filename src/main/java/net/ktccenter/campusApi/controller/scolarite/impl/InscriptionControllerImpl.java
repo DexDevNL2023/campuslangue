@@ -40,14 +40,14 @@ public class InscriptionControllerImpl implements InscriptionController {
   @Override
   @PostMapping("/exist/studient")
   @ResponseStatus(HttpStatus.CREATED)
-  public InscriptionDTO inscrireExitStudient(@Valid @RequestBody InscrireExitStudientRequestDTO dto) {
+  public LiteInscriptionDTO inscrireExitStudient(@Valid @RequestBody InscrireExitStudientRequestDTO dto) {
     return service.inscrireExitStudient(dto);
   }
 
   @Override
   @PostMapping("/new/studient")
   @ResponseStatus(HttpStatus.CREATED)
-  public InscriptionDTO inscrireNewStudient(@Valid @RequestBody InscrireNewStudientRequestDTO dto) {
+  public LiteInscriptionDTO inscrireNewStudient(@Valid @RequestBody InscrireNewStudientRequestDTO dto) {
     return service.inscrireNewStudient(dto);
   }
 

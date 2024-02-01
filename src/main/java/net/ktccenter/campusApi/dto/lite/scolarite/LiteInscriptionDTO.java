@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
-import net.ktccenter.campusApi.dto.lite.cours.LiteExamenDTO;
-import net.ktccenter.campusApi.dto.lite.cours.LiteTestModuleDTO;
 import net.ktccenter.campusApi.entities.scolarite.Inscription;
 
 import java.util.Date;
@@ -23,9 +21,6 @@ public class LiteInscriptionDTO {
     private LiteEtudiantDTO etudiant;
     private LiteSessionDTO session;
     private LiteCampusDTO campus;
-    private LiteCompteDTO compte;
-    private LiteExamenDTO examen;
-    private LiteTestModuleDTO testModule;
 
     public LiteInscriptionDTO(Inscription inscription) {
         this.id = inscription.getId();

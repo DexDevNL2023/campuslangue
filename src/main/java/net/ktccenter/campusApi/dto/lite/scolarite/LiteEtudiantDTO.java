@@ -5,10 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.enums.Sexe;
 
-import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
-
 @Setter
 @Getter
 @NoArgsConstructor
@@ -27,10 +23,6 @@ public class LiteEtudiantDTO {
   private String contactTuteur;
   private LiteDiplomeDTO dernierDiplome;
   private String fullName;
-  private Set<LiteInscriptionDTO> inscriptions = new HashSet<>();
-  private BigDecimal soldeTotal;
-  private Integer nbrePaiement;
-  private BigDecimal resteApayer;
 
   public String getFullName() {
     return !this.prenom.isEmpty() ? this.nom + " " + this.prenom : this.nom;

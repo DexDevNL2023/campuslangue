@@ -5,9 +5,7 @@ import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
@@ -111,8 +109,8 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
   private LiteSessionDTO buildSessionLiteDto(Session entity) {
     LiteSessionDTO lite = new LiteSessionDTO(entity);
     lite.setBranche(new LiteBrancheDTO(entity.getBranche()));
-    lite.setNiveau(new LiteNiveauDTO(entity.getNiveau()));
-    lite.setVague(new LiteVagueDTO(entity.getVague()));
+    //lite.setNiveau(new LiteNiveauDTO(entity.getNiveau()));
+    //lite.setVague(new LiteVagueDTO(entity.getVague()));
     return lite;
   }
 

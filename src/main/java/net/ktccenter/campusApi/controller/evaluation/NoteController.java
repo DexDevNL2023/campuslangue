@@ -1,11 +1,13 @@
 package net.ktccenter.campusApi.controller.evaluation;
 
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleForNoteDTO;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
+import net.ktccenter.campusApi.service.scolarite.SessionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +20,18 @@ import java.util.List;
 public class NoteController {
   private final TestModuleService testModuleService;
   private final ExamenService examenService;
+  private final SessionService sessionService;
 
-  public NoteController(TestModuleService testModuleService, ExamenService examenService) {
+  public NoteController(TestModuleService testModuleService, ExamenService examenService, SessionService sessionService) {
     this.testModuleService = testModuleService;
     this.examenService = examenService;
+    this.sessionService = sessionService;
+  }
+
+  @GetMapping("/get/all/session")
+  @ResponseStatus(HttpStatus.OK)
+  public List<LiteSessionForNoteDTO> getAllSession() {
+    return sessionService.getAllSessionByCurrentUser();
   }
 
   @GetMapping("/get/test-module/{sessionId}/{moduleId}")

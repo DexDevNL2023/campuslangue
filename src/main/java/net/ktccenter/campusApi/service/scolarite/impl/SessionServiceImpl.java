@@ -3,21 +3,21 @@ package net.ktccenter.campusApi.service.scolarite.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.OccupationSalleRepository;
 import net.ktccenter.campusApi.dao.cours.UniteRepository;
+import net.ktccenter.campusApi.dao.scolarite.FormateurRepository;
 import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModuleFormationRepository;
 import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportSessionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.*;
 import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.SessionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.OccupationSalle;
+import net.ktccenter.campusApi.entities.administration.User;
+import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.entities.scolarite.Inscription;
 import net.ktccenter.campusApi.entities.scolarite.Session;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
@@ -49,14 +49,16 @@ public class SessionServiceImpl extends MainService implements SessionService {
   private final InscriptionRepository inscriptionRepository;
   private final ModuleFormationRepository moduleFormationRepository;
   private final UniteRepository uniteRepository;
+  private final FormateurRepository formateurRepository;
 
-  public SessionServiceImpl(SessionRepository repository, SessionMapper mapper, OccupationSalleRepository occupationSalleRepository, InscriptionRepository inscriptionRepository, ModuleFormationRepository moduleFormationRepository, UniteRepository uniteRepository) {
+  public SessionServiceImpl(SessionRepository repository, SessionMapper mapper, OccupationSalleRepository occupationSalleRepository, InscriptionRepository inscriptionRepository, ModuleFormationRepository moduleFormationRepository, UniteRepository uniteRepository, FormateurRepository formateurRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.occupationSalleRepository = occupationSalleRepository;
     this.inscriptionRepository = inscriptionRepository;
     this.moduleFormationRepository = moduleFormationRepository;
     this.uniteRepository = uniteRepository;
+    this.formateurRepository = formateurRepository;
   }
 
   @Override
@@ -211,10 +213,9 @@ public class SessionServiceImpl extends MainService implements SessionService {
   }
 
   private LiteSessionDTO buildSessionLiteDto(Session session) {
-    LiteSessionDTO lite = mapper.asLite(session);
-    lite.getNiveau().setUnites(getAllUnitesForNiveau(lite.getNiveau()));
-    lite.getNiveau().setModules(getAllModulesForNiveau(lite.getNiveau()));
-    return lite;
+    //lite.getNiveau().setUnites(getAllUnitesForNiveau(lite.getNiveau()));
+    //lite.getNiveau().setModules(getAllModulesForNiveau(lite.getNiveau()));
+    return mapper.asLite(session);
   }
 
   private Set<LiteModuleFormationDTO> getAllModulesForNiveau(LiteNiveauDTO niveau) {
@@ -237,6 +238,33 @@ public class SessionServiceImpl extends MainService implements SessionService {
     Session exist = findById(id);
     exist.setEstTerminee(true);
     return buildSessionDto(repository.save(exist));
+  }
+
+  @Override
+  public List<LiteSessionForNoteDTO> getAllSessionByCurrentUser() {
+    List<Session> sessions = (List<Session>) repository.findAll();
+    List<LiteSessionForNoteDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.addAll(buildLiteSessionForNoteDto(b, sessions));
+      }
+    } else {
+      User user = getCurrentUser();
+      Formateur formateur = formateurRepository.findByUser(user);
+      if (formateur == null) {
+        result.addAll(buildLiteSessionForNoteDto(getCurrentUserBranch(), sessions));
+      } else {
+        return repository.findAllByFormateur(formateur).stream().map(mapper::asLiteDto).collect(Collectors.toList());
+      }
+    }
+    return result;
+  }
+
+  private List<LiteSessionForNoteDTO> buildLiteSessionForNoteDto(Branche branche, List<Session> sessions) {
+    return sessions.stream()
+            .filter(e -> belongsToTheCurrentBranch(branche, e))
+            .map(mapper::asLiteDto)
+            .collect(Collectors.toList());
   }
 
   @Override

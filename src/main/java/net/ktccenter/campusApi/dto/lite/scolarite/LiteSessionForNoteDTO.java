@@ -12,14 +12,14 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @ToString
-public class LiteSessionForInscriptionDTO {
+public class LiteSessionForNoteDTO {
   private Long id;
   private String code;
   private Date dateDebut;
   private Date dateFin;
   private Boolean estTerminee;
 
-  public LiteSessionForInscriptionDTO(Session session) {
+  public LiteSessionForNoteDTO(Session session) {
     this.id = session.getId();
     this.code = session.getCode();
     this.dateDebut = session.getDateDebut();

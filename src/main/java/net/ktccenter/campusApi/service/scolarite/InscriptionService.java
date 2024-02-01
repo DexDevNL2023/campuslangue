@@ -22,9 +22,9 @@ public interface InscriptionService extends GenericService<Inscription, Inscript
 
     boolean equalsByDto(InscriptionRequestDTO dto, Long id);
 
-  InscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto);
+    LiteInscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto);
 
-  InscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto);
+    LiteInscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto);
 
   Path downloadAttestation(Long id) throws URISyntaxException, JRException, IOException;
 }

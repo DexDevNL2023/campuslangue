@@ -4,8 +4,6 @@ import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dao.scolarite.VagueRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportVagueRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteVagueDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.VagueBranchDTO;
@@ -76,9 +74,9 @@ public class VagueServiceImpl extends MainService implements VagueService {
 
   private LiteSessionDTO buildSessionLiteDto(Session session) {
     LiteSessionDTO lite = new LiteSessionDTO(session);
-    lite.setNiveau(new LiteNiveauDTO(session.getNiveau()));
     lite.setBranche(new LiteBrancheDTO(session.getBranche()));
-    lite.setFormateur(new LiteFormateurDTO(session.getFormateur()));
+    //lite.setNiveau(new LiteNiveauDTO(session.getNiveau()));
+    //lite.setFormateur(new LiteFormateurDTO(session.getFormateur()));
     return lite;
   }
 
