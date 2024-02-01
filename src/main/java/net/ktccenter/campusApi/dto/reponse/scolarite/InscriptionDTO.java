@@ -5,8 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteForInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForInscriptionDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 
 import java.util.Date;
@@ -19,8 +20,8 @@ public class InscriptionDTO extends AbstractDTO {
     private Date dateInscription;
     private Date dateDelivranceAttestation;
     private Boolean estRedoublant;
-    private LiteSessionDTO session;
+    private LiteSessionForInscriptionDTO session;
     private LiteEtudiantForNoteDTO etudiant;
     private LiteCampusDTO campus;
-    //private LiteCompteDTO compte;
+    private LiteCompteForInscriptionDTO compte;
 }

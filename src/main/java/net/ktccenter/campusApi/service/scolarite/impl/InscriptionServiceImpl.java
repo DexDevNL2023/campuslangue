@@ -7,7 +7,7 @@ import net.ktccenter.campusApi.dao.cours.*;
 import net.ktccenter.campusApi.dao.scolarite.*;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteForInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
@@ -170,7 +170,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   private InscriptionDTO buildInscriptionDto(Inscription inscription) {
     InscriptionDTO dto = mapper.asDTO(inscription);
     dto.setCampus(new LiteCampusDTO(getCampus(inscription.getCampusId())));
-    //dto.setCompte(getCompteForInscription(inscription));
+    dto.setCompte(getCompteForInscription(inscription));
     return dto;
   }
 
@@ -200,11 +200,11 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     repository.delete(inscription);
   }
 
-  private LiteCompteDTO getCompteForInscription(Inscription inscription) {
+  private LiteCompteForInscriptionDTO getCompteForInscription(Inscription inscription) {
     return buildCompteLiteDto(compteRepository.findByInscription(inscription));
   }
 
-  private LiteCompteDTO buildCompteLiteDto(Compte entity) {
+  private LiteCompteForInscriptionDTO buildCompteLiteDto(Compte entity) {
     if (entity == null) return null;
     BigDecimal solde = BigDecimal.valueOf(0.0);
       BigDecimal reste = BigDecimal.valueOf(0.0);
@@ -214,11 +214,9 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
         solde = solde.add(paiement.getMontant());
         reste = netApayer.subtract(solde);
     }
-    LiteCompteDTO lite = new LiteCompteDTO();
-    lite.setId(entity.getId());
-    lite.setCode(entity.getCode());
+    LiteCompteForInscriptionDTO lite = new LiteCompteForInscriptionDTO(entity);
     lite.setSolde(solde);
-      lite.setResteApayer(reste);
+    lite.setResteApayer(reste);
     return lite;
   }
 
