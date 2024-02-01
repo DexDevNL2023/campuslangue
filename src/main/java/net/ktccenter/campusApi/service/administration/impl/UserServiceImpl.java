@@ -97,6 +97,7 @@ public class UserServiceImpl extends MainService implements UserService {
     profile.setEmail(user.getEmail());
     profile.setImageUrl(user.getImageUrl());
     profile.setLangKey(user.getLangKey());
+      profile.setBrancheId(user.getBranche().getId());
     return profile;
   }
 

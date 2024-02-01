@@ -14,4 +14,5 @@ public class ProfileDTO {
   private String email;
   private String langKey;
   private String imageUrl;
+  private Long brancheId;
 }
