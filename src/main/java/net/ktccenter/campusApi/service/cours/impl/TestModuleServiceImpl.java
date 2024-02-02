@@ -8,12 +8,12 @@ import net.ktccenter.campusApi.dao.scolarite.NiveauRepository;
 import net.ktccenter.campusApi.dto.importation.cours.ImportTestModuleRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEvaluationTestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteTestModuleDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.TestModuleBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
+import net.ktccenter.campusApi.dto.request.cours.EvaluationTestForNoteDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
@@ -31,10 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -200,12 +197,13 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
   }
 
   @Override
-  public List<TestModuleForNoteReponseDTO> getAllTestBySession(Long sessionId, Long moduleId) {
+  public FullTestModuleForNoteDTO getAllTestBySession(Long sessionId, Long moduleId) {
     return buildTestModuleForNoteDto(sessionId, moduleId);
   }
 
-  private List<TestModuleForNoteReponseDTO> buildTestModuleForNoteDto(Long sessionId, Long moduleId) {
-    List<TestModuleForNoteReponseDTO> listTestModuleDto = new ArrayList<>();
+  private FullTestModuleForNoteDTO buildTestModuleForNoteDto(Long sessionId, Long moduleId) {
+    Date dateEvaluation = new Date();
+    List<TestModuleForNoteDTO> listTestModuleDto = new ArrayList<>();
     List<TestModule> listTestModule = repository.findAllBySessionId(sessionId);
     for (TestModule testModule : listTestModule) {
       List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModuleIdAndModuleId(testModule.getId(), moduleId);
@@ -213,40 +211,52 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
         continue;
       }
       for (EvaluationTest evaluation : evaluations) {
+        dateEvaluation = evaluation.getDateEvaluation();
         listTestModuleDto.add(buildTestModuleForNoteDto(testModule, evaluation));
       }
     }
-    return listTestModuleDto;
+    return new FullTestModuleForNoteDTO(dateEvaluation, listTestModuleDto);
   }
 
   @Override
-  public List<TestModuleForNoteReponseDTO> saisieNotesTest(List<TestModuleForNoteDTO> dtos) {
+  public List<TestModuleForNoteReponseDTO> saisieNotesTest(FullTestModuleForNoteDTO dto) {
     List<TestModuleForNoteReponseDTO> listDto = new ArrayList<>();
-    for (TestModuleForNoteDTO dto : dtos) {
-      TestModule testModule = repository.findById(dto.getTestModuleId()).orElse(null);
+    List<TestModuleForNoteDTO> listTestModuleDto = dto.getTestModules();
+    for (TestModuleForNoteDTO testDto : listTestModuleDto) {
+      TestModule testModule = repository.findById(testDto.getTestModuleId()).orElse(null);
       if (testModule != null) {
-        EvaluationTest test = evaluationTestRepository.findById(dto.getEvaluation().getEvaluationTestId()).orElse(null);
+        EvaluationTest test = evaluationTestRepository.findById(testDto.getEvaluation().getEvaluationTestId()).orElse(null);
         if (test != null) {
-          test.setDateEvaluation(dto.getEvaluation().getDateEvaluation());
-          test.setNote(dto.getEvaluation().getNote());
+          test.setDateEvaluation(dto.getDateEvaluation());
+          test.setNote(testDto.getEvaluation().getNote());
           test = evaluationTestRepository.save(test);
         }
-        listDto.add(buildTestModuleForNoteDto(testModule, test));
+        listDto.add(buildTestModuleForNoteReponseDto(testModule, test));
       }
     }
     return listDto;
   }
 
-  private TestModuleForNoteReponseDTO buildTestModuleForNoteDto(TestModule testModule, EvaluationTest evaluation) {
+  private TestModuleForNoteDTO buildTestModuleForNoteDto(TestModule testModule, EvaluationTest evaluation) {
+    TestModuleForNoteDTO dto = new TestModuleForNoteDTO(testModule);
+    EvaluationTestForNoteDTO evaluationLite = new EvaluationTestForNoteDTO(evaluation);
+    evaluationLite.setModuleFormationCode(evaluation.getModuleFormation().getCode());
+    dto.setEvaluation(evaluationLite);
+    dto.setMatricule(testModule.getInscription().getEtudiant().getMatricule());
+    dto.setNom(testModule.getInscription().getEtudiant().getNom());
+    dto.setPrenom(testModule.getInscription().getEtudiant().getPrenom());
+    return dto;
+  }
+
+  private TestModuleForNoteReponseDTO buildTestModuleForNoteReponseDto(TestModule testModule, EvaluationTest evaluation) {
     TestModuleForNoteReponseDTO dto = new TestModuleForNoteReponseDTO(testModule);
-    Set<LiteEvaluationTestDTO> evaluations = getAllEvaluationsForTestModule(testModule);
     LiteEvaluationTestDTO evaluationLite = new LiteEvaluationTestDTO(evaluation);
     evaluationLite.setModuleFormation(new LiteModuleFormationDTO(evaluation.getModuleFormation()));
     dto.setEvaluation(evaluationLite);
-    LiteInscriptionForNoteDTO inscriptionLite = new LiteInscriptionForNoteDTO(testModule.getInscription());
-    inscriptionLite.setEtudiant(new LiteEtudiantForNoteDTO(testModule.getInscription().getEtudiant()));
-    dto.setInscription(inscriptionLite);
-    dto.setMoyenne(calculMoyenne(evaluations));
+    dto.setMatricule(testModule.getInscription().getEtudiant().getMatricule());
+    dto.setNom(testModule.getInscription().getEtudiant().getNom());
+    dto.setPrenom(testModule.getInscription().getEtudiant().getPrenom());
+    dto.setMoyenne(calculMoyenne(getAllEvaluationsForTestModule(testModule)));
     return dto;
   }
 

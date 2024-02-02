@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEvaluationTestDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 import net.ktccenter.campusApi.entities.cours.TestModule;
 
@@ -14,7 +13,10 @@ import net.ktccenter.campusApi.entities.cours.TestModule;
 public class TestModuleForNoteReponseDTO extends AbstractDTO {
   private String code;
   private Double pourcentage;
-  private LiteInscriptionForNoteDTO inscription;
+  private String matricule;
+  private String nom;
+  private String prenom;
+  private String fullName;
   private LiteEvaluationTestDTO evaluation;
   private Float moyenne;
 

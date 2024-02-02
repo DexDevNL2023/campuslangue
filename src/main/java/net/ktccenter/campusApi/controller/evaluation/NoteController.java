@@ -4,7 +4,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.TestModuleForNoteDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
 import net.ktccenter.campusApi.service.scolarite.SessionService;
@@ -36,7 +36,7 @@ public class NoteController {
 
   @GetMapping("/get/test-module/{sessionId}/{moduleId}")
   @ResponseStatus(HttpStatus.OK)
-  public List<TestModuleForNoteReponseDTO> getAllTestBySession(@PathVariable("sessionId") Long sessionId,  @PathVariable("moduleId") Long moduleId) {
+  public FullTestModuleForNoteDTO getAllTestBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("moduleId") Long moduleId) {
     return testModuleService.getAllTestBySession(sessionId, moduleId);
   }
 
@@ -48,7 +48,7 @@ public class NoteController {
 
   @PostMapping("/saisie/notes/test-module")
   @ResponseStatus(HttpStatus.OK)
-  public List<TestModuleForNoteReponseDTO> saisieNotesTest(@Valid @RequestBody List<TestModuleForNoteDTO> dtos) {
+  public List<TestModuleForNoteReponseDTO> saisieNotesTest(@Valid @RequestBody FullTestModuleForNoteDTO dtos) {
     return testModuleService.saisieNotesTest(dtos);
   }
 
