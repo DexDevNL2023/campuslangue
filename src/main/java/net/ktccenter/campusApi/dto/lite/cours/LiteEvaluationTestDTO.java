@@ -14,7 +14,7 @@ import java.util.Date;
 public class LiteEvaluationTestDTO {
   private Long id;
   private Date dateEvaluation;
-  private Float note;
+    private Float note = 0.0F;
   private LiteModuleFormationDTO moduleFormation;
 
   public LiteEvaluationTestDTO(EvaluationTest evaluation) {

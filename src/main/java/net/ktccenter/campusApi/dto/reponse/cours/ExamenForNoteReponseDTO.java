@@ -22,7 +22,7 @@ public class ExamenForNoteReponseDTO extends AbstractDTO {
   private BigDecimal totalFraisRattrapage = BigDecimal.valueOf(0.0);
   private LiteInscriptionForNoteDTO inscription;
   private LiteEpreuveDTO epreuve;
-  private Float moyenne;
+    private Float moyenne = 0.0F;
   private String appreciation;
 
   public ExamenForNoteReponseDTO(Examen examen) {

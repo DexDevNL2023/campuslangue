@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.administration.impl;
 import net.ktccenter.campusApi.controller.administration.UserController;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.ProfileForCurrentUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
@@ -87,15 +88,15 @@ public class UserControllerImpl implements UserController {
         return service.updateUserFrom(dto, id);
     }
 
+    @Override
     @GetMapping(path= "/users/profile")
-    UserDTO profile(){
-        Long id = mainService.getCurrentUser() != null ? mainService.getCurrentUser().getId() : null;
-        if (service.findById(id) == null) throw new RuntimeException("L'utilisateur avec l'id " + id + " n'existe pas");
-        return service.getOne(id);
+    public ProfileForCurrentUserDTO profile() {
+        return service.findProfileCurrentUser();
     }
 
+    @Override
     @PostMapping(path = "/users/changePassword")
-    ResponseEntity<?> changePassword(@Valid @RequestBody UserPasswordResetDTO userPassword) {
+    public ResponseEntity<?> changePassword(@Valid @RequestBody UserPasswordResetDTO userPassword) {
         String response = service.changePassword();
         if(response == "OK"){
             return ResponseEntity.ok().body(response);

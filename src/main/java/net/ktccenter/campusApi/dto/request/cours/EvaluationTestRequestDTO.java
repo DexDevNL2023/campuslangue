@@ -15,7 +15,7 @@ public class EvaluationTestRequestDTO {
     private Long id;
     @NotNull(message = "la date du test d'evaluation est obligatoire")
     private Date dateEvaluation;
-    private Float note;
+    private Float note = 0.0F;
     private Long testModuleId;
     private Long moduleFormationId;
 }

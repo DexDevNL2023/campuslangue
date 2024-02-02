@@ -21,7 +21,7 @@ public class LiteExamenDTO {
   private BigDecimal totalFraisPension;
   private BigDecimal totalFraisRattrapage;
   private Set<LiteEpreuveDTO> epreuves = new HashSet<>();
-  private Float moyenne;
+    private Float moyenne = 0.0F;
   private String appreciation;
 
   public LiteExamenDTO(Examen examen) {

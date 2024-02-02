@@ -13,7 +13,7 @@ public class LiteUniteDTO {
   private Long id;
   private String code;
   private String libelle;
-  private Float noteAdmission;
+    private Float noteAdmission = 0.0F;
   private LiteNiveauDTO niveau;
 
   public LiteUniteDTO(Unite unite) {

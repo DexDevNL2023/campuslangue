@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class EvaluationTestDTO extends AbstractDTO {
   private Date dateEvaluation;
-  private Float note;
+    private Float note = 0.0F;
   private LiteTestModuleDTO testModule;
   private LiteModuleFormationDTO moduleFormation;
 }

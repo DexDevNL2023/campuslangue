@@ -18,5 +18,5 @@ public class TestModuleDTO extends AbstractDTO {
   private Double pourcentage;
   private LiteInscriptionForNoteDTO inscription;
   private Set<LiteEvaluationTestDTO> evaluations = new HashSet<>();
-  private Float moyenne;
+    private Float moyenne = 0.0F;
 }

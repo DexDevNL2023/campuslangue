@@ -6,7 +6,6 @@ import net.ktccenter.campusApi.config.security.jwt.JwtUtils;
 import net.ktccenter.campusApi.config.security.services.UserDetailsImpl;
 import net.ktccenter.campusApi.dto.reponse.administration.JwtResponse;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
-import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.request.administration.AuthRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserSendLinkDTO;
@@ -62,11 +61,6 @@ public class AccountRestController {
             UserService userService,  UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
-    }
-
-    @GetMapping("/me")
-    public UserDTO getCurrentUser() {
-        return userMapper.asDTO(mainService.getCurrentUser());
     }
 
     @PostMapping("/login")

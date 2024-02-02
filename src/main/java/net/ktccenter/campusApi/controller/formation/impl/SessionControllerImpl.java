@@ -69,8 +69,8 @@ public class SessionControllerImpl implements SessionController {
   @PutMapping("/{id}")
   public void update(@Valid @RequestBody SessionRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new APIException("La session avec l'id " + id + " n'existe pas");
-    if (service.equalsByDto(dto, id))
-      throw new APIException("La session avec les données suivante : " + dto.toString() + " existe déjà");
+    /*if (service.equalsByDto(dto, id))
+      throw new APIException("La session avec les données suivante : " + dto.toString() + " existe déjà");*/
     service.update(dto, id);
   }
 

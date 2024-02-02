@@ -14,7 +14,7 @@ import java.util.Set;
 public class LiteTestModuleForNoteDTO {
   private Long id;
   private Set<LiteEvaluationTestForNoteDTO> evaluations = new HashSet<>();
-  private Float moyenne;
+    private Float moyenne = 0.0F;
 
   public LiteTestModuleForNoteDTO(TestModule testModule) {
     this.id = testModule.getId();

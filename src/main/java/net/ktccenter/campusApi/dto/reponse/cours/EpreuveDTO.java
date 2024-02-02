@@ -12,9 +12,9 @@ import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 @NoArgsConstructor
 public class EpreuveDTO extends AbstractDTO {
   private LiteUniteDTO unite;
-  private Float noteObtenue;
+    private Float noteObtenue = 0.0F;
   private Boolean estValidee;
-  private Float noteRattrapage;
+    private Float noteRattrapage = 0.0F;
   private Boolean estRattrapee;
   private LiteExamenDTO examen;
 }

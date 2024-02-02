@@ -9,6 +9,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EpreuveForNoteDTO {
   private Long epreuveId;
-  private Float noteObtenue;
-  private Float noteRattrapage;
+    private Float noteObtenue = 0.0F;
+    private Float noteRattrapage = 0.0F;
 }

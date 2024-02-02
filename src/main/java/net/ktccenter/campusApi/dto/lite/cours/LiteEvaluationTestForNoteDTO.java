@@ -13,7 +13,7 @@ import java.util.Date;
 public class LiteEvaluationTestForNoteDTO {
   private Long id;
   private Date dateEvaluation;
-  private Float note;
+    private Float note = 0.0F;
 
   public LiteEvaluationTestForNoteDTO(EvaluationTest evaluation) {
     this.id = evaluation.getId();

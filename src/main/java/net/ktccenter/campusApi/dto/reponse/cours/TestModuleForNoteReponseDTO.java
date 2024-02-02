@@ -18,7 +18,7 @@ public class TestModuleForNoteReponseDTO extends AbstractDTO {
   private String prenom;
   private String fullName;
   private LiteEvaluationTestDTO evaluation;
-  private Float moyenne;
+    private Float moyenne = 0.0F;
 
   public TestModuleForNoteReponseDTO(TestModule testModule) {
     this.setId(testModule.getId());

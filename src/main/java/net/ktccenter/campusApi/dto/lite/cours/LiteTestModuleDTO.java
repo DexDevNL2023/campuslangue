@@ -18,7 +18,7 @@ public class LiteTestModuleDTO {
   private Double pourcentage;
   private LiteInscriptionDTO inscription;
   private Set<LiteEvaluationTestDTO> evaluations = new HashSet<>();
-  private Float moyenne;
+    private Float moyenne = 0.0F;
 
   public LiteTestModuleDTO(TestModule testModule) {
     this.id = testModule.getId();

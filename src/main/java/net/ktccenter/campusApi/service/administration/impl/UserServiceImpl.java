@@ -2,22 +2,20 @@ package net.ktccenter.campusApi.service.administration.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.utility.RandomString;
+import net.ktccenter.campusApi.dao.administration.ModuleRepository;
 import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dao.administration.UserRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
-import net.ktccenter.campusApi.dto.reponse.administration.InstitutionDTO;
-import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
-import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
+import net.ktccenter.campusApi.dto.lite.administration.*;
+import net.ktccenter.campusApi.dto.reponse.PermissionModuleDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.*;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
 import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
-import net.ktccenter.campusApi.entities.administration.Branche;
-import net.ktccenter.campusApi.entities.administration.Role;
-import net.ktccenter.campusApi.entities.administration.User;
+import net.ktccenter.campusApi.entities.administration.Module;
+import net.ktccenter.campusApi.entities.administration.*;
 import net.ktccenter.campusApi.enums.TypeUser;
 import net.ktccenter.campusApi.exceptions.APIException;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
@@ -54,6 +52,7 @@ public class UserServiceImpl extends MainService implements UserService {
     private final InstitutionService institutionService;
     private final RoleRepository roleRepository;
     private final RoleDroitRepository roleDroitRepository;
+    private final ModuleRepository moduleRepository;
     private final PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
 
     @Value("${app.template.url}")
@@ -66,13 +65,14 @@ public class UserServiceImpl extends MainService implements UserService {
     private String APP_PASSWORD_RESET_URL;
 
 
-    public UserServiceImpl(UserRepository repository, UserMapper mapper, JavaMailSender javaMailSender, InstitutionService institutionService, RoleRepository roleRepository, RoleDroitRepository roleDroitRepository) {
+    public UserServiceImpl(UserRepository repository, UserMapper mapper, JavaMailSender javaMailSender, InstitutionService institutionService, RoleRepository roleRepository, RoleDroitRepository roleDroitRepository, ModuleRepository moduleRepository) {
       this.repository = repository;
       this.mapper = mapper;
       this.javaMailSender = javaMailSender;
       this.institutionService = institutionService;
       this.roleRepository = roleRepository;
         this.roleDroitRepository = roleDroitRepository;
+        this.moduleRepository = moduleRepository;
     }
 
     @Override
@@ -100,6 +100,41 @@ public class UserServiceImpl extends MainService implements UserService {
       profile.setBrancheId(user.getBranche().getId());
     return profile;
   }
+
+    @Override
+    public ProfileForCurrentUserDTO findProfileCurrentUser() {
+        if (getCurrentUser() == null) {
+            throw new RuntimeException("User not found");
+        }
+        User user = getCurrentUser();
+        ProfileForCurrentUserDTO profile = new ProfileForCurrentUserDTO(user);
+        profile.setBranche(new LiteBrancheDTO(user.getBranche()));
+        Role role = user.getRoles().stream().findFirst().get();
+        RoleDTO roleDto = new RoleDTO(role);
+        roleDto.setPermissions(getAllPermissionsByRole(role));
+        profile.setRole(roleDto);
+        return profile;
+    }
+
+    private List<PermissionModuleDTO> getAllPermissionsByRole(Role role) {
+        //return roleDroitRepository.findAllByRole(role).stream().map(this::buildPermissionLiteDto).collect(Collectors.toList());
+        List<PermissionModuleDTO> list = new ArrayList<>();
+        List<Module> modules = (List<Module>) moduleRepository.findAll();
+        for (Module module : modules) {
+            PermissionModuleDTO dto = new PermissionModuleDTO();
+            dto.setModule(new LiteModuleDTO(module));
+            List<LiteRoleDroitDTO> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().map(this::buildPermissionLiteDto).collect(Collectors.toList());
+            dto.setData(data);
+            list.add(dto);
+        }
+        return list;
+    }
+
+    private LiteRoleDroitDTO buildPermissionLiteDto(RoleDroit roleDroit) {
+        LiteRoleDroitDTO permissionLiteDto = new LiteRoleDroitDTO(roleDroit);
+        permissionLiteDto.setDroit(new LiteDroitDTO(roleDroit.getDroit()));
+        return permissionLiteDto;
+    }
 
   @Override
   public User createUser(String nom, String prenom, String email, String roleName, String imageUrl, String passwordText, TypeUser typeUser, Boolean isGrant, Branche branche) {

@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.service.administration;
 import net.ktccenter.campusApi.dto.importation.administration.ImportUserRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.ProfileForCurrentUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
@@ -30,5 +31,6 @@ public interface UserService extends GenericService<User, UserRequestDTO, UserDT
   boolean equalsByDto(UserRequestDTO dto, Long id);
   List<UserBranchDTO> findAll();
 
+    ProfileForCurrentUserDTO findProfileCurrentUser();
   UserDTO updateUserFrom(UpdateUserRequestDTO dto, Long id);
 }

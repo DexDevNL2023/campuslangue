@@ -23,6 +23,6 @@ public class ExamenDTO extends AbstractDTO {
   private BigDecimal totalFraisRattrapage;
   private LiteInscriptionForNoteDTO inscription;
   private Set<LiteEpreuveDTO> epreuves = new HashSet<>();
-  private Float moyenne;
+    private Float moyenne = 0.0F;
   private String appreciation;
 }
