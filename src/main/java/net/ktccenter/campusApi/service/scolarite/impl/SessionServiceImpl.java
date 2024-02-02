@@ -8,8 +8,9 @@ import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModuleFormationRepository;
 import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportSessionRequestDTO;
-import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.*;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.SessionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.SessionRequestDTO;
@@ -216,13 +217,13 @@ public class SessionServiceImpl extends MainService implements SessionService {
     return mapper.asLite(session);
   }
 
-  private Set<LiteModuleFormationDTO> getAllModulesForNiveau(LiteNiveauDTO niveau) {
+  /*private Set<LiteModuleFormationDTO> getAllModulesForNiveau(LiteNiveauDTO niveau) {
     return moduleFormationRepository.findAllByNiveauId(niveau.getId()).stream().map(LiteModuleFormationDTO::new).collect(Collectors.toSet());
   }
 
   private Set<LiteUniteDTO> getAllUnitesForNiveau(LiteNiveauDTO niveau) {
     return uniteRepository.findAllByNiveauId(niveau.getId()).stream().map(LiteUniteDTO::new).collect(Collectors.toSet());
-  }
+  }*/
 
   @Override
   public Page<LiteSessionDTO> findAll(Pageable pageable) {

@@ -8,7 +8,9 @@ import net.ktccenter.campusApi.dao.scolarite.*;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteForInscriptionDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscriptionRequestDTO;
@@ -174,9 +176,11 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     return dto;
   }
 
-  private LiteInscriptionDTO buildLiteInscriptionDto(Inscription inscription) {
-    LiteInscriptionDTO dto = mapper.asLite(inscription);
-    dto.setCampus(new LiteCampusDTO(getCampus(inscription.getCampusId())));
+  private LiteInscriptionDTO buildLiteInscriptionDto(Inscription entity) {
+    LiteInscriptionDTO dto = mapper.asLite(entity);
+    dto.setEtudiant(new LiteEtudiantForNoteDTO(entity.getEtudiant()));
+    dto.setSession(new LiteSessionForNoteDTO(entity.getSession()));
+    dto.setCampus(new LiteCampusDTO(getCampus(entity.getCampusId())));
     return dto;
   }
 

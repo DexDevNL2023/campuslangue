@@ -18,8 +18,8 @@ public class LiteInscriptionDTO {
     private Date dateInscription;
     private Date dateDelivranceAttestation;
     private Boolean estRedoublant;
-    private LiteEtudiantDTO etudiant;
-    private LiteSessionDTO session;
+    private LiteEtudiantForNoteDTO etudiant;
+    private LiteSessionForNoteDTO session;
     private LiteCampusDTO campus;
 
     public LiteInscriptionDTO(Inscription inscription) {

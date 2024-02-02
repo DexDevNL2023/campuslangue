@@ -164,7 +164,8 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
 
     private LiteInscriptionDTO buildInscriptionLiteDto(Inscription entity) {
         LiteInscriptionDTO lite = new LiteInscriptionDTO(entity);
-        lite.setSession(new LiteSessionDTO(entity.getSession()));
+        lite.setEtudiant(new LiteEtudiantForNoteDTO(entity.getEtudiant()));
+        lite.setSession(new LiteSessionForNoteDTO(entity.getSession()));
         lite.setCampus(new LiteCampusDTO(getCampus(entity.getCampusId())));
         //lite.setCompte(getCompteForInscription(entity.getId()));
         //lite.setExamen(getExamenForInscription(entity));
