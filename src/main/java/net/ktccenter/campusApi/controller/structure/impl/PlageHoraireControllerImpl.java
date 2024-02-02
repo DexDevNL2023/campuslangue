@@ -8,7 +8,6 @@ import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.dto.request.cours.PlageHoraireRequestDTO;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.cours.PlageHoraireService;
-import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,7 @@ public class PlageHoraireControllerImpl implements PlageHoraireController {
   @Override
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @AuthorizeUser(actionKey = "plage-add")
+  //@AuthorizeUser(actionKey = "plage-add")
   public PlageHoraireDTO save(@Valid @RequestBody PlageHoraireRequestDTO dto) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Ajouter un plage", "plage-add", "POST", true));
       if (service.existsByCode(dto.getCode()))
@@ -43,7 +42,7 @@ public class PlageHoraireControllerImpl implements PlageHoraireController {
   @Override
   @PostMapping("/imports")
   @ResponseStatus(HttpStatus.CREATED)
-  @AuthorizeUser(actionKey = "plage-import")
+  //@AuthorizeUser(actionKey = "plage-import")
   public List<LitePlageHoraireDTO> saveAll(@Valid @RequestBody List<ImportPlageHoraireRequestDTO> dtos) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Importer des plage", "plage-import", "POST", true));
     for (ImportPlageHoraireRequestDTO dto : dtos) {
@@ -55,7 +54,7 @@ public class PlageHoraireControllerImpl implements PlageHoraireController {
 
   @Override
   @GetMapping("/{id}")
-  @AuthorizeUser(actionKey = "plage-find")
+  //@AuthorizeUser(actionKey = "plage-find")
   public PlageHoraireDTO findById(@PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Afficher les détails d'un plage", "plage-find", "GET", true));
     return service.getOne(id);
@@ -63,7 +62,7 @@ public class PlageHoraireControllerImpl implements PlageHoraireController {
 
   @Override
   @DeleteMapping("/{id}")
-  @AuthorizeUser(actionKey = "plage-delet")
+  //@AuthorizeUser(actionKey = "plage-delet")
   public void delete(@PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Supprimer un plage", "plage-delet", "DELET", true));
       if (service.findById(id) == null) throw new RuntimeException("La ressource avec l'id " + id + " n'existe pas");
@@ -72,7 +71,7 @@ public class PlageHoraireControllerImpl implements PlageHoraireController {
 
   @Override
   @GetMapping
-  @AuthorizeUser(actionKey = "plage-list")
+  //@AuthorizeUser(actionKey = "plage-list")
   public List<LitePlageHoraireDTO> list() {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les plage", "plage-list", "GET", true));
     return service.findAll();
@@ -86,7 +85,7 @@ public class PlageHoraireControllerImpl implements PlageHoraireController {
 
   @Override
   @PutMapping("/{id}")
-  @AuthorizeUser(actionKey = "plage-update")
+  //@AuthorizeUser(actionKey = "plage-update")
   public void update(@Valid @RequestBody PlageHoraireRequestDTO dto, @PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Mttre à jour un plage", "plage-update", "PUT", true));
       if (service.findById(id) == null) throw new RuntimeException("La ressource avec l'id " + id + " n'existe pas");

@@ -10,7 +10,6 @@ import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.CampusService;
-import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +38,7 @@ public class CampusControllerImpl implements CampusController {
   @Override
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  @AuthorizeUser(actionKey = "campus-add")
+  //@AuthorizeUser(actionKey = "campus-add")
   public CampusDTO save(@Valid @RequestBody CampusRequestDTO dto) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Ajouter un campus", "campus-add", "POST", true));
       if (service.existsByCodeAndLibelle(dto.getCode(), dto.getLibelle()))
@@ -50,7 +49,7 @@ public class CampusControllerImpl implements CampusController {
   @Override
   @PostMapping("/imports")
   @ResponseStatus(HttpStatus.CREATED)
-  @AuthorizeUser(actionKey = "campus-import")
+  //@AuthorizeUser(actionKey = "campus-import")
   public List<LiteCampusDTO> saveAll(@Valid @RequestBody List<ImportCampusRequestDTO> dtos) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Importer des campus", "campus-import", "POST", true));
     for (ImportCampusRequestDTO dto : dtos) {
@@ -62,7 +61,7 @@ public class CampusControllerImpl implements CampusController {
 
   @Override
   @GetMapping("/{id}")
-  @AuthorizeUser(actionKey = "campus-find")
+  //@AuthorizeUser(actionKey = "campus-find")
   public CampusDTO findById(@PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Afficher les détails d'un campus", "campus-find", "GET", true));
     return service.getOne(id);
@@ -70,7 +69,7 @@ public class CampusControllerImpl implements CampusController {
 
   @Override
   @DeleteMapping("/{id}")
-  @AuthorizeUser(actionKey = "campus-delet")
+  //@AuthorizeUser(actionKey = "campus-delet")
   public void delete(@PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Supprimer un campus", "campus-delet", "DELET", true));
       if (service.findById(id) == null) throw new RuntimeException("Le campus avec l'id " + id + " n'existe pas");
@@ -79,7 +78,7 @@ public class CampusControllerImpl implements CampusController {
 
   @Override
   @GetMapping
-  @AuthorizeUser(actionKey = "campus-list")
+  //@AuthorizeUser(actionKey = "campus-list")
   public List<CampusBranchDTO> list() {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
     return service.findAll();
@@ -93,7 +92,7 @@ public class CampusControllerImpl implements CampusController {
 
   @Override
   @PutMapping("/{id}")
-  @AuthorizeUser(actionKey = "campus-update")
+  //@AuthorizeUser(actionKey = "campus-update")
   public void update(@Valid @RequestBody CampusRequestDTO dto, @PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Mttre à jour un campus", "campus-update", "PUT", true));
     if (service.findById(id) == null) throw new RuntimeException("Le campus avec l'id " + id + " n'existe pas");
