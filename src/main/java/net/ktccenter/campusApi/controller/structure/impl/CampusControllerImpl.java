@@ -1,6 +1,5 @@
 package net.ktccenter.campusApi.controller.structure.impl;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import net.ktccenter.campusApi.controller.structure.CampusController;
 import net.ktccenter.campusApi.dto.importation.administration.ImportCampusRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
@@ -40,6 +39,7 @@ public class CampusControllerImpl implements CampusController {
   @Override
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
+  @AuthorizeUser(actionKey = "campus-add")
   public CampusDTO save(@Valid @RequestBody CampusRequestDTO dto) {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Ajouter un campus", "campus-add", "POST", true));
       if (service.existsByCodeAndLibelle(dto.getCode(), dto.getLibelle()))
@@ -79,8 +79,7 @@ public class CampusControllerImpl implements CampusController {
 
   @Override
   @GetMapping
-  //@AuthorizeUser(actionKey = "campus-list")
-  @SecurityRequirement(name = "Authorization")
+  @AuthorizeUser(actionKey = "campus-list")
   public List<CampusBranchDTO> list() {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
     return service.findAll();

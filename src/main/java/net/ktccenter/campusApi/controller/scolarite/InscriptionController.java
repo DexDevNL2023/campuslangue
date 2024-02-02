@@ -1,6 +1,7 @@
 package net.ktccenter.campusApi.controller.scolarite;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
+import net.ktccenter.campusApi.dto.lite.LiteNewInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
@@ -19,9 +20,10 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public interface InscriptionController {
-  LiteInscriptionDTO inscrireExitStudient(@RequestBody InscrireExitStudientRequestDTO dto);
+  LiteNewInscriptionDTO inscrireExitStudient(@RequestBody InscrireExitStudientRequestDTO dto);
 
-  LiteInscriptionDTO inscrireNewStudient(@RequestBody InscrireNewStudientRequestDTO dto);
+  LiteNewInscriptionDTO inscrireNewStudient(@RequestBody InscrireNewStudientRequestDTO dto);
+
   InscriptionDTO save(@RequestBody InscriptionRequestDTO dto);
 
   List<LiteInscriptionDTO> saveAll(@RequestBody List<ImportInscriptionRequestDTO> dtos);

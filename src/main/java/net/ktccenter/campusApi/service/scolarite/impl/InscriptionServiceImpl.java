@@ -6,11 +6,10 @@ import net.ktccenter.campusApi.dao.administration.InstitutionRepository;
 import net.ktccenter.campusApi.dao.cours.*;
 import net.ktccenter.campusApi.dao.scolarite.*;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
+import net.ktccenter.campusApi.dto.lite.LiteNewInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteForInscriptionDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.InscriptionRequestDTO;
@@ -99,7 +98,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   }
 
   @Override
-  public LiteInscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto) {
+  public LiteNewInscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto) {
     log.info("Make inscription for existing studient " + dto.toString());
     Inscription inscription = inscritExitStudient(dto);
     return buildLiteInscriptionDto(repository.save(inscription));
@@ -134,7 +133,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   }
 
   @Override
-  public LiteInscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto) {
+  public LiteNewInscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto) {
     log.info("Make inscription for new studient " + dto.toString());
     Inscription inscription = inscritNewStudient(dto);
     return buildLiteInscriptionDto(repository.save(inscription));
@@ -176,12 +175,11 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     return dto;
   }
 
-  private LiteInscriptionDTO buildLiteInscriptionDto(Inscription entity) {
-    LiteInscriptionDTO dto = mapper.asLite(entity);
-    dto.setEtudiant(new LiteEtudiantForNoteDTO(entity.getEtudiant()));
+  private LiteNewInscriptionDTO buildLiteInscriptionDto(Inscription entity) {
+    /*dto.setEtudiant(new LiteEtudiantForNoteDTO(entity.getEtudiant()));
     dto.setSession(new LiteSessionForNoteDTO(entity.getSession()));
-    dto.setCampus(new LiteCampusDTO(getCampus(entity.getCampusId())));
-    return dto;
+    dto.setCampus(new LiteCampusDTO(getCampus(entity.getCampusId())));*/
+    return new LiteNewInscriptionDTO(entity);
   }
 
   private Campus getCampus(Long campusId) {
@@ -192,7 +190,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   public List<LiteInscriptionDTO> save(List<ImportInscriptionRequestDTO> dtos) {
     return  ((List<Inscription>) repository.saveAll(mapper.asEntityList(dtos)))
             .stream()
-            .map(this::buildLiteInscriptionDto)
+            .map(mapper::asLite)
             .collect(Collectors.toList());
   }
 

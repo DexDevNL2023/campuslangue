@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.scolarite.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.controller.scolarite.InscriptionController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
+import net.ktccenter.campusApi.dto.lite.LiteNewInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
@@ -40,14 +41,14 @@ public class InscriptionControllerImpl implements InscriptionController {
   @Override
   @PostMapping("/exist/studient")
   @ResponseStatus(HttpStatus.CREATED)
-  public LiteInscriptionDTO inscrireExitStudient(@Valid @RequestBody InscrireExitStudientRequestDTO dto) {
+  public LiteNewInscriptionDTO inscrireExitStudient(@Valid @RequestBody InscrireExitStudientRequestDTO dto) {
     return service.inscrireExitStudient(dto);
   }
 
   @Override
   @PostMapping("/new/studient")
   @ResponseStatus(HttpStatus.CREATED)
-  public LiteInscriptionDTO inscrireNewStudient(@Valid @RequestBody InscrireNewStudientRequestDTO dto) {
+  public LiteNewInscriptionDTO inscrireNewStudient(@Valid @RequestBody InscrireNewStudientRequestDTO dto) {
     return service.inscrireNewStudient(dto);
   }
 

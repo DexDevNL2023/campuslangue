@@ -1,6 +1,7 @@
 package net.ktccenter.campusApi.service.scolarite;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportInscriptionRequestDTO;
+import net.ktccenter.campusApi.dto.lite.LiteNewInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.InscriptionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.InscriptionDTO;
@@ -22,9 +23,9 @@ public interface InscriptionService extends GenericService<Inscription, Inscript
 
     boolean equalsByDto(InscriptionRequestDTO dto, Long id);
 
-    LiteInscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto);
+    LiteNewInscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto);
 
-    LiteInscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto);
+    LiteNewInscriptionDTO inscrireNewStudient(InscrireNewStudientRequestDTO dto);
 
   Path downloadAttestation(Long id) throws URISyntaxException, JRException, IOException;
 }
