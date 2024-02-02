@@ -99,7 +99,8 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
 
   @Override
   public LiteNewInscriptionDTO inscrireExitStudient(InscrireExitStudientRequestDTO dto) {
-    log.info("Make inscription for existing studient " + dto.toString());
+    log.info("1");
+    //log.info("Make inscription for existing studient " + dto.toString());
     Inscription inscription = inscritExitStudient(dto);
     return buildLiteInscriptionDto(repository.save(inscription));
   }
@@ -108,25 +109,31 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     Etudiant etudiant = etudiantRepository.findById(dto.getEtudiantId()).orElseThrow(
             () -> new ResourceNotFoundException("L'apprenant avec l'id " + dto.getEtudiantId() + " n'existe pas")
     );
-    log.info("Find etudiant entity " + etudiant.toString());
+    log.info("2");
+    //log.info("Find etudiant entity " + etudiant.toString());
     Session session = sessionRepository.findById(dto.getSessionId()).orElseThrow(
             () -> new ResourceNotFoundException("La session avec l'id " + dto.getSessionId() + " n'existe pas")
     );
+    log.info("3");
+    //log.info("Find session entity " + session);
     if (session.getEstTerminee()) throw new ResourceNotFoundException("La session avec l'id " + dto.getSessionId()
             + " a été cloturée");
-    log.info("Find session entity " + session);
+    log.info("4");
     Campus campus = campusRepository.findById(dto.getCampusId()).orElseThrow(
             () -> new ResourceNotFoundException("Le campus avec l'id " + dto.getCampusId() + " n'existe pas")
     );
-    log.info("Find campus entity " + campus.toString());
+    log.info("5");
+    //log.info("Find campus entity " + campus.toString());
     Rubrique rubrique = rubriqueRepository.findById(dto.getRubriqueId()).orElseThrow(
             () -> new ResourceNotFoundException("La rubrique avec l'id " + dto.getRubriqueId() + " n'existe pas")
     );
-    log.info("Find rubrique entity " + rubrique.toString());
+    log.info("6");
+    //log.info("Find rubrique entity " + rubrique.toString());
     ModePaiement modePaiement = modePaiementRepository.findById(dto.getModePaiementId()).orElseThrow(
             () -> new ResourceNotFoundException("Le mode de paiement avec l'id " + dto.getModePaiementId() + " n'existe pas")
     );
-    log.info("Find mode paiement entity " + modePaiement.toString());
+    log.info("7");
+    //log.info("Find mode paiement entity " + modePaiement.toString());
 
     return makeInscription(etudiant, session, campus, dto.getRubriqueId(), modePaiement,
             dto.getFraisInscription(), dto.getAvancePension(), dto.getRefPaiement(), dto.getEstRedoublant());
@@ -143,21 +150,26 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     Session session = sessionRepository.findById(dto.getSessionId()).orElseThrow(
             () -> new ResourceNotFoundException("La session avec l'id " + dto.getSessionId() + " n'existe pas")
     );
+    log.info("2");
+    //log.info("Find session entity " + session);
     if (session.getEstTerminee()) throw new ResourceNotFoundException("La session avec l'id " + dto.getSessionId()
             + " a été cloturée");
-    log.info("Find session entity " + session);
+    log.info("3");
     Campus campus = campusRepository.findById(dto.getCampusId()).orElseThrow(
             () -> new ResourceNotFoundException("Le campus avec l'id " + dto.getCampusId() + " n'existe pas")
     );
-    log.info("Find campus entity " + campus.toString());
+    log.info("4");
+    //log.info("Find campus entity " + campus.toString());
     ModePaiement modePaiement = modePaiementRepository.findById(dto.getModePaiementId()).orElseThrow(
             () -> new ResourceNotFoundException("Le mode de paiement avec l'id " + dto.getModePaiementId() + " n'existe pas")
     );
-    log.info("Find mode paiement entity " + modePaiement.toString());
+    log.info("5");
+    //log.info("Find mode paiement entity " + modePaiement.toString());
 
     // On crée le profile de l'étudiant
     Etudiant newEtudiant = createEtudiantProfile(dto, session);
-    log.info("Add etudiant entity " + newEtudiant);
+    log.info("6");
+    //log.info("Add etudiant entity " + newEtudiant);
 
     return makeInscription(newEtudiant, session, campus, dto.getRubriqueId(), modePaiement,
             dto.getFraisInscription(), dto.getAvancePension(), dto.getRefPaiement(), dto.getEstRedoublant());
@@ -298,15 +310,17 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
                                       BigDecimal avancePension,
                                       String refPaiement,
                                       Boolean estRedoublant) {
-
+    log.info("21");
     // On verifie que l'etudiant n'est pas inscrit dans cette session
     if (isInscritToSession(etudiant, session)) throw
             new ResourceNotFoundException("L'étudiant " + etudiant.getNom().toLowerCase() + " est déjà inscrit pour cette session.");
-
+    log.info("22");
     // On génére le matricule de l"étudiant
     etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode()+"-"+session.getVague().getCode()+"-"+session.getNiveau().getCode()));
+    log.info("23");
     // On met à jour le profil de l'étudiant
     etudiant = etudiantRepository.save(etudiant);
+    log.info("24");
 
     // On crée l'inscription
     Inscription inscription = new Inscription();
@@ -318,25 +332,32 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     inscription.setCampus(campus);
     inscription.setEtudiant(etudiant);
     inscription = repository.save(inscription);
-    log.info("Create inscription entity " + inscription);
+    log.info("25");
+    //log.info("Create inscription entity " + inscription);
     TestModule testModule = getEtudiantTestModule(inscription);
-    log.info("Create test module entity " + testModule);
+    log.info("26");
+    //log.info("Create test module entity " + testModule);
     Examen examen = getEtudiantExamen(inscription);
-    log.info("Create examen entity " + examen);
+    log.info("27");
+    //log.info("Create examen entity " + examen);
 
     // On crée le versement
     if (fraisInscription.compareTo(session.getNiveau().getFraisInscription()) > 0) throw
             new ResourceNotFoundException("Les frais d'inscription saisie sont supérieur au frais d'inscription prévue pour ce niveau.");
+    log.info("28");
     if (fraisInscription.compareTo(new BigDecimal("0.0")) <= 0)
       fraisInscription = session.getNiveau().getFraisInscription();
+    log.info("29");
     // On construit l'objet versement et on le persite
     Rubrique rubriqueInscription = rubriqueRepository.findByCode("INSCRIPTION").orElseThrow(
             () -> new ResourceNotFoundException("La rubrique avec le code INSCRIPTION n'existe pas")
     );
-    log.info("Find rubrique entity " + rubriqueInscription.toString());
+    log.info("29A");
+    //log.info("Find rubrique entity " + rubriqueInscription.toString());
     // On cree le compte de paiement
     Compte compte = getEtudiantComptePaiement(inscription);
-    log.info("create compte entity " + compte);
+    log.info("29B");
+    //log.info("create compte entity " + compte);
     Paiement versement = new Paiement();
     versement.setRefPaiement(refPaiement);
     versement.setDatePaiement(MyUtils.dateNow());
@@ -347,14 +368,16 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     versement.setCampus(campus);
     versement.setCompte(compte);
     versement = paiementRepository.save(versement);
-    log.info("Create paiement entity " + versement);
+    log.info("29C");
+    //log.info("Create paiement entity " + versement);
 
     // Si l'avance sur la pension est supérieure à zéro, on effectue un versement sur la rubrique pension
     if (avancePension.compareTo(new BigDecimal("0.0")) > 0) {
       Rubrique rubrique = rubriqueRepository.findById(rubriqueId).orElseThrow(
               () -> new ResourceNotFoundException("La rubrique avec l'id " + rubriqueId + " n'existe pas")
       );
-      log.info("Find rubrique entity " + rubrique.toString());
+      log.info("29D");
+      //log.info("Find rubrique entity " + rubrique.toString());
       // On construit l'objet versement et on le persite
       Paiement avance = new Paiement();
       avance.setRefPaiement(refPaiement);
@@ -366,7 +389,8 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
       avance.setCampus(campus);
       avance.setCompte(compte);
       avance = paiementRepository.save(avance);
-      log.info("Avance sur " + rubrique.getLibelle() + " : " + avance);
+      log.info("29E");
+      //log.info("Avance sur " + rubrique.getLibelle() + " : " + avance);
     }
 
     // On envoie le mail de confirmation de paiement
@@ -381,68 +405,86 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
 
   private Compte getEtudiantComptePaiement(Inscription inscription) {
     String code = MyUtils.GenerateCode("CMPT"+"-"+inscription.getCampus().getBranche().getCode()+"-"+inscription.getEtudiant().getMatricule());
-    log.info(code);
+    log.info("50");
+    //log.info(code);
     Compte compte = new Compte();
     compte.setCode(code);
     compte.setInscription(inscription);
     compte = compteRepository.save(compte);
-    log.info(compte.toString());
+    log.info("51");
+    //log.info(compte.toString());
     return compte;
   }
 
   private Examen getEtudiantExamen(Inscription inscription) {
-    log.info("Begin to build examen");
+    log.info("41");
+    //log.info("Begin to build examen");
     String code = MyUtils.GenerateCode("EXAMEN-"+inscription.getSession().getCode()+"-"+inscription.getEtudiant().getMatricule());
-    log.info("Examen code "+code);
+    log.info("42");
+    //log.info("Examen code "+code);
     Examen examen = new Examen();
     examen.setCode(code);
     examen.setInscription(inscription);
     examen = examenRepository.save(examen);
-    log.info("Examen "+ examen);
+    log.info("43");
+    //log.info("Examen "+ examen);
     Niveau niveau = niveauRepository.findById(inscription.getSession().getNiveau().getId()).orElseThrow(
             () ->  new ResourceNotFoundException("Le niveau avec l'id "+inscription.getSession().getNiveau().getId()+" n'existe pas")
     );
-    log.info("Find niveau "+niveau.toString());
+    log.info("44");
+    //log.info("Find niveau "+niveau.toString());
     List<Unite> unites = uniteRepository.findAllByNiveau(niveau);
     if (unites.isEmpty()) throw
             new ResourceNotFoundException("Avant d'effectuer une inscription veillez ajouter au moins une unité de formation pour le niveau " +
                     niveau.getLibelle());
-    log.info("Get all unite by niveau "+ unites);
+    log.info("45");
+    //log.info("Get all unite by niveau "+ unites);
     log.info("add test to test module");
     for (Unite unite : unites) {
       Epreuve epreuve = new Epreuve();
       epreuve.setUnite(unite);
       epreuve.setExamen(examen);
       epreuve = epreuveRepository.save(epreuve);
-      log.info("new epreuve " + epreuve);
+      log.info("46");
+      //log.info("new epreuve " + epreuve);
     }
+    log.info("47");
+    //
     return examen;
   }
 
   private TestModule getEtudiantTestModule(Inscription inscription) {
-    log.info("Begin to build test module");
+    log.info("30");
+    //log.info("Begin to build test module");
     String code = MyUtils.GenerateCode("TEST-"+inscription.getSession().getCode()+"-"+inscription.getEtudiant().getMatricule());
-    log.info("Test module code"+code);
+    log.info("31");
+    //log.info("Test module code"+code);
     TestModule testModule = new TestModule();
     testModule.setCode(code);
     testModule.setInscription(inscription);
     testModule = testModuleRepository.save(testModule);
-    log.info("Test module "+ testModule);
+    log.info("32");
+    //log.info("Test module "+ testModule);
     Niveau niveau = niveauRepository.findById(inscription.getSession().getNiveau().getId()).orElseThrow(
             () ->  new ResourceNotFoundException("Le niveau avec l'id "+inscription.getSession().getNiveau().getId()+" n'existe pas")
     );
-    log.info("Find niveau "+niveau.toString());
+    log.info("33");
+    //log.info("Find niveau "+niveau.toString());
     List<ModuleFormation> moduleFormations = moduleFormationRepository.findAllByNiveau(niveau);
     if (moduleFormations.isEmpty()) throw new ResourceNotFoundException("Avant d'effectuer une inscription veillez ajouter au moins un module de formation pour le niveau "+niveau.getLibelle());
-    log.info("Get all module by niveau "+ moduleFormations);
+    log.info("34");
+    //log.info("Get all module by niveau "+ moduleFormations);
     log.info("add test to test module");
     for (ModuleFormation module : moduleFormations) {
       EvaluationTest test = new EvaluationTest();
       test.setModuleFormation(module);
       test.setTestModule(testModule);
       test = evaluationTestRepository.save(test);
-      log.info("new test " + test);
+      log.info("35");
+      //log.info("new test " + test);
     }
+    log.info("36");
+    //
     return testModule;
   }
 
