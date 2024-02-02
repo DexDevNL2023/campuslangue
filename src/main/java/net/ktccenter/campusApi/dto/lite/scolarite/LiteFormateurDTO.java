@@ -20,7 +20,6 @@ public class LiteFormateurDTO {
   private String telephone;
   private String email;
   private Integer experience;
-  private LiteDiplomeDTO diplome;
   private String fullName;
 
   public LiteFormateurDTO(Formateur formateur) {

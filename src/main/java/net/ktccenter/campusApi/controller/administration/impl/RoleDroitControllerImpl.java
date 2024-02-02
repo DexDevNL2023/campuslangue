@@ -4,6 +4,7 @@ package net.ktccenter.campusApi.controller.administration.impl;
 import net.ktccenter.campusApi.controller.administration.RoleDroitController;
 import net.ktccenter.campusApi.dto.importation.administration.ImportRoleDroitRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDroitDTO;
+import net.ktccenter.campusApi.dto.reponse.PermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.RoleDroitDTO;
 import net.ktccenter.campusApi.dto.request.administration.RoleDroitRequestDTO;
 import net.ktccenter.campusApi.service.administration.RoleDroitService;
@@ -54,7 +55,7 @@ public class RoleDroitControllerImpl implements RoleDroitController {
 
     @Override
     @GetMapping
-    public List<LiteRoleDroitDTO> list() {
+    public List<PermissionModuleDTO> list() {
         return service.findAll();
     }
 

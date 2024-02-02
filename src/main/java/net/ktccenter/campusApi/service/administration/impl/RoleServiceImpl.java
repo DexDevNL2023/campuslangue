@@ -1,15 +1,19 @@
 package net.ktccenter.campusApi.service.administration.impl;
 
 import net.ktccenter.campusApi.dao.administration.DroitRepository;
+import net.ktccenter.campusApi.dao.administration.ModuleRepository;
 import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportRoleRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteDroitDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteModuleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDroitDTO;
+import net.ktccenter.campusApi.dto.reponse.PermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.RoleDTO;
 import net.ktccenter.campusApi.dto.request.administration.RoleRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Droit;
+import net.ktccenter.campusApi.entities.administration.Module;
 import net.ktccenter.campusApi.entities.administration.Role;
 import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
@@ -21,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,12 +36,14 @@ public class RoleServiceImpl implements RoleService {
     private final RoleMapper mapper;
     private final DroitRepository droitRepository;
     private final RoleDroitRepository roleDroitRepository;
+    private final ModuleRepository moduleRepository;
 
-    public RoleServiceImpl(RoleRepository repository, RoleMapper mapper, DroitRepository droitRepository, RoleDroitRepository roleDroitRepository) {
+    public RoleServiceImpl(RoleRepository repository, RoleMapper mapper, DroitRepository droitRepository, RoleDroitRepository roleDroitRepository, ModuleRepository moduleRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.droitRepository = droitRepository;
         this.roleDroitRepository = roleDroitRepository;
+        this.moduleRepository = moduleRepository;
     }
 
     @Override
@@ -68,8 +75,18 @@ public class RoleServiceImpl implements RoleService {
         repository.deleteById(id);
     }
 
-    private List<LiteRoleDroitDTO> getAllPermissionsByRole(Role role) {
-        return roleDroitRepository.findAllByRole(role).stream().map(this::buildPermissionLiteDto).collect(Collectors.toList());
+    private List<PermissionModuleDTO> getAllPermissionsByRole(Role role) {
+        //return roleDroitRepository.findAllByRole(role).stream().map(this::buildPermissionLiteDto).collect(Collectors.toList());
+        List<PermissionModuleDTO> list = new ArrayList<>();
+        List<Module> modules = (List<Module>) moduleRepository.findAll();
+        for (Module module : modules) {
+            PermissionModuleDTO dto = new PermissionModuleDTO();
+            dto.setModule(new LiteModuleDTO(module));
+            List<LiteRoleDroitDTO> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().map(this::buildPermissionLiteDto).collect(Collectors.toList());
+            dto.setData(data);
+            list.add(dto);
+        }
+        return list;
     }
 
     private LiteRoleDroitDTO buildPermissionLiteDto(RoleDroit roleDroit) {

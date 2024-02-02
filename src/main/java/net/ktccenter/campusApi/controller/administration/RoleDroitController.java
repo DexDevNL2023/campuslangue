@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.administration;
 
 import net.ktccenter.campusApi.dto.importation.administration.ImportRoleDroitRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDroitDTO;
+import net.ktccenter.campusApi.dto.reponse.PermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.RoleDroitDTO;
 import net.ktccenter.campusApi.dto.request.administration.RoleDroitRequestDTO;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,7 @@ public interface RoleDroitController {
 
     void delete(@PathVariable("id") Long id);
 
-    List<LiteRoleDroitDTO> list();
+    List<PermissionModuleDTO> list();
 
     Page<LiteRoleDroitDTO> pageQuery(Pageable pageable);
 

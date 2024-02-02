@@ -1,6 +1,7 @@
 package net.ktccenter.campusApi.dao.administration;
 
 import net.ktccenter.campusApi.entities.administration.Droit;
+import net.ktccenter.campusApi.entities.administration.Module;
 import net.ktccenter.campusApi.entities.administration.Role;
 import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,10 @@ public interface RoleDroitRepository extends PagingAndSortingRepository<RoleDroi
 
     @Query("SELECT DISTINCT e FROM RoleDroit e WHERE e.role = :role")
     List<RoleDroit> findAllByRole(Role role);
+
+    @Query("SELECT DISTINCT e FROM RoleDroit e WHERE e.droit.module = :module")
+    List<RoleDroit> findAllByModule(Module module);
+
+    @Query("SELECT DISTINCT e FROM RoleDroit e WHERE e.droit.module = :module AND e.role = :role")
+    List<RoleDroit> findAllByModuleAndRole(Module module, Role role);
 }

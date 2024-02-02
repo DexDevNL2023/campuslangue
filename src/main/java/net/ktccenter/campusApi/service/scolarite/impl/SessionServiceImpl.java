@@ -8,7 +8,6 @@ import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModuleFormationRepository;
 import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportSessionRequestDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.*;
 import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
@@ -107,14 +106,13 @@ public class SessionServiceImpl extends MainService implements SessionService {
     return dto;
   }
 
-  private Set<LiteInscriptionDTO> getAllInscriptionsForSession(Session session) {
+  private Set<LiteInscriptionForNoteDTO> getAllInscriptionsForSession(Session session) {
     return inscriptionRepository.findAllBySession(session).stream().map(this::buildInscriptionLiteDto).collect(Collectors.toSet());
   }
 
-  private LiteInscriptionDTO buildInscriptionLiteDto(Inscription entity) {
-    LiteInscriptionDTO lite = new LiteInscriptionDTO(entity);
-    lite.setCampus(new LiteCampusDTO(entity.getCampus()));
-    return lite;
+  private LiteInscriptionForNoteDTO buildInscriptionLiteDto(Inscription entity) {
+    //lite.setCampus(new LiteCampusDTO(entity.getCampus()));
+    return new LiteInscriptionForNoteDTO(entity);
   }
 
   @Override

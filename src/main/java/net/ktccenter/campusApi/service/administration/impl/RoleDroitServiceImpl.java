@@ -1,10 +1,14 @@
 package net.ktccenter.campusApi.service.administration.impl;
 
+import net.ktccenter.campusApi.dao.administration.ModuleRepository;
 import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportRoleDroitRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteModuleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteRoleDroitDTO;
+import net.ktccenter.campusApi.dto.reponse.PermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.RoleDroitDTO;
 import net.ktccenter.campusApi.dto.request.administration.RoleDroitRequestDTO;
+import net.ktccenter.campusApi.entities.administration.Module;
 import net.ktccenter.campusApi.entities.administration.RoleDroit;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.RoleDroitMapper;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,10 +28,12 @@ import java.util.stream.Collectors;
 public class RoleDroitServiceImpl implements RoleDroitService {
     private final RoleDroitRepository repository;
     private final RoleDroitMapper mapper;
+    private final ModuleRepository moduleRepository;
 
-    public RoleDroitServiceImpl(RoleDroitRepository repository, RoleDroitMapper mapper) {
+    public RoleDroitServiceImpl(RoleDroitRepository repository, RoleDroitMapper mapper, ModuleRepository moduleRepository) {
         this.repository = repository;
         this.mapper = mapper;
+        this.moduleRepository = moduleRepository;
     }
 
     @Override
@@ -61,8 +68,18 @@ public class RoleDroitServiceImpl implements RoleDroitService {
     }
 
     @Override
-    public List<LiteRoleDroitDTO> findAll() {
-        return ((List<RoleDroit>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
+    public List<PermissionModuleDTO> findAll() {
+        //return ((List<RoleDroit>) repository.findAllByModule(module)).stream().map(mapper::asLite).collect(Collectors.toList());
+        List<PermissionModuleDTO> list = new ArrayList<>();
+        List<Module> modules = (List<Module>) moduleRepository.findAll();
+        for (Module module : modules) {
+            PermissionModuleDTO dto = new PermissionModuleDTO();
+            dto.setModule(new LiteModuleDTO(module));
+            List<LiteRoleDroitDTO> data = repository.findAllByModule(module).stream().map(mapper::asLite).collect(Collectors.toList());
+            dto.setData(data);
+            list.add(dto);
+        }
+        return list;
     }
 
     @Override
