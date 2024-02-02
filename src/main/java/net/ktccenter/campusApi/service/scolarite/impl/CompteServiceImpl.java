@@ -4,11 +4,8 @@ import net.ktccenter.campusApi.dao.administration.CampusRepository;
 import net.ktccenter.campusApi.dao.scolarite.CompteRepository;
 import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportCompteRequestDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteModePaiementDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteRubriqueDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForcompteDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
@@ -55,7 +52,7 @@ public class CompteServiceImpl extends MainService implements CompteService {
 
     private CompteDTO buildCompteDto(Compte compte) {
         CompteDTO dto = mapper.asDTO(compte);
-        dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
+        //dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
         CalculTotals calcul = calculSolde(getAllPaiementsForCompte(compte));
         dto.setSolde(calcul.getSolde());
         dto.setResteApayer(calcul.getResteApayer());
@@ -111,19 +108,12 @@ public class CompteServiceImpl extends MainService implements CompteService {
         return paiementRepository.findAllByCompte(compte);
     }
 
-    private Set<LitePaiementDTO> getAllPaiementsForCompteDto(Compte compte) {
+    private Set<LitePaiementForcompteDTO> getAllPaiementsForCompteDto(Compte compte) {
         return paiementRepository.findAllByCompte(compte).stream().map(this::buildPaiementLiteDto).collect(Collectors.toSet());
     }
 
-    private LitePaiementDTO buildPaiementLiteDto(Paiement entity) {
-        LitePaiementDTO lite = new LitePaiementDTO();
-        lite.setId(entity.getId());
-        lite.setRefPaiement(entity.getRefPaiement());
-        lite.setMontant(entity.getMontant());
-        lite.setDatePaiement(entity.getDatePaiement());
-        lite.setModePaiement(new LiteModePaiementDTO(entity.getModePaiement()));
-        lite.setRubrique(new LiteRubriqueDTO(entity.getRubrique()));
-        return lite;
+    private LitePaiementForcompteDTO buildPaiementLiteDto(Paiement entity) {
+        return new LitePaiementForcompteDTO(entity);
     }
 
     @Override

@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteDiplomeDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForEtudiantDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 import net.ktccenter.campusApi.enums.Sexe;
 
@@ -31,7 +31,7 @@ public class EtudiantDTO extends AbstractDTO {
   private LiteDiplomeDTO dernierDiplome;
   private LiteBrancheDTO branche;
   private String fullName;
-  private Set<LiteInscriptionDTO> inscriptions = new HashSet<>();
+  private Set<LiteInscriptionForEtudiantDTO> inscriptions = new HashSet<>();
   private BigDecimal soldeTotal;
   private Integer nbrePaiement;
   private BigDecimal resteApayer;
