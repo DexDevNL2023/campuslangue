@@ -106,11 +106,6 @@ public class VagueServiceImpl extends MainService implements VagueService {
     return result;
   }
 
-  @Override
-  public List<LiteVagueDTO> getAll() {
-    return ((List<Vague>) repository.findAll()).stream().map(mapper::asLite).collect(Collectors.toList());
-  }
-
   private VagueBranchDTO buildData(Branche branche, List<Vague> vagues) {
     VagueBranchDTO dto = new VagueBranchDTO();
     dto.setBranche(brancheMapper.asLite(branche));

@@ -22,7 +22,6 @@ public interface VagueController {
   void delete(@PathVariable("id") Long id);
 
   List<VagueBranchDTO> list();
-  //List<LiteVagueDTO> list();
 
   Page<LiteVagueDTO> pageQuery(Pageable pageable);
 

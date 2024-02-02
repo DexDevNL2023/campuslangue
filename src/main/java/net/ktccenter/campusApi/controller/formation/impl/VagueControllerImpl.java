@@ -63,7 +63,6 @@ public class VagueControllerImpl implements VagueController {
   @GetMapping
   public List<VagueBranchDTO> list() {
     return service.findAll();
-    //return service.getAll();
   }
 
   @Override
