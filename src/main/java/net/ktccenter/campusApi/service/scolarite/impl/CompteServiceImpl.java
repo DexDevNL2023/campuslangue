@@ -4,6 +4,7 @@ import net.ktccenter.campusApi.dao.administration.CampusRepository;
 import net.ktccenter.campusApi.dao.scolarite.CompteRepository;
 import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportCompteRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForcompteDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
@@ -52,7 +53,7 @@ public class CompteServiceImpl extends MainService implements CompteService {
 
     private CompteDTO buildCompteDto(Compte compte) {
         CompteDTO dto = mapper.asDTO(compte);
-        //dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
+        dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
         CalculTotals calcul = calculSolde(getAllPaiementsForCompte(compte));
         dto.setSolde(calcul.getSolde());
         dto.setResteApayer(calcul.getResteApayer());
@@ -66,7 +67,7 @@ public class CompteServiceImpl extends MainService implements CompteService {
 
     private LiteCompteDTO buildLiteCompteDto(Compte compte) {
         LiteCompteDTO dto = mapper.asLite(compte);
-        //dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
+        dto.getInscription().setCampus(new LiteCampusDTO(getCampus(compte.getInscription().getCampusId())));
         CalculTotals calcul = calculSolde(getAllPaiementsForCompte(compte));
         dto.setSolde(calcul.getSolde());
         dto.setResteApayer(calcul.getResteApayer());
@@ -148,7 +149,7 @@ public class CompteServiceImpl extends MainService implements CompteService {
         dto.setBranche(brancheMapper.asLite(branche));
         dto.setData(comptes.stream()
                 .filter(e -> belongsToTheCurrentBranch(branche, e))
-                .map(mapper::asLite)
+                .map(this::buildLiteCompteDto)
                 .collect(Collectors.toList()));
         return dto;
     }
