@@ -13,10 +13,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
-import net.ktccenter.campusApi.dto.request.cours.EpreuveForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.ExamenRequestDTO;
-import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteDTO;
+import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.Examen;
@@ -244,7 +241,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
     }
 
     @Override
-    public List<ExamenForNoteReponseDTO> saisieNotesexamen(FullExamenForNoteDTO dto) {
+    public List<ExamenForNoteReponseDTO> saisieNotesExamen(FullExamenForNoteDTO dto) {
         List<ExamenForNoteReponseDTO> listDto = new ArrayList<>();
         List<ExamenForNoteDTO> listExamenDto = dto.getExamens();
         for (ExamenForNoteDTO examenDto : listExamenDto) {
@@ -268,6 +265,30 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             }
         }
         return listDto;
+    }
+
+    @Override
+    public void importNotesExamen(FullExamenForNoteImportDTO dto) {
+        List<EpreuveForNoteImportDTO> listEpreuvesDto = dto.getEpreuves();
+        for (EpreuveForNoteImportDTO epreuveDto : listEpreuvesDto) {
+            Epreuve epreuve = epreuveRepository.findById(epreuveDto.getEpreuveId()).orElse(null);
+            if (epreuve != null) {
+                if (epreuve.getEstRattrapee()) {
+                    epreuve.setNoteRattrapage(epreuveDto.getNoteRattrapage());
+                } else {
+                    epreuve.setNoteObtenue(epreuveDto.getNoteObtenue());
+                    boolean success = (epreuveDto.getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
+                    epreuve.setEstValidee(success);
+                    if (!success) epreuve.setEstRattrapee(true);
+                }
+                epreuve = epreuveRepository.save(epreuve);
+                Examen examen = repository.findById(epreuve.getExamen().getId()).orElse(null);
+                if (examen != null) {
+                    examen.setDateExamen(dto.getDateExamen());
+                    repository.save(examen);
+                }
+            }
+        }
     }
 
     private ExamenForNoteDTO buildExamenForNoteDto(Examen examen, Epreuve epreuve) {

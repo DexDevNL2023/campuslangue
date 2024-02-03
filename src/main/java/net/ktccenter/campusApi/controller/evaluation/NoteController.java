@@ -4,7 +4,9 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteImportDTO;
 import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteImportDTO;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
 import net.ktccenter.campusApi.service.scolarite.SessionService;
@@ -48,13 +50,25 @@ public class NoteController {
 
   @PostMapping("/saisie/notes/test-module")
   @ResponseStatus(HttpStatus.OK)
-  public List<TestModuleForNoteReponseDTO> saisieNotesTest(@Valid @RequestBody FullTestModuleForNoteDTO dtos) {
-    return testModuleService.saisieNotesTest(dtos);
+  public List<TestModuleForNoteReponseDTO> saisieNotesTest(@Valid @RequestBody FullTestModuleForNoteDTO dto) {
+    return testModuleService.saisieNotesTest(dto);
   }
 
   @PostMapping("/saisie/notes/examen")
   @ResponseStatus(HttpStatus.OK)
-  public List<ExamenForNoteReponseDTO> saisieNotesexamen(@Valid @RequestBody FullExamenForNoteDTO dtos) {
-    return examenService.saisieNotesexamen(dtos);
+  public List<ExamenForNoteReponseDTO> saisieNotesexamen(@Valid @RequestBody FullExamenForNoteDTO dto) {
+    return examenService.saisieNotesExamen(dto);
+  }
+
+  @PostMapping("/import/notes/test-module")
+  @ResponseStatus(HttpStatus.OK)
+  public void importNotesTest(@Valid @RequestBody FullTestModuleForNoteImportDTO dto) {
+    testModuleService.importNotesTest(dto);
+  }
+
+  @PostMapping("/import/notes/examen")
+  @ResponseStatus(HttpStatus.OK)
+  public void importNotesexamen(@Valid @RequestBody FullExamenForNoteImportDTO dto) {
+    examenService.importNotesExamen(dto);
   }
 }

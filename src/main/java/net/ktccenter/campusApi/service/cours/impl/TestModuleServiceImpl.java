@@ -12,10 +12,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.TestModuleBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
-import net.ktccenter.campusApi.dto.request.cours.EvaluationTestForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.TestModuleForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.TestModuleRequestDTO;
+import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
 import net.ktccenter.campusApi.entities.cours.TestModule;
@@ -235,6 +232,19 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
       }
     }
     return listDto;
+  }
+
+  @Override
+  public void importNotesTest(FullTestModuleForNoteImportDTO dto) {
+    List<EvaluationTestForNoteImportDTO> listEvaluationTestDto = dto.getEvaluations();
+    for (EvaluationTestForNoteImportDTO evaluationTestDto : listEvaluationTestDto) {
+      EvaluationTest test = evaluationTestRepository.findById(evaluationTestDto.getEvaluationTestId()).orElse(null);
+      if (test != null) {
+        test.setDateEvaluation(dto.getDateEvaluation());
+        test.setNote(evaluationTestDto.getNote());
+        evaluationTestRepository.save(test);
+      }
+    }
   }
 
   private TestModuleForNoteDTO buildTestModuleForNoteDto(TestModule testModule, EvaluationTest evaluation) {

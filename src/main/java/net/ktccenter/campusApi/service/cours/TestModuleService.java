@@ -6,6 +6,7 @@ import net.ktccenter.campusApi.dto.reponse.branch.TestModuleBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteImportDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleRequestDTO;
 import net.ktccenter.campusApi.entities.cours.TestModule;
 import net.ktccenter.campusApi.service.GenericService;
@@ -23,5 +24,7 @@ public interface TestModuleService extends GenericService<TestModule, TestModule
 
     FullTestModuleForNoteDTO getAllTestBySession(Long sessionId, Long moduleId);
 
-    List<TestModuleForNoteReponseDTO> saisieNotesTest(FullTestModuleForNoteDTO dtos);
+    List<TestModuleForNoteReponseDTO> saisieNotesTest(FullTestModuleForNoteDTO dto);
+
+    void importNotesTest(FullTestModuleForNoteImportDTO dto);
 }
