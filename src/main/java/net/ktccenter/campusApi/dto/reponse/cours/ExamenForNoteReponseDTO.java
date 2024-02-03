@@ -4,11 +4,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 import net.ktccenter.campusApi.entities.cours.Examen;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Setter
@@ -18,11 +16,12 @@ public class ExamenForNoteReponseDTO extends AbstractDTO {
   private String code;
   private Date dateExamen;
   private Double pourcentage;
-  private BigDecimal totalFraisPension = BigDecimal.valueOf(0.0);
-  private BigDecimal totalFraisRattrapage = BigDecimal.valueOf(0.0);
-  private LiteInscriptionForNoteDTO inscription;
+  private String matricule;
+  private String nom;
+  private String prenom;
+  private String fullName;
   private LiteEpreuveDTO epreuve;
-    private Float moyenne = 0.0F;
+  private Float moyenne = 0.0F;
   private String appreciation;
 
   public ExamenForNoteReponseDTO(Examen examen) {

@@ -5,8 +5,8 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
-import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenRequestDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteDTO;
 import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.service.GenericService;
 
@@ -17,11 +17,11 @@ public interface ExamenService extends GenericService<Examen, ExamenRequestDTO, 
 
     boolean existsByCode(String code);
 
-  boolean equalsByDto(ExamenRequestDTO dto, Long id);
+    boolean equalsByDto(ExamenRequestDTO dto, Long id);
 
-  Examen findByCode(String code);
+    Examen findByCode(String code);
 
-  List<ExamenForNoteReponseDTO> getAllExamenBySession(Long sessionId, Long uniteId);
+    FullExamenForNoteDTO getAllExamenBySession(Long sessionId, Long uniteId);
 
-  List<ExamenForNoteReponseDTO> saisieNotesexamen(List<ExamenForNoteDTO> dtos);
+    List<ExamenForNoteReponseDTO> saisieNotesexamen(FullExamenForNoteDTO dtos);
 }

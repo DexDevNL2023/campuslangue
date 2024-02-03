@@ -3,7 +3,7 @@ package net.ktccenter.campusApi.controller.evaluation;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
-import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
@@ -42,7 +42,7 @@ public class NoteController {
 
   @GetMapping("/get/examen/{sessionId}/{uniteId}")
   @ResponseStatus(HttpStatus.OK)
-  public List<ExamenForNoteReponseDTO> getAllExamenBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("uniteId") Long uniteId) {
+  public FullExamenForNoteDTO getAllExamenBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("uniteId") Long uniteId) {
     return examenService.getAllExamenBySession(sessionId, uniteId);
   }
 
@@ -54,7 +54,7 @@ public class NoteController {
 
   @PostMapping("/saisie/notes/examen")
   @ResponseStatus(HttpStatus.OK)
-  public List<ExamenForNoteReponseDTO> saisieNotesexamen(@Valid @RequestBody List<ExamenForNoteDTO> dtos) {
+  public List<ExamenForNoteReponseDTO> saisieNotesexamen(@Valid @RequestBody FullExamenForNoteDTO dtos) {
     return examenService.saisieNotesexamen(dtos);
   }
 }

@@ -17,9 +17,9 @@ public interface TestModuleService extends GenericService<TestModule, TestModule
 
     boolean existsByCode(String code);
 
-  boolean equalsByDto(TestModuleRequestDTO dto, Long id);
+    boolean equalsByDto(TestModuleRequestDTO dto, Long id);
 
-  TestModule findByCode(String code);
+    TestModule findByCode(String code);
 
     FullTestModuleForNoteDTO getAllTestBySession(Long sessionId, Long moduleId);
 

@@ -9,14 +9,14 @@ import net.ktccenter.campusApi.dto.importation.cours.ImportExamenRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteExamenDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantForNoteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
+import net.ktccenter.campusApi.dto.request.cours.EpreuveForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.ExamenRequestDTO;
+import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.Examen;
@@ -33,10 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -225,14 +222,16 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
     }
 
     @Override
-    public List<ExamenForNoteReponseDTO> getAllExamenBySession(Long sessionId, Long uniteId) {
+    public FullExamenForNoteDTO getAllExamenBySession(Long sessionId, Long uniteId) {
         return buildExamenForNoteDto(sessionId, uniteId);
     }
 
-    private List<ExamenForNoteReponseDTO> buildExamenForNoteDto(Long sessionId, Long uniteId) {
-        List<ExamenForNoteReponseDTO> listExamenDto = new ArrayList<>();
+    private FullExamenForNoteDTO buildExamenForNoteDto(Long sessionId, Long uniteId) {
+        Date dateExamen = new Date();
+        List<ExamenForNoteDTO> listExamenDto = new ArrayList<>();
         List<Examen> listExamen = repository.findAllBySessionId(sessionId);
         for (Examen examen : listExamen) {
+            dateExamen = examen.getDateExamen();
             List<Epreuve> epreuves = epreuveRepository.findAllByExamenIdAndUniteId(examen.getId(), uniteId);
             if (epreuves.isEmpty()) {
                 continue;
@@ -241,22 +240,23 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
                 listExamenDto.add(buildExamenForNoteDto(examen, epreuve));
             }
         }
-        return listExamenDto;
+        return new FullExamenForNoteDTO(dateExamen, listExamenDto);
     }
 
     @Override
-    public List<ExamenForNoteReponseDTO> saisieNotesexamen(List<ExamenForNoteDTO> dtos) {
+    public List<ExamenForNoteReponseDTO> saisieNotesexamen(FullExamenForNoteDTO dto) {
         List<ExamenForNoteReponseDTO> listDto = new ArrayList<>();
-        for (ExamenForNoteDTO dto : dtos) {
-            Examen examen = repository.findById(dto.getExamenId()).orElse(null);
+        List<ExamenForNoteDTO> listExamenDto = dto.getExamens();
+        for (ExamenForNoteDTO examenDto : listExamenDto) {
+            Examen examen = repository.findById(examenDto.getExamenId()).orElse(null);
             if (examen != null) {
-                Epreuve epreuve = epreuveRepository.findById(dto.getEpreuve().getEpreuveId()).orElse(null);
+                Epreuve epreuve = epreuveRepository.findById(examenDto.getEpreuve().getEpreuveId()).orElse(null);
                 if (epreuve != null) {
                     if (epreuve.getEstRattrapee()) {
-                        epreuve.setNoteRattrapage(dto.getEpreuve().getNoteRattrapage());
+                        epreuve.setNoteRattrapage(examenDto.getEpreuve().getNoteRattrapage());
                     } else {
-                        epreuve.setNoteObtenue(dto.getEpreuve().getNoteObtenue());
-                        boolean success = (dto.getEpreuve().getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
+                        epreuve.setNoteObtenue(examenDto.getEpreuve().getNoteObtenue());
+                        boolean success = (examenDto.getEpreuve().getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
                         epreuve.setEstValidee(success);
                         if (!success) epreuve.setEstRattrapee(true);
                     }
@@ -264,25 +264,34 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
                 }
                 examen.setDateExamen(dto.getDateExamen());
                 examen = repository.save(examen);
-                listDto.add(buildExamenForNoteDto(examen, epreuve));
+                listDto.add(buildExamenForNoteReponseDto(examen, epreuve));
             }
         }
         return listDto;
     }
 
-    private ExamenForNoteReponseDTO buildExamenForNoteDto(Examen examen, Epreuve epreuve) {
+    private ExamenForNoteDTO buildExamenForNoteDto(Examen examen, Epreuve epreuve) {
+        ExamenForNoteDTO dto = new ExamenForNoteDTO(examen);
+        EpreuveForNoteDTO epreuveLite = new EpreuveForNoteDTO(epreuve);
+        epreuveLite.setUniteCode(epreuve.getUnite().getCode());
+        dto.setEpreuve(epreuveLite);
+        dto.setMatricule(examen.getInscription().getEtudiant().getMatricule());
+        dto.setNom(examen.getInscription().getEtudiant().getNom());
+        dto.setPrenom(examen.getInscription().getEtudiant().getPrenom());
+        return dto;
+    }
+
+    private ExamenForNoteReponseDTO buildExamenForNoteReponseDto(Examen examen, Epreuve epreuve) {
         ExamenForNoteReponseDTO dto = new ExamenForNoteReponseDTO(examen);
         Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
         LiteEpreuveDTO epreuveLite = new LiteEpreuveDTO(epreuve);
         epreuveLite.setUnite(new LiteUniteDTO(epreuve.getUnite()));
         dto.setEpreuve(epreuveLite);
-        LiteInscriptionForNoteDTO inscriptionLite = new LiteInscriptionForNoteDTO(examen.getInscription());
-        inscriptionLite.setEtudiant(new LiteEtudiantForNoteDTO(examen.getInscription().getEtudiant()));
-        dto.setInscription(inscriptionLite);
+        dto.setMatricule(examen.getInscription().getEtudiant().getMatricule());
+        dto.setNom(examen.getInscription().getEtudiant().getNom());
+        dto.setPrenom(examen.getInscription().getEtudiant().getPrenom());
         dto.setMoyenne(calculMoyenne(epreuves));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
-        dto.setTotalFraisPension(calculTotalPension(epreuves));
-        dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
         return dto;
     }
 

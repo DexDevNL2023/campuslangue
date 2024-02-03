@@ -10,7 +10,7 @@ import net.ktccenter.campusApi.entities.cours.EvaluationTest;
 @NoArgsConstructor
 public class EvaluationTestForNoteDTO {
   private Long evaluationTestId;
-    private Float note = 0.0F;
+  private Float note = 0.0F;
   private String moduleFormationCode;
 
   public EvaluationTestForNoteDTO(EvaluationTest evaluation) {
