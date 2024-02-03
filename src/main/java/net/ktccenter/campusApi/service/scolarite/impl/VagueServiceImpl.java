@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -117,11 +116,7 @@ public class VagueServiceImpl extends MainService implements VagueService {
   }
 
   private boolean belongsToTheCurrentBranch(Branche branche, Vague e) {
-    Set<LiteSessionDTO> sessions = getAllSessionsForVague(e);
-    for (LiteSessionDTO session : sessions) {
-      if (Objects.equals(session.getBranche().getId(), branche.getId())) return true;
-    }
-    return false;
+    return e.getBranche().getId().equals(branche.getId());
   }
 
   @Override

@@ -16,4 +16,5 @@ public class VagueRequestDTO {
   @NotBlank(message = "Le code de la vague est obligatoire")
   @Size(min = 2, message = "Le code doit être d'au moins 2 caractères")
   private String code;
+  private Long brancheId;
 }
