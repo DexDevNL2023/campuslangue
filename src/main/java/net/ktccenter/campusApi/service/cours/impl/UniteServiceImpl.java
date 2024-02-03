@@ -2,13 +2,19 @@ package net.ktccenter.campusApi.service.cours.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
+import net.ktccenter.campusApi.dao.cours.ExamenRepository;
 import net.ktccenter.campusApi.dao.cours.UniteRepository;
+import net.ktccenter.campusApi.dao.scolarite.EtudiantRepository;
+import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
 import net.ktccenter.campusApi.dto.importation.cours.ImportUniteRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.UniteDTO;
 import net.ktccenter.campusApi.dto.request.cours.UniteRequestDTO;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
+import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.cours.Unite;
+import net.ktccenter.campusApi.entities.scolarite.Etudiant;
+import net.ktccenter.campusApi.entities.scolarite.Inscription;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.UniteMapper;
 import net.ktccenter.campusApi.service.cours.UniteService;
@@ -30,16 +36,47 @@ public class UniteServiceImpl implements UniteService {
   private final UniteRepository repository;
   private final UniteMapper mapper;
   private final EpreuveRepository epreuveRepository;
+  private final EtudiantRepository etudiantRepository;
+  private final InscriptionRepository inscriptionRepository;
+  private final ExamenRepository examenRepository;
 
-  public UniteServiceImpl(UniteRepository repository, UniteMapper mapper, EpreuveRepository epreuveRepository) {
+  public UniteServiceImpl(UniteRepository repository, UniteMapper mapper, EpreuveRepository epreuveRepository, EtudiantRepository etudiantRepository, InscriptionRepository inscriptionRepository, ExamenRepository examenRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.epreuveRepository = epreuveRepository;
+    this.etudiantRepository = etudiantRepository;
+    this.inscriptionRepository = inscriptionRepository;
+    this.examenRepository = examenRepository;
   }
 
   @Override
   public UniteDTO save(UniteRequestDTO dto) {
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    Unite unite = repository.save(mapper.asEntity(dto));
+    verifyExamen(unite);
+    return mapper.asDTO(unite);
+  }
+
+  private void verifyExamen(Unite unite) {
+    List<Etudiant> etudiants = (List<Etudiant>) etudiantRepository.findAll();
+    for (Etudiant etudiant : etudiants) {
+      List<Inscription> inscriptions = inscriptionRepository.findAllByEtudiant(etudiant);
+      for (Inscription inscription : inscriptions) {
+        Examen examen = examenRepository.findByInscription(inscription);
+        if (examen != null) {
+          List<Epreuve> epreuves = epreuveRepository.findAllByExamenIdAndUniteId(examen.getId(), unite.getId());
+          if (epreuves.isEmpty()) {
+            createAllEpreuvesForExamen(examen, unite);
+          }
+        }
+      }
+    }
+  }
+
+  private void createAllEpreuvesForExamen(Examen examen, Unite unite) {
+    Epreuve epreuve = new Epreuve();
+    epreuve.setUnite(unite);
+    epreuve.setExamen(examen);
+    epreuveRepository.save(epreuve);
   }
 
   @Override
@@ -90,7 +127,9 @@ public class UniteServiceImpl implements UniteService {
   public UniteDTO update(UniteRequestDTO dto, Long id) {
     Unite exist =  findById(id);
     dto.setId(exist.getId());
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    Unite unite = repository.save(mapper.asEntity(dto));
+    verifyExamen(unite);
+    return mapper.asDTO(unite);
   }
 
   @Override

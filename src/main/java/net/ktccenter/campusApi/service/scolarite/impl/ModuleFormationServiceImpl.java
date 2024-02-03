@@ -1,12 +1,18 @@
 package net.ktccenter.campusApi.service.scolarite.impl;
 
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
+import net.ktccenter.campusApi.dao.cours.TestModuleRepository;
+import net.ktccenter.campusApi.dao.scolarite.EtudiantRepository;
+import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModuleFormationRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportModuleFormationRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.ModuleFormationDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.ModuleFormationRequestDTO;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
+import net.ktccenter.campusApi.entities.cours.TestModule;
+import net.ktccenter.campusApi.entities.scolarite.Etudiant;
+import net.ktccenter.campusApi.entities.scolarite.Inscription;
 import net.ktccenter.campusApi.entities.scolarite.ModuleFormation;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.ModuleFormationMapper;
@@ -28,16 +34,47 @@ public class ModuleFormationServiceImpl implements ModuleFormationService {
   private final ModuleFormationRepository repository;
   private final ModuleFormationMapper mapper;
   private final EvaluationTestRepository evaluationTestRepository;
+  private final EtudiantRepository etudiantRepository;
+  private final InscriptionRepository inscriptionRepository;
+  private final TestModuleRepository testModuleRepository;
 
-  public ModuleFormationServiceImpl(ModuleFormationRepository repository, ModuleFormationMapper mapper, EvaluationTestRepository evaluationTestRepository) {
+  public ModuleFormationServiceImpl(ModuleFormationRepository repository, ModuleFormationMapper mapper, EvaluationTestRepository evaluationTestRepository, EtudiantRepository etudiantRepository, InscriptionRepository inscriptionRepository, TestModuleRepository testModuleRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.evaluationTestRepository = evaluationTestRepository;
+    this.etudiantRepository = etudiantRepository;
+    this.inscriptionRepository = inscriptionRepository;
+    this.testModuleRepository = testModuleRepository;
   }
 
   @Override
   public ModuleFormationDTO save(ModuleFormationRequestDTO dto) {
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    ModuleFormation module = repository.save(mapper.asEntity(dto));
+    verifyTestModule(module);
+    return mapper.asDTO(module);
+  }
+
+  private void verifyTestModule(ModuleFormation module) {
+    List<Etudiant> etudiants = (List<Etudiant>) etudiantRepository.findAll();
+    for (Etudiant etudiant : etudiants) {
+      List<Inscription> inscriptions = inscriptionRepository.findAllByEtudiant(etudiant);
+      for (Inscription inscription : inscriptions) {
+        TestModule test = testModuleRepository.findByInscription(inscription);
+        if (test != null) {
+          List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModuleIdAndModuleId(test.getId(), module.getId());
+          if (evaluations.isEmpty()) {
+            createAllEvaluationsForTestModule(test, module);
+          }
+        }
+      }
+    }
+  }
+
+  private void createAllEvaluationsForTestModule(TestModule testModule, ModuleFormation module) {
+    EvaluationTest test = new EvaluationTest();
+    test.setModuleFormation(module);
+    test.setTestModule(testModule);
+    evaluationTestRepository.save(test);
   }
 
   @Override
@@ -89,7 +126,9 @@ public class ModuleFormationServiceImpl implements ModuleFormationService {
   public ModuleFormationDTO update(ModuleFormationRequestDTO dto, Long id) {
     ModuleFormation exist = findById(id);
     dto.setId(exist.getId());
-    return mapper.asDTO(repository.save(mapper.asEntity(dto)));
+    ModuleFormation module = repository.save(mapper.asEntity(dto));
+    verifyTestModule(module);
+    return mapper.asDTO(module);
   }
 
 
