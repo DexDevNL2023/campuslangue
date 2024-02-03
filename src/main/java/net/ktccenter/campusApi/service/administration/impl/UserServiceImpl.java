@@ -244,8 +244,8 @@ public class UserServiceImpl extends MainService implements UserService {
     @Override
     public void deleteById(Long id) {
         User user = findById(id);
-        if (!user.getRoles().isEmpty())
-            throw new ResourceNotFoundException("L'utilisateur avec l'id " + id + " ne peut pas etre supprimé car elle est utilisé par d'autre ressource");
+//        if (!user.getRoles().isEmpty())
+//            throw new ResourceNotFoundException("L'utilisateur avec l'id " + id + " ne peut pas etre supprimé car elle est utilisé par d'autre ressource");
         repository.deleteById(id);
     }
 
