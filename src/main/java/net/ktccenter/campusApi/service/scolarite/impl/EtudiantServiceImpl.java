@@ -37,7 +37,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -345,22 +344,22 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private EtudiantBranchDTO buildData(Branche branche, List<Etudiant> etudiants) {
+        List<LiteEtudiantDTO> data = etudiants.stream()
+                .filter(e -> belongsToTheCurrentBranch(branche, e))
+                .map(mapper::asLite)
+                .collect(Collectors.toList());
         EtudiantBranchDTO dto = new EtudiantBranchDTO();
         dto.setBranche(brancheMapper.asLite(branche));
-        dto.setData(etudiants.stream()
-                //.filter(e -> belongsToTheCurrentBranch(branche, e))
-                .filter(e -> e.getBranche().getId().equals(branche.getId()))
-                .map(mapper::asLite)
-                .collect(Collectors.toList()));
+        dto.setData(data);
         return dto;
     }
 
     private boolean belongsToTheCurrentBranch(Branche branche, Etudiant e) {
-        List<Inscription> inscriptions = getAllInscriptionsForEtudiant(e);
+        /*List<Inscription> inscriptions = getAllInscriptionsForEtudiant(e);
         for (Inscription inscription : inscriptions) {
             if (Objects.equals(e.getBranche().getId(), branche.getId())) return true;
-        }
-        return false;
+        }*/
+        return e.getBranche().getId().equals(branche.getId());
     }
 
     @Override
@@ -410,6 +409,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
 
     @Override
     public List<EtudiantBranchDTO> getAllBySession(Long sessionId, Long salleId, Long niveauId) {
+        //List<Etudiant> etudiants = (List<Etudiant>) repository.findAll();
         if (sessionId == null || sessionId <= 0) {
             return findAll()
                     .stream()
@@ -438,7 +438,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         for (LiteEtudiantDTO e : etudiants) {
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
-                if (Objects.equals(inscription.getSession().getId(), sessionId)) return true;
+                if (inscription.getSession().getId().equals(sessionId)) return true;
             }
         }
         return false;
@@ -449,8 +449,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         for (LiteEtudiantDTO e : etudiants) {
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
-                if (Objects.equals(inscription.getSession().getNiveau().getId(), niveauId))
-                    return true;
+                if (inscription.getSession().getNiveau().getId().equals(niveauId)) return true;
             }
         }
         return false;
@@ -461,8 +460,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         for (LiteEtudiantDTO e : etudiants) {
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
-                if (findBySalleInOccupations(inscription.getSession(), salleId))
-                    return true;
+                if (findBySalleInOccupations(inscription.getSession(), salleId)) return true;
             }
         }
         return false;
@@ -473,9 +471,16 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         for (LiteEtudiantDTO e : etudiants) {
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
-                if (Objects.equals(inscription.getSession().getNiveau().getId(), niveauId) && findBySalleInOccupations(inscription.getSession(), salleId))
+                if (inscription.getSession().getNiveau().getId().equals(niveauId) && findBySalleInOccupations(inscription.getSession(), salleId))
                     return true;
             }
+        }
+        return false;
+    }
+
+    private boolean findBySalleInOccupations(Session session, Long salleId) {
+        for (OccupationSalle Occupation : session.getOccupations()) {
+            if (Occupation.getSalle().getId().equals(salleId)) return true;
         }
         return false;
     }
@@ -488,13 +493,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         }
         return false;
     }*/
-
-    private boolean findBySalleInOccupations(Session session, Long salleId) {
-        for (OccupationSalle Occupation : session.getOccupations()) {
-            if (Objects.equals(Occupation.getSalle().getId(), salleId)) return true;
-        }
-        return false;
-    }
 
     @Override
     public List<EtudiantBranchDTO> getAllWithUnpaid() {
