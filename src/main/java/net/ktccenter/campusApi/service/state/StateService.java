@@ -53,7 +53,7 @@ public class StateService extends MainService {
     return stateResponse;
   }
 
-  private List<StudentBranchDTO> getAllEtudiantBySession() {
+    public List<StudentBranchDTO> getAllEtudiantBySession() {
     List<Etudiant> etudiants = (List<Etudiant>) etudiantRepository.findAll();
     List<StudentBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
@@ -81,26 +81,26 @@ public class StateService extends MainService {
     return e.getBranche().getId().equals(branche.getId());
   }
 
-  private List<StateEtudiantBranchDTO> getAllEtudiantScolariteImpayee() {
+    public List<StateEtudiantBranchDTO> getAllEtudiantScolariteImpayee() {
     List<StateEtudiantBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
       for (Branche b : getAllBranches()) {
-        result.add(buildEtudiantScolariteUnpaid(b, false));
+          result.add(buildEtudiantScolariteUnpaid(b, true));
       }
     } else {
-      result.add(buildEtudiantScolariteUnpaid(getCurrentUserBranch(), false));
+        result.add(buildEtudiantScolariteUnpaid(getCurrentUserBranch(), true));
     }
     return result;
   }
 
-  private List<StateEtudiantBranchDTO> getAllEtudiantScolaritePayee() {
+    public List<StateEtudiantBranchDTO> getAllEtudiantScolaritePayee() {
     List<StateEtudiantBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
       for (Branche b : getAllBranches()) {
-        result.add(buildEtudiantScolariteUnpaid(b, true));
+          result.add(buildEtudiantScolariteUnpaid(b, false));
       }
     } else {
-      result.add(buildEtudiantScolariteUnpaid(getCurrentUserBranch(), true));
+        result.add(buildEtudiantScolariteUnpaid(getCurrentUserBranch(), false));
     }
     return result;
   }
@@ -118,7 +118,7 @@ public class StateService extends MainService {
       List<LiteEtudiantForStateDTO> dataStateEtudiantSessionDTO = new ArrayList<>();
       List<Inscription> inscriptions = inscriptionRepository.findAllBySession(session);
       for (Inscription inscription : inscriptions) {
-        if (haveUnpaid(inscription) == haveUnpaid)
+          if (haveUnpaid(inscription, session.getNiveau()) == haveUnpaid)
           dataStateEtudiantSessionDTO.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
       }
       dataStateEtudiantBranchDTO.add(stateEtudiantSessionDTO);
@@ -127,28 +127,18 @@ public class StateService extends MainService {
     return stateEtudiantBranchDTO;
   }
 
-  private boolean haveUnpaid(Inscription inscription) {
-    CalculTotals calcul = calculSolde(inscription);
-      return calcul.getSolde().compareTo(calcul.getResteApayer()) != 0;
+    private boolean haveUnpaid(Inscription inscription, Niveau niveau) {
+        BigDecimal solde = BigDecimal.valueOf(0.0);
+        BigDecimal netApayer = niveau.getFraisPension().add(niveau.getFraisInscription());
+        Compte compte = compteRepository.findByInscription(inscription);
+        List<Paiement> paiements = paiementRepository.findAllByCompte(compte);
+        for (Paiement paiement : paiements) {
+            solde = solde.add(paiement.getMontant());
+        }
+        return (solde.compareTo(netApayer) < 0);
   }
 
-  private CalculTotals calculSolde(Inscription inscription) {
-    Compte compte = compteRepository.findByInscription(inscription);
-    List<Paiement> paiements = paiementRepository.findAllByCompte(compte);
-    CalculTotals calcul = new CalculTotals();
-    BigDecimal solde = BigDecimal.valueOf(0.0);
-    BigDecimal reste = BigDecimal.valueOf(0.0);
-    for (Paiement paiement : paiements) {
-      BigDecimal netApayer = paiement.getCompte().getInscription().getSession().getNiveau().getFraisPension().add(paiement.getCompte().getInscription().getSession().getNiveau().getFraisInscription());
-      solde = solde.add(paiement.getMontant());
-      reste = netApayer.subtract(solde);
-    }
-    calcul.setSolde(solde);
-    calcul.setResteApayer(reste);
-    return calcul;
-  }
-
-  private List<StateEtudiantBranchDTO> getAllEtudiantEnRattrapages() {
+    public List<StateEtudiantBranchDTO> getAllEtudiantEnRattrapages() {
     List<StateEtudiantBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
       for (Branche b : getAllBranches()) {
@@ -186,12 +176,12 @@ public class StateService extends MainService {
     Examen examen = examenRepository.findByInscription(inscription);
     List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
     for (Epreuve epreuve : epreuves) {
-      if (!epreuve.getEstRattrapee()) return true;
+        if (epreuve.getEstRattrapee()) return true;
     }
     return false;
   }
 
-  private List<StateEtudiantBranchDTO> getAllEtudiantAdmis() {
+    public List<StateEtudiantBranchDTO> getAllEtudiantAdmis() {
     List<StateEtudiantBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
       for (Branche b : getAllBranches()) {
@@ -225,7 +215,7 @@ public class StateService extends MainService {
     return stateEtudiantBranchDTO;
   }
 
-  private List<StateEtudiantBranchDTO> getAllEtudiantEchecs() {
+    public List<StateEtudiantBranchDTO> getAllEtudiantEchecs() {
     List<StateEtudiantBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
       for (Branche b : getAllBranches()) {
