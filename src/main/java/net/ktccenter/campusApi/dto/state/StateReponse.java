@@ -3,6 +3,9 @@ package net.ktccenter.campusApi.dto.state;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -21,8 +24,9 @@ public class StateReponse {
   Long nbreCompteEtudiant;
   Long nbreDepartement;
   Long nbreEtudiant;
-  Long nbreEtudiantRedoublant;
-  Long nbreEtudiantScolaritePayee;
+  List<EtudiantBranchDTO> etudiantRedoublants;
+  List<EtudiantBranchDTO> etudiantAdmis;
+  List<EtudiantBranchDTO> etudiantScolaritePayee;
   Long nbreEtudiantScolariteImpayee;
   Long nbreEtudiantScolariteAvancee;
   Long nbreFaculte;

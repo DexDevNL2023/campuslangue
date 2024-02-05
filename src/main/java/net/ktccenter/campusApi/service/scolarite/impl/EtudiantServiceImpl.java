@@ -410,7 +410,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     @Override
     public List<EtudiantBranchDTO> getAllBySession(Long sessionId, Long salleId, Long niveauId) {
         //List<Etudiant> etudiants = (List<Etudiant>) repository.findAll();
-        if (sessionId == null || sessionId <= 0) {
+        if (sessionId > 0) {
             return findAll()
                     .stream()
                     .filter(e -> findBySession(e, sessionId))
