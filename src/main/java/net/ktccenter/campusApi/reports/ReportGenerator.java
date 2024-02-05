@@ -48,10 +48,6 @@ public class ReportGenerator {
         // charge le fichier et compile-le
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("titre", "Bescheinigung über Sprachkenntnisse in Deutsch");
-        params.put("logo", institution.getLogo());
-        params.put("enteteGauche", institution.getEnteteGauche());
-        params.put("enteteDroite", institution.getEnteteDroite());
-        params.put("piedPage", institution.getPiedPage());
         params.put("fullName", fullName);
         params.put("dateDebut", inscription.getSession().getDateDebut());
         params.put("dateFin", inscription.getSession().getDateFin());

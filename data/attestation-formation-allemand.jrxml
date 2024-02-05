@@ -1,21 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.20.6.final using JasperReports Library version 6.20.6-5c96b6aa8a39ac1dc6b6bea4b81168e16dd39231  -->
-<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://jasperreports.sourceforge.net/jasperreports" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="attestation-formation-allemand" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="42809fc9-554b-4136-b63f-4901aac18a05">
+<jasperReport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			  xmlns="http://jasperreports.sourceforge.net/jasperreports"
+			  xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+			  name="attestation-formation-allemand" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20"
+			  rightMargin="20" topMargin="20" bottomMargin="20" uuid="42809fc9-554b-4136-b63f-4901aac18a05">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="attestation-formation-allemand"/>
-	<parameter name="logo" class="java.lang.String">
-		<defaultValueExpression><![CDATA[$P{logo}]]></defaultValueExpression>
-	</parameter>
 	<parameter name="titre" class="java.lang.String">
 		<defaultValueExpression><![CDATA[$P{titre}]]></defaultValueExpression>
-	</parameter>
-	<parameter name="enteteGauche" class="java.lang.String">
-		<defaultValueExpression><![CDATA[$P{enteteGauche}]]></defaultValueExpression>
-	</parameter>
-	<parameter name="enteteDroite" class="java.lang.String">
-		<defaultValueExpression><![CDATA[$P{enteteDroite}]]></defaultValueExpression>
-	</parameter>
-	<parameter name="piedPage" class="java.lang.String">
-		<defaultValueExpression><![CDATA[$P{piedPage}]]></defaultValueExpression>
 	</parameter>
 	<parameter name="fullName" class="java.lang.String">
 		<defaultValueExpression><![CDATA[$P{fullName}]]></defaultValueExpression>
@@ -48,22 +40,12 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="79" splitType="Stretch">
-			<textField>
-				<reportElement x="0" y="0" width="100" height="70" uuid="f5b510a1-9270-4ae0-955a-7f4a799e574d">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-				</reportElement>
-				<textFieldExpression><![CDATA[$P{enteteGauche}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="454" y="0" width="100" height="70" uuid="01a72176-e443-46fe-a9e5-63514fb1783f">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-				</reportElement>
-				<textFieldExpression><![CDATA[$P{enteteDroite}]]></textFieldExpression>
-			</textField>
+		<band height="99" splitType="Stretch">
 			<image>
-				<reportElement x="252" y="10" width="50" height="50" uuid="737fed4e-28f7-47b7-b4df-e5b354720703"/>
-				<imageExpression><![CDATA[$P{logo}]]></imageExpression>
+				<reportElement x="0" y="0" width="554" height="99" uuid="737fed4e-28f7-47b7-b4df-e5b354720703">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<imageExpression><![CDATA["/home/ktc/Images/entete_page_ktc.png"]]></imageExpression>
 			</image>
 		</band>
 	</title>
@@ -103,12 +85,6 @@
 				</textElement>
 				<textFieldExpression><![CDATA[$P{fullName}]]></textFieldExpression>
 			</textField>
-			<rectangle>
-				<reportElement x="10" y="40" width="20" height="20" uuid="52b7917f-d5bb-41b6-af0d-9881e2854492"/>
-				<graphicElement>
-					<pen lineStyle="Solid"/>
-				</graphicElement>
-			</rectangle>
 			<staticText>
 				<reportElement key="" x="40" y="40" width="160" height="20" uuid="e441e7cf-42bc-4652-ad3a-9e4d22c8ac66">
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
@@ -130,7 +106,7 @@
 				<text><![CDATA[an unserer Schule]]></text>
 			</staticText>
 			<rectangle>
-				<reportElement x="10" y="140" width="20" height="20" uuid="e337fe21-f046-4b68-82de-257e666e21c7"/>
+				<reportElement x="20" y="145" width="10" height="10" uuid="e337fe21-f046-4b68-82de-257e666e21c7"/>
 				<graphicElement>
 					<pen lineStyle="Solid"/>
 				</graphicElement>
@@ -407,27 +383,33 @@
 				</textElement>
 				<text><![CDATA[Stempel:]]></text>
 			</staticText>
+			<rectangle>
+				<reportElement x="20" y="45" width="10" height="10" uuid="9fdb9396-139b-44c7-9ca8-ba791fa529c4"/>
+				<graphicElement>
+					<pen lineStyle="Solid"/>
+				</graphicElement>
+			</rectangle>
+			<staticText>
+				<reportElement key="" x="8" y="254" width="22" height="28" uuid="d1309784-58b5-4f16-b1d8-6b320a3b27d2">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="DejaVu Serif" size="22" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ - ]]></text>
+			</staticText>
 		</band>
 	</detail>
 	<pageFooter>
-		<band height="64" splitType="Stretch">
-			<textField>
-				<reportElement x="0" y="24" width="554" height="40" uuid="6824d199-2f59-405f-9553-ff9ae700b65e">
+		<band height="70" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="0" width="554" height="70" uuid="39e3e486-5451-4311-aba2-4c4eddee48d8">
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{piedPage}]]></textFieldExpression>
-			</textField>
-			<staticText>
-				<reportElement key="" x="0" y="-1" width="554" height="20" uuid="039902a9-d57e-4916-b9bf-5117adda090d">
-					<property name="com.jaspersoft.studio.unit.x" value="px"/>
-					<property name="com.jaspersoft.studio.unit.height" value="px"/>
-				</reportElement>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="DejaVu Serif" size="9"/>
-				</textElement>
-				<text><![CDATA[Bescheinigung über Sprachkenntnisse in Deutsch – Seite 1/2]]></text>
-			</staticText>
+				<imageExpression><![CDATA["/home/ktc/Images/pied_page_ktc.png"]]></imageExpression>
+			</image>
 		</band>
 	</pageFooter>
 </jasperReport>
