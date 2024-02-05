@@ -3,7 +3,8 @@ package net.ktccenter.campusApi.dto.state;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.StateEtudiantBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.StudentBranchDTO;
 
 import java.util.List;
 
@@ -11,33 +12,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class StateReponse {
-  Long nbreAnneeAcademique;
-  Long nbreCampus;
-  Long nbrePersonnel;
-  Long nbreSalle;
-  Long nbreUtilisateur;
-  Long nbreDeliberation;
-  Long nbreEmploiDT;
-  Float MoyenGeneral;
-  Long nbreProgrammation;
-  Long nbreUE;
-  Long nbreCompteEtudiant;
-  Long nbreDepartement;
-  Long nbreEtudiant;
-  List<EtudiantBranchDTO> etudiantRedoublants;
-  List<EtudiantBranchDTO> etudiantAdmis;
-  List<EtudiantBranchDTO> etudiantScolaritePayee;
-  Long nbreEtudiantScolariteImpayee;
-  Long nbreEtudiantScolariteAvancee;
-  Long nbreFaculte;
-  Long nbreFiliere;
-  Long nbreFormateur;
-  Long nbreInscription;
-  Long nbreModuleUe;
-  Long nbrePaiement;
-  Long nbreParent;
-  Long nbrePreinscription;
-  Long nbreReinscription;
-  Long nbreSpecialite;
-  Long nbreInscriptionValidee;
+  List<StudentBranchDTO> allStudentByBranch;
+  List<StateEtudiantBranchDTO> etudiantEchecs;
+  List<StateEtudiantBranchDTO> etudiantEnRattrapages;
+  List<StateEtudiantBranchDTO> etudiantAdmis;
+  List<StateEtudiantBranchDTO> etudiantScolaritePayee;
+  List<StateEtudiantBranchDTO> etudiantScolariteImpayee;
+  List<StateEtudiantBranchDTO> etudiantInscription;
 }

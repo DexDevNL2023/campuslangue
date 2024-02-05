@@ -5,7 +5,10 @@ import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
 import net.ktccenter.campusApi.dao.cours.ExamenRepository;
 import net.ktccenter.campusApi.dao.cours.TestModuleRepository;
-import net.ktccenter.campusApi.dao.scolarite.*;
+import net.ktccenter.campusApi.dao.scolarite.CompteRepository;
+import net.ktccenter.campusApi.dao.scolarite.EtudiantRepository;
+import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
+import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportEtudiantRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.cours.*;
@@ -54,9 +57,8 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     private final ExamenRepository examenRepository;
     private final EvaluationTestRepository evaluationTestRepository;
     private final EpreuveRepository epreuveRepository;
-    private final SessionRepository sessionRepository;
 
-    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository, SessionRepository sessionRepository) {
+    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.userService = userService;
@@ -68,7 +70,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         this.examenRepository = examenRepository;
         this.evaluationTestRepository = evaluationTestRepository;
         this.epreuveRepository = epreuveRepository;
-        this.sessionRepository = sessionRepository;
     }
 
     @Override
@@ -355,10 +356,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private boolean belongsToTheCurrentBranch(Branche branche, Etudiant e) {
-        /*List<Inscription> inscriptions = getAllInscriptionsForEtudiant(e);
-        for (Inscription inscription : inscriptions) {
-            if (Objects.equals(e.getBranche().getId(), branche.getId())) return true;
-        }*/
         return e.getBranche().getId().equals(branche.getId());
     }
 
@@ -409,7 +406,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
 
     @Override
     public List<EtudiantBranchDTO> getAllBySession(Long sessionId, Long salleId, Long niveauId) {
-        //List<Etudiant> etudiants = (List<Etudiant>) repository.findAll();
         if (sessionId > 0) {
             return findAll()
                     .stream()
@@ -484,15 +480,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         }
         return false;
     }
-
-    /*private boolean findBySalleInOccupations(LiteSessionDTO dto, Long salleId) {
-        Session session = sessionRepository.findById(dto.getId()).orElse(null);
-        if (session == null) return false;
-        for (OccupationSalle Occupation : session.getOccupations()) {
-            if (Objects.equals(Occupation.getSalle().getId(), salleId)) return true;
-        }
-        return false;
-    }*/
 
     @Override
     public List<EtudiantBranchDTO> getAllWithUnpaid() {

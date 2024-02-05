@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.dao.scolarite;
 
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.scolarite.Diplome;
 import net.ktccenter.campusApi.entities.scolarite.Etudiant;
 import org.springframework.data.jpa.repository.Query;
@@ -21,4 +22,7 @@ public interface EtudiantRepository extends PagingAndSortingRepository<Etudiant,
     Optional<Etudiant> findByMatricule(String matricule);
     @Query("SELECT DISTINCT e FROM Etudiant e WHERE e.dernierDiplome = :diplome")
     List<Etudiant> findAllByDiplome(Diplome diplome);
+
+    @Query("SELECT DISTINCT e FROM Etudiant e WHERE e.branche = :branche")
+    List<Etudiant> findAllByBranche(Branche branche);
 }
