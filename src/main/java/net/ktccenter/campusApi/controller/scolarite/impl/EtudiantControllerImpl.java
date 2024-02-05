@@ -91,8 +91,9 @@ public class EtudiantControllerImpl implements EtudiantController {
     private List<EtudiantBranchDTO> getEmptyList() {
         List<EtudiantBranchDTO> result = new ArrayList<>();
         EtudiantBranchDTO dto = new EtudiantBranchDTO();
+        //dto.setBranche(new LiteBrancheDTO(mainService.getDefaultBranch()));
         dto.setBranche(new LiteBrancheDTO(mainService.getCurrentUserBranch()));
-        dto.setData(null);
+        dto.setData(new ArrayList<>());
         result.add(dto);
         return result;
     }
