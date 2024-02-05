@@ -16,6 +16,10 @@ public class StateEtudiantBranchDTO {
     private Long nbreTotelEtudiant;
 
     public Long getNbreTotelEtudiant() {
-        return data.stream().count();
+        long count = 0L;
+        for (StateEtudiantSessionDTO d : data) {
+            count = count + d.getNbreTotelEtudiant();
+        }
+        return count;
     }
 }

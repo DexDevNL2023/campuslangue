@@ -2,12 +2,14 @@ package net.ktccenter.campusApi.controller.scolarite.impl;
 
 import net.ktccenter.campusApi.controller.scolarite.EtudiantController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportEtudiantRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteEtudiantDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.scolarite.EtudiantService;
 import net.ktccenter.campusApi.utils.MyUtils;
 import org.springframework.data.domain.Page;
@@ -16,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/api/scolarite/etudiants")
@@ -23,9 +26,11 @@ import java.util.List;
 @CrossOrigin("*")
 public class EtudiantControllerImpl implements EtudiantController {
     private final EtudiantService service;
+    private final MainService mainService;
 
-    public EtudiantControllerImpl(EtudiantService service) {
+    public EtudiantControllerImpl(EtudiantService service, MainService mainService) {
         this.service = service;
+        this.mainService = mainService;
     }
 
     @Override
@@ -78,7 +83,18 @@ public class EtudiantControllerImpl implements EtudiantController {
     @Override
     @GetMapping("/by/session/{sessionId}/{salleId}/{niveauId}")
     public List<EtudiantBranchDTO> getAllBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("salleId") Long salleId, @PathVariable("niveauId") Long niveauId) {
-        return service.getAllBySession(sessionId, salleId, niveauId);
+        List<EtudiantBranchDTO> result = service.getAllBySession(sessionId, salleId, niveauId);
+        if (result.isEmpty()) return getEmptyList();
+        return result;
+    }
+
+    private List<EtudiantBranchDTO> getEmptyList() {
+        List<EtudiantBranchDTO> result = new ArrayList<>();
+        EtudiantBranchDTO dto = new EtudiantBranchDTO();
+        dto.setBranche(new LiteBrancheDTO(mainService.getCurrentUserBranch()));
+        dto.setData(null);
+        result.add(dto);
+        return result;
     }
 
     @Override
