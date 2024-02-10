@@ -23,7 +23,7 @@ jobs:
           ${{ runner.os }}-maven-
     - name: Get mvn modules
       run: |
-        ./mvnw dependency:go-offline
+        ./mvnw dependency:resolve-plugins dependency:resolve dependency:go-offline
     - name: Copy artifacts
       run: |
        cp -R ~/.m2 ./

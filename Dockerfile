@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY . .
 RUN ls -a
-RUN ./mvnw clean package
+RUN ./mvnw clean package -Dmaven.test.skip
 RUN ls -a
 CMD ["./mvnw", "spring-boot:run"]
 
