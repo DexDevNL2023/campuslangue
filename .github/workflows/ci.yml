@@ -17,7 +17,7 @@ jobs:
         cache: 'maven'
     - uses: actions/cache@v2
       with:
-        path: /.m2
+        path: ~/.m2
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
@@ -37,6 +37,7 @@ jobs:
       run: |
         echo >> Start app building here.
         docker -v
+        ls -a
         sed -i 's/spring.profiles.active=dev/#spring.profiles.active=dev/' src/main/resources/application.properties
         sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
         sed -i 's/localhost/5.196.68.13/' src/main/resources/application.properties
