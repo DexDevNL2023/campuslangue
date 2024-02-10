@@ -13,24 +13,28 @@ jobs:
     runs-on: campus-langue-api-run2
     container: docker:stable
     steps:
-    - uses: actions/checkout@v1
+    # - uses: actions/checkout@v1
     - name: Run Build
       run: |
-        echo Start app building here !
+        echo >> Start app building here.
         docker -v
         sed -i 's/spring.profiles.active=dev/#spring.profiles.active=dev/' src/main/resources/application.properties
         sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
         sed -i 's/localhost/5.196.68.13/' src/main/resources/application.properties
-        cat src/main/resources/application.properties
+        # cat src/main/resources/application.properties
         docker build -t campus-langue-api .
-  deployment:
-    needs: [testing, building]
-    runs-on: campus-langue-api-run2
-    container: docker:stable
-    steps:
-    - name: Run deploy
-      run: |
-        echo Start app deployment here !
+        echo >> Start deployment
         docker kill campus-langue-api || docker stop campus-langue-api && docker rm campus-langue-api || echo "Nothing to kill"
         docker run --detach --name campus-langue-api -p 10003:8443 -e "VIRTUAL_HOST=campus-langue-api.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api.devops2.kamer-center.net"  campus-langue-api
-        # docker logs -f  campus-langue-api
+        docker logs -f  campus-langue-api
+  # deployment:
+    # needs: [testing, building]
+    # runs-on: campus-langue-api-run2
+    # container: docker:stable
+    # steps:
+    # - name: Run deploy
+    #   run: |
+    #     echo Start app deployment here !
+    #     docker kill campus-langue-api || docker stop campus-langue-api && docker rm campus-langue-api || echo "Nothing to kill"
+    #     docker run --detach --name campus-langue-api -p 10003:8443 -e "VIRTUAL_HOST=campus-langue-api.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api.devops2.kamer-center.net"  campus-langue-api
+    #     # docker logs -f  campus-langue-api
