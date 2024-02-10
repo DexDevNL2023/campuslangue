@@ -28,7 +28,7 @@ CMD ["./mvnw", "spring-boot:run"]
 # # ENV SPRING_DATASOURCE_PASSWORD 2+2Font4
 # # ENV SPRING_JPA_HIBERNATE_DDL_AUTO update
 # #RUN mvn -v
-# #COPY src ./src
+#  COPY src ./src
 
 # CMD ["./mvnw", "spring-boot:run"]
 
