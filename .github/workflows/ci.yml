@@ -6,11 +6,11 @@ jobs:
   testing:
     runs-on: campus-langue-api-run2
     steps:
+    - uses: actions/checkout@v1
     - name: Run test
       run: echo TESTING IS RUNNING HERE
     - name: Set up JDK 17
       uses: actions/setup-java@v2
-      uses: actions/checkout@v1
       with:
         java-version: '17'
         distribution: 'adopt'
