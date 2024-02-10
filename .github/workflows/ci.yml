@@ -26,7 +26,7 @@ jobs:
         echo >> Start deployment
         docker kill campus-langue-api || docker stop campus-langue-api && docker rm campus-langue-api || echo "Nothing to kill"
         docker run --detach --name campus-langue-api -p 10003:8443 -e "VIRTUAL_HOST=campus-langue-api.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api.devops2.kamer-center.net"  campus-langue-api
-        docker logs -f  campus-langue-api
+        # docker logs -f  campus-langue-api
   # deployment:
     # needs: [testing, building]
     # runs-on: campus-langue-api-run2
