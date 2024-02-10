@@ -9,25 +9,25 @@ jobs:
     - uses: actions/checkout@v1
     - name: Run test
       run: echo TESTING IS RUNNING HERE
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'adopt'
-        cache: 'maven'
-    - uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
-    - name: Get mvn modules
-      run: |
-        ./mvnw dependency:resolve-plugins dependency:resolve dependency:go-offline
-    - name: Copy artifacts
-      run: |
-       cp -R ~/.m2 ./
-       ls -a ~/.m2
+    # - name: Set up JDK 17
+    #   uses: actions/setup-java@v2
+    #   with:
+    #     java-version: '17'
+    #     distribution: 'adopt'
+    #     cache: 'maven'
+    # - uses: actions/cache@v2
+    #   with:
+    #     path: ~/.m2
+    #     key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-maven-
+    # - name: Get mvn modules
+    #   run: |
+    #     ./mvnw dependency:resolve-plugins dependency:resolve dependency:go-offline
+    # - name: Copy artifacts
+    #   run: |
+    #    cp -R ~/.m2 ./
+    #    ls -a ~/.m2
   building:
     needs: testing
     runs-on: campus-langue-api-run2
