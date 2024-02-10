@@ -17,13 +17,16 @@ jobs:
         cache: 'maven'
     - uses: actions/cache@v2
       with:
-        path: ~/.m2
+        path: /.m2
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
     - name: Get mvn modules
       run: |
         ./mvnw dependency:go-offline
+    - name: Copy artifacts
+      run: |
+       cp -R ~/.m2 ./
   building:
     needs: testing
     runs-on: campus-langue-api-run2

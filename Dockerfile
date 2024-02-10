@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jdk-focal
 MAINTAINER Ismael foletia <xmael@keepsec.ca>
-COPY  ~/.m2  ~/
+COPY  /.m2  ~/
 RUN ls -a ~/
 WORKDIR /app
 
