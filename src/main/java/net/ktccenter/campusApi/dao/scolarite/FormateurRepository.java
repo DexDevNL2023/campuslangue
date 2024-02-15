@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.dao.scolarite;
 
+import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.entities.scolarite.Diplome;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
@@ -27,4 +28,7 @@ public interface FormateurRepository extends PagingAndSortingRepository<Formateu
 
   @Query("SELECT DISTINCT e FROM Formateur e WHERE e.user = :user")
   Formateur findByUser(User user);
+
+  @Query("SELECT DISTINCT e FROM Formateur e WHERE e.branche = :branche")
+  List<Formateur> findAllByBranche(Branche branche);
 }

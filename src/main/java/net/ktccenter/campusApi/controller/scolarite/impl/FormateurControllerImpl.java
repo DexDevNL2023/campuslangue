@@ -4,7 +4,9 @@ import net.ktccenter.campusApi.controller.scolarite.FormateurController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.CampusByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
@@ -81,14 +83,20 @@ public class FormateurControllerImpl implements FormateurController {
       return result;
   }
 
-    private List<FormateurBranchDTO> getEmptyList() {
-        List<FormateurBranchDTO> result = new ArrayList<>();
-        FormateurBranchDTO dto = new FormateurBranchDTO();
-        //dto.setBranche(new LiteBrancheDTO(mainService.getDefaultBranch()));
-        dto.setBranche(new LiteBrancheDTO(mainService.getCurrentUserBranch()));
-        dto.setData(new ArrayList<>());
-        result.add(dto);
-        return result;
+  @Override
+  @GetMapping("/by/branch/{branchId}")
+  public List<LiteFormateurDTO> listByBranch(@PathVariable("branchId") Long branchId) {
+    return service.findAllByBranch(branchId);
+  }
+
+  private List<FormateurBranchDTO> getEmptyList() {
+      List<FormateurBranchDTO> result = new ArrayList<>();
+      FormateurBranchDTO dto = new FormateurBranchDTO();
+      //dto.setBranche(new LiteBrancheDTO(mainService.getDefaultBranch()));
+      dto.setBranche(new LiteBrancheDTO(mainService.getCurrentUserBranch()));
+      dto.setData(new ArrayList<>());
+      result.add(dto);
+      return result;
   }
 
   @Override

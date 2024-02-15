@@ -6,10 +6,13 @@ import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestD
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.CampusByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
+import net.ktccenter.campusApi.entities.administration.Campus;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.entities.scolarite.Session;
@@ -201,5 +204,18 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     return repository.findByMatricule(matricule).orElseThrow(
             () -> new ResourceNotFoundException("L'étudiant avec le matricule " + matricule + " n'existe pas")
     );
+  }
+
+  @Override
+  public List<LiteFormateurDTO> findAllByBranch(Long branchId) {
+    Branche branche = brancheRepository.findById(branchId).orElseThrow(
+            () -> new ResourceNotFoundException("La branche avec l'id " + branchId + " n'existe pas")
+    );
+    List<LiteFormateurDTO> result = new ArrayList<>();
+    List<Formateur> formateurs = repository.findAllByBranche(branche);
+    for (Formateur formateur : formateurs) {
+      result.add(new LiteFormateurDTO(formateur));
+    }
+    return result;
   }
 }

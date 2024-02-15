@@ -18,6 +18,8 @@ public class LitePaiementForcompteDTO {
   private String refPaiement;
   private BigDecimal montant;
   private Instant datePaiement;
+  private LiteModePaiementDTO modePaiement;
+  private LiteRubriqueDTO rubrique;
 
   public LitePaiementForcompteDTO(Paiement paiement) {
     this.id = paiement.getId();

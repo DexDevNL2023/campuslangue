@@ -6,7 +6,9 @@ import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportCompteRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteModePaiementDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForcompteDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteRubriqueDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.CompteRequestDTO;
@@ -114,7 +116,10 @@ public class CompteServiceImpl extends MainService implements CompteService {
     }
 
     private LitePaiementForcompteDTO buildPaiementLiteDto(Paiement entity) {
-        return new LitePaiementForcompteDTO(entity);
+        LitePaiementForcompteDTO lite = new LitePaiementForcompteDTO(entity);
+        lite.setModePaiement(new LiteModePaiementDTO(entity.getModePaiement()));
+        lite.setRubrique(new LiteRubriqueDTO(entity.getRubrique()));
+        return lite;
     }
 
     @Override
