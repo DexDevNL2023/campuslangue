@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.service.scolarite.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.CampusRepository;
 import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class EtudiantServiceImpl extends MainService implements EtudiantService {
     private final EtudiantRepository repository;
     private final EtudiantMapper mapper;
@@ -137,34 +139,46 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private Set<LiteInscriptionForEtudiantDTO> getAllInscriptionsForEtudiantDto(Etudiant etudiant) {
+        log.info("begin set inscription");
         return inscriptionRepository.findAllByEtudiant(etudiant).stream().map(this::buildInscriptionLiteDto).collect(Collectors.toSet());
     }
 
     private LiteInscriptionForEtudiantDTO buildInscriptionLiteDto(Inscription entity) {
         LiteInscriptionForEtudiantDTO lite = new LiteInscriptionForEtudiantDTO(entity);
+        log.info("lite dto inscription okay");
         lite.setSession(new LiteSessionForInscriptionDTO(entity.getSession()));
+        log.info("set lite session okay");
         lite.setCampus(new LiteCampusForInscriptionDTO(getCampus(entity.getCampusId())));
+        log.info("set lite campus okay");
         lite.setCompte(getCompteForInscription(entity.getId()));
+        log.info("set lite compte okay");
         lite.setExamen(getExamenForInscription(entity));
+        log.info("set lite examen okay");
         lite.setTestModule(getTestModuleForInscription(entity));
+        log.info("set lite test module okay");
         return lite;
     }
 
     private LiteTestModuleDTO getTestModuleForInscription(Inscription inscription) {
+        log.info("begin set lite test module okay");
         return buildTestModuleLiteDto(testModuleRepository.findByInscription(inscription));
     }
 
     private LiteTestModuleDTO buildTestModuleLiteDto(TestModule entity) {
         if (entity == null) return new LiteTestModuleDTO();
         LiteTestModuleDTO lite = new LiteTestModuleDTO(entity);
-        Set<LiteEvaluationTestDTO> evaluations = getAllEvaluationsForTestModule(entity);
-        lite.setEvaluations(evaluations);
+        log.info("new lite test module okay");
+        List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(entity);
+        log.info("find all evaluation okay");
+        lite.setEvaluations(getAllEvaluationsForTestModule(evaluations));
+        log.info("set lite evaluation okay");
         lite.setMoyenne(calculMoyenneTestModule(evaluations));
+        log.info("set test module moyen okay");
         return lite;
     }
 
-    private Set<LiteEvaluationTestDTO> getAllEvaluationsForTestModule(TestModule testModule) {
-        return evaluationTestRepository.findAllByTestModule(testModule).stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
+    private Set<LiteEvaluationTestDTO> getAllEvaluationsForTestModule(List<EvaluationTest> evaluations) {
+        return evaluations.stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
     }
 
     private LiteEvaluationTestDTO buildEpreuveLiteDto(EvaluationTest evaluation) {
@@ -173,27 +187,35 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return lite;
     }
 
-    private Float calculMoyenneTestModule(Set<LiteEvaluationTestDTO> evaluations) {
+    private Float calculMoyenneTestModule(List<EvaluationTest> evaluations) {
         Float moyenne = 0F;
-        for (LiteEvaluationTestDTO test : evaluations) {
+        for (EvaluationTest test : evaluations) {
             moyenne += test.getNote();
         }
         return !evaluations.isEmpty() ? moyenne/evaluations.size() : 0;
     }
 
     private LiteExamenDTO getExamenForInscription(Inscription inscription) {
+        log.info("begin set lite examen okay");
         return buildExamenLiteDto(examenRepository.findByInscription(inscription));
     }
 
     private LiteExamenDTO buildExamenLiteDto(Examen entity) {
         if (entity == null) return new LiteExamenDTO();
         LiteExamenDTO lite = new LiteExamenDTO(entity);
-        Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(entity);
-        lite.setEpreuves(epreuves);
+        log.info("new lite examen okay");
+        List<Epreuve> epreuves = epreuveRepository.findAllByExamen(entity);
+        log.info("find all epreuve okay");
+        lite.setEpreuves(getAllEpreuvessForExamen(epreuves));
+        log.info("set lite epreuve okay");
         lite.setMoyenne(calculMoyenneExamen(epreuves));
+        log.info("set examen moyen okay");
         lite.setAppreciation(buildAppreciation(lite.getMoyenne()));
+        log.info("set appreciation okay");
         lite.setTotalFraisPension(calculTotalPension(epreuves));
+        log.info("set total frais pension okay");
         lite.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
+        log.info("set total frais rattrapage okay");
         return lite;
     }
 
@@ -212,8 +234,8 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         }
     }
 
-    private Set<LiteEpreuveDTO> getAllEpreuvessForExamen(Examen examen) {
-        return epreuveRepository.findAllByExamen(examen).stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
+    private Set<LiteEpreuveDTO> getAllEpreuvessForExamen(List<Epreuve> epreuves) {
+        return epreuves.stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
     }
 
     private LiteEpreuveDTO buildEpreuveLiteDto(Epreuve entity) {
@@ -224,9 +246,9 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return lite;
     }
 
-    private Float calculMoyenneExamen(Set<LiteEpreuveDTO> epreuves) {
+    private Float calculMoyenneExamen(List<Epreuve> epreuves) {
         Float moyenne = 0F;
-        for (LiteEpreuveDTO epreuve : epreuves) {
+        for (Epreuve epreuve : epreuves) {
             if (!epreuve.getEstValidee()) {
                 return 0F;
             }
@@ -235,34 +257,40 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return !epreuves.isEmpty() ? moyenne/epreuves.size() : 0;
     }
 
-    private BigDecimal calculTotalRatrappage(Set<LiteEpreuveDTO> epreuves) {
+    private BigDecimal calculTotalRatrappage(List<Epreuve> epreuves) {
         BigDecimal totalFraisPension = BigDecimal.valueOf(0.0);
-        for (LiteEpreuveDTO epreuve : epreuves) {
+        for (Epreuve epreuve : epreuves) {
             totalFraisPension = totalFraisPension.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
         }
         return totalFraisPension;
     }
 
-    private BigDecimal calculTotalPension(Set<LiteEpreuveDTO> epreuves) {
+    private BigDecimal calculTotalPension(List<Epreuve> epreuves) {
         BigDecimal totalFraisRattrapage = BigDecimal.valueOf(0.0);
-        for (LiteEpreuveDTO epreuve : epreuves) {
+        for (Epreuve epreuve : epreuves) {
             if (!epreuve.getEstValidee()) totalFraisRattrapage = totalFraisRattrapage.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
         }
         return totalFraisRattrapage;
     }
 
     private LiteCompteForInscriptionDTO getCompteForInscription(Long inscriptionId) {
+        log.info("begin set lite campus okay");
         return buildCompteLiteDto(compteRepository.findByInscriptionId(inscriptionId));
     }
 
     private LiteCompteForInscriptionDTO buildCompteLiteDto(Compte entity) {
         if (entity == null) return new LiteCompteForInscriptionDTO();
         LiteCompteForInscriptionDTO lite = new LiteCompteForInscriptionDTO(entity);
+        log.info("new lite campus okay");
         List<Paiement> paiements = paiementRepository.findAllByCompte(entity);
+        log.info("find all paiement okay");
         CalculTotals calcul = calculSolde(paiements);
+        log.info("calcul solde okay");
         lite.setSolde(calcul.getSolde());
         lite.setResteApayer(calcul.getResteApayer());
+        log.info("set solde okay");
         lite.setPaiements(getAllPaiementsForCompteDto(paiements));
+        log.info("set lite paiement okay");
         return lite;
     }
 
@@ -271,16 +299,19 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private CalculTotals calculSolde(List<Paiement> paiements) {
+        log.info("begin calcul solde okay");
         CalculTotals calcul = new CalculTotals();
         BigDecimal solde = BigDecimal.valueOf(0.0);
         BigDecimal reste = BigDecimal.valueOf(0.0);
         for (Paiement paiement : paiements) {
+            log.info("for all paiements by calcul okay");
             BigDecimal netApayer = paiement.getCompte().getInscription().getSession().getNiveau().getFraisPension().add(paiement.getCompte().getInscription().getSession().getNiveau().getFraisInscription());
             solde = solde.add(paiement.getMontant());
             reste = netApayer.subtract(solde);
         }
         calcul.setSolde(solde);
         calcul.setResteApayer(reste);
+        log.info("calcul end okay");
         return calcul;
     }
 
@@ -301,27 +332,37 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private EtudiantDTO buildEtudiantDto(Etudiant etudiant) {
+        log.info("begin build etudiant dto");
         EtudiantDTO dto = mapper.asDTO(etudiant);
+        log.info("mapping okay");
         dto.setInscriptions(getAllInscriptionsForEtudiantDto(etudiant));
+        log.info("set lite inscription okay");
         return buildStateSurCompte(dto);
     }
 
     private EtudiantDTO buildStateSurCompte(EtudiantDTO dto) {
+        log.info("begin to build state compte okay");
         BigDecimal soldeTotal = BigDecimal.valueOf(0.0);
         BigDecimal resteTotal = BigDecimal.valueOf(0.0);
-        Integer nbrePaiement = 0;
+        int nbrePaiement = 0;
         List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(dto.getId());
+        log.info("get all inscription okay");
         for (Inscription inscription : inscriptions) {
+            log.info("for all inscription okay");
             Compte compte = compteRepository.findByInscription(inscription);
+            log.info("find compte okay");
             List<Paiement> paiements = paiementRepository.findAllByCompte(compte);
+            log.info("find all paiements okay");
             CalculTotals calcul = calculSolde(paiements);
             soldeTotal = soldeTotal.add(calcul.getSolde());
             resteTotal = resteTotal.add(calcul.getResteApayer());
             nbrePaiement = nbrePaiement + paiements.size();
         }
+        log.info("finish parcours okay");
         dto.setSoldeTotal(soldeTotal);
         dto.setResteApayer(resteTotal);
         dto.setNbrePaiement(nbrePaiement);
+        log.info("build state compte okay");
         return dto;
     }
 
@@ -504,7 +545,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private List<Inscription> getAllInscriptionsForEtudiantId(Long etudiantId) {
-        Etudiant e = findById(etudiantId);
-        return inscriptionRepository.findAllByEtudiant(e);
+        return inscriptionRepository.findAllByEtudiantId(etudiantId);
     }
 }

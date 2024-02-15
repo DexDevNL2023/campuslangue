@@ -27,7 +27,8 @@ public interface InscriptionRepository extends PagingAndSortingRepository<Inscri
     List<Inscription> findAllByEtudiantAndCampusId(Etudiant etudiant, Long campusId);
     @Query(value = "from Inscription t where dateInscription BETWEEN :startDate AND :endDate")
     List<Inscription> findAllBetweenDates(@Param("startDate")Date startDate,@Param("endDate") Date endDate);
-
     @Query("SELECT DISTINCT e FROM Inscription e WHERE e.etudiant = :etudiant AND e.session = :session")
     List<Inscription> findAllByEtudiantAndSession(Etudiant etudiant, Session session);
+    @Query("SELECT DISTINCT e FROM Inscription e WHERE e.etudiant.id = :etudiantId")
+    List<Inscription> findAllByEtudiantId(Long etudiantId);
 }
