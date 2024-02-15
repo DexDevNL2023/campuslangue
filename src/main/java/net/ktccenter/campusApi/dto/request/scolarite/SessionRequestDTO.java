@@ -15,6 +15,8 @@ import java.util.Set;
 @ToString
 public class SessionRequestDTO {
   private Long id;
+  @NotNull(message = "Le code de la session est obligatoire")
+  private String code;
   @NotNull(message = "La date de debut de la session est obligatoire")
   private Date dateDebut;
   @NotNull(message = "La date de fin de la session est obligatoire")

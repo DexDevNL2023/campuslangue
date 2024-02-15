@@ -89,7 +89,8 @@ public class SessionServiceImpl extends MainService implements SessionService {
     log.info(monthDebut);
     log.info(monthFin);
     log.info(currentYear);
-    String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
+    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
+    String code = MyUtils.GenerateCode(dto.getCode());
 
     //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.name()+"-"+mounthF.name()+"-"+year);
     //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.toString()+"-"+mounthF.toString()+"-"+year.toString());
@@ -146,7 +147,8 @@ public class SessionServiceImpl extends MainService implements SessionService {
       log.info(monthDebut);
       log.info(monthFin);
       log.info(currentYear);
-      String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
+      //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
+      String code = MyUtils.GenerateCode(dto.getCode());
 
       //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.name()+"-"+mounthF.name()+"-"+year);
       //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.toString()+"-"+mounthF.toString()+"-"+year.toString());
@@ -296,7 +298,8 @@ public class SessionServiceImpl extends MainService implements SessionService {
     log.info(monthDebut);
     log.info(monthFin);
     log.info(currentYear);
-    String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
+    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
+    String code = MyUtils.GenerateCode(dto.getCode());
 
     //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.name()+"-"+mounthF.name()+"-"+year);
     //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.toString()+"-"+mounthF.toString()+"-"+year.toString());
