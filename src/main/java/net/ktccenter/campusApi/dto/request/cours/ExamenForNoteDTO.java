@@ -14,7 +14,7 @@ public class ExamenForNoteDTO {
   private String nom;
   private String prenom;
   private String fullName;
-  private EpreuveForNoteDTO epreuve;
+    private EpreuveForNoteDTO epreuve;
 
   public ExamenForNoteDTO(Examen examen) {
     this.examenId = examen.getId();

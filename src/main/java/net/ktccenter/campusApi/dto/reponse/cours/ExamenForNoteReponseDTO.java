@@ -20,7 +20,7 @@ public class ExamenForNoteReponseDTO extends AbstractDTO {
   private String nom;
   private String prenom;
   private String fullName;
-  private LiteEpreuveDTO epreuve;
+    private LiteEpreuveDTO epreuve;
   private Float moyenne = 0.0F;
   private String appreciation;
 

@@ -1,9 +1,12 @@
 package net.ktccenter.campusApi.service.state;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ktccenter.campusApi.dao.administration.CampusRepository;
 import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dao.cours.ExamenRepository;
 import net.ktccenter.campusApi.dao.scolarite.*;
+import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.*;
 import net.ktccenter.campusApi.dto.state.StateReponse;
 import net.ktccenter.campusApi.entities.administration.Branche;
@@ -11,6 +14,7 @@ import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.scolarite.*;
 import net.ktccenter.campusApi.service.MainService;
+import net.ktccenter.campusApi.utils.MyUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,15 +27,16 @@ import java.util.stream.Collectors;
 @Transactional
 @Slf4j
 public class StateService extends MainService {
-  private final ExamenRepository examenRepository;
-  private final InscriptionRepository inscriptionRepository;
-  private final SessionRepository sessionRepository;
-  private final EpreuveRepository epreuveRepository;
-  private final PaiementRepository paiementRepository;
-  private final CompteRepository compteRepository;
-  private final EtudiantRepository etudiantRepository;
+    final ExamenRepository examenRepository;
+    final InscriptionRepository inscriptionRepository;
+    final SessionRepository sessionRepository;
+    final EpreuveRepository epreuveRepository;
+    final PaiementRepository paiementRepository;
+    final CompteRepository compteRepository;
+    final EtudiantRepository etudiantRepository;
+    private final CampusRepository campusRepository;
 
-  public StateService(ExamenRepository examenRepository, InscriptionRepository inscriptionRepository, SessionRepository sessionRepository, EpreuveRepository epreuveRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, EtudiantRepository etudiantRepository) {
+    public StateService(ExamenRepository examenRepository, InscriptionRepository inscriptionRepository, SessionRepository sessionRepository, EpreuveRepository epreuveRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, EtudiantRepository etudiantRepository, CampusRepository campusRepository) {
     this.examenRepository = examenRepository;
     this.inscriptionRepository = inscriptionRepository;
     this.sessionRepository = sessionRepository;
@@ -39,21 +44,141 @@ public class StateService extends MainService {
     this.paiementRepository = paiementRepository;
     this.compteRepository = compteRepository;
     this.etudiantRepository = etudiantRepository;
+        this.campusRepository = campusRepository;
   }
 
   public StateReponse getAllState() {
+      Long nbreTotalEtudiant = 0L;
+      Long nbreTotalAdmis = 0L;
+      Long nbreTotalEchecs = 0L;
+      Long nbreTotalEnRattrapages = 0L;
+      Long nbreTotalScolaritePayee = 0L;
+      Long nbreTotalScolariteImpayee = 0L;
+      Long nbreTotalInscription = 0L;
+      Long nbreTotalSessionOuverte = 0L;
+      Long nbreTotalSessionSurAnnee = 0L;
+      Long nbreTotalCampus = 0L;
+    
     StateReponse stateResponse = new StateReponse();
-    stateResponse.setAllStudentByBranch(getAllEtudiantBySession());
-    stateResponse.setEtudiantEchecs(getAllEtudiantEchecs());
-    stateResponse.setEtudiantAdmis(getAllEtudiantAdmis());
-    stateResponse.setEtudiantEnRattrapages(getAllEtudiantEnRattrapages());
-    stateResponse.setEtudiantScolaritePayee(getAllEtudiantScolaritePayee());
-    stateResponse.setEtudiantScolariteImpayee(getAllEtudiantScolariteImpayee());
-    stateResponse.setEtudiantInscription(getAllEtudiantInscription());
+
+      List<StudentBranchDTO> list = getAllStudentByBranch();
+      stateResponse.setAllStudentByBranch(list);
+      for (StudentBranchDTO student : list) {
+          nbreTotalEtudiant += student.getNbreTotelEtudiant();
+      }
+      stateResponse.setNbreTotalEtudiant(nbreTotalEtudiant);
+
+      List<StateEtudiantBranchDTO> admis = getAllEtudiantAdmis();
+      stateResponse.setEtudiantAdmis(admis);
+      for (StateEtudiantBranchDTO student : admis) {
+          nbreTotalAdmis += student.getNbreTotelEtudiant();
+      }
+      stateResponse.setNbreTotalAdmis(nbreTotalAdmis);
+
+      List<StateEtudiantBranchDTO> echecs = getAllEtudiantEchecs();
+      stateResponse.setEtudiantEchecs(echecs);
+      for (StateEtudiantBranchDTO student : echecs) {
+          nbreTotalEchecs += student.getNbreTotelEtudiant();
+      }
+      stateResponse.setNbreTotalEchecs(nbreTotalEchecs);
+
+      List<StateEtudiantBranchDTO> rattrapages = getAllEtudiantEnRattrapages();
+      stateResponse.setEtudiantEnRattrapages(rattrapages);
+      for (StateEtudiantBranchDTO student : rattrapages) {
+          nbreTotalEnRattrapages += student.getNbreTotelEtudiant();
+      }
+      stateResponse.setNbreTotalEnRattrapages(nbreTotalEnRattrapages);
+
+      List<StateEtudiantBranchDTO> payes = getAllEtudiantScolaritePayee();
+      stateResponse.setEtudiantScolaritePayee(payes);
+      for (StateEtudiantBranchDTO student : payes) {
+          nbreTotalScolaritePayee += student.getNbreTotelEtudiant();
+      }
+      stateResponse.setNbreTotalScolaritePayee(nbreTotalScolaritePayee);
+
+      List<StateEtudiantBranchDTO> impayes = getAllEtudiantScolariteImpayee();
+      stateResponse.setEtudiantScolariteImpayee(impayes);
+      for (StateEtudiantBranchDTO student : impayes) {
+          nbreTotalScolariteImpayee += student.getNbreTotelEtudiant();
+      }
+      stateResponse.setNbreTotalScolariteImpayee(nbreTotalScolariteImpayee);
+
+      List<StateEtudiantBranchDTO> inscrits = getAllEtudiantInscription();
+      stateResponse.setEtudiantInscription(inscrits);
+      for (StateEtudiantBranchDTO student : inscrits) {
+          nbreTotalInscription += student.getNbreTotelEtudiant();
+      }
+      stateResponse.setNbreTotalInscription(nbreTotalInscription);
+
+      List<SessionBranchDTO> sessionOuvertes = getAllSessionOuverte();
+      stateResponse.setAllSessionOuverte(sessionOuvertes);
+      for (SessionBranchDTO session : sessionOuvertes) {
+          nbreTotalSessionOuverte += session.getData().stream().count();
+      }
+      stateResponse.setNbreTotalSessionOuverte(nbreTotalSessionOuverte);
+
+      List<SessionBranchDTO> sessionSurAnnes = getAllSessionSurAnnee();
+      stateResponse.setAllSessionSurAnnee(sessionSurAnnes);
+      for (SessionBranchDTO session : sessionSurAnnes) {
+          nbreTotalSessionSurAnnee += session.getData().stream().count();
+      }
+      stateResponse.setNbreTotalSessionSurAnnee(nbreTotalSessionSurAnnee);
+
+      List<CampusBranchDTO> campus = getAllCampusByBranch();
+      stateResponse.setAllCampusByBranch(campus);
+      for (CampusBranchDTO c : campus) {
+          nbreTotalCampus += c.getData().stream().count();
+      }
+      stateResponse.setNbreTotalCampus(nbreTotalCampus);
     return stateResponse;
   }
 
-    public List<StudentBranchDTO> getAllEtudiantBySession() {
+    public List<CampusBranchDTO> getAllCampusByBranch() {
+        List<CampusBranchDTO> result = new ArrayList<>();
+        for (Branche b : getAllBranches()) {
+            result.add(buildCampus(b));
+        }
+        return result;
+    }
+
+    private CampusBranchDTO buildCampus(Branche branche) {
+        CampusBranchDTO dto = new CampusBranchDTO();
+        dto.setBranche(brancheMapper.asLite(branche));
+        dto.setData(campusRepository.findAllByBranche(branche).stream().map(LiteCampusDTO::new).collect(Collectors.toList()));
+        return dto;
+    }
+
+    public List<SessionBranchDTO> getAllSessionSurAnnee() {
+        List<SessionBranchDTO> result = new ArrayList<>();
+        for (Branche b : getAllBranches()) {
+            result.add(buildSessionSurAnnee(b));
+        }
+        return result;
+    }
+
+    private SessionBranchDTO buildSessionSurAnnee(Branche branche) {
+        SessionBranchDTO dto = new SessionBranchDTO();
+        dto.setBranche(brancheMapper.asLite(branche));
+        dto.setData(sessionRepository.findAllByBranche(branche).stream().filter(session -> session.getDateDebut().after(MyUtils.currentDate()) && session.getDateFin().before(MyUtils.currentDate())).map(LiteSessionDTO::new).collect(Collectors.toList()));
+        return dto;
+    }
+
+    public List<SessionBranchDTO> getAllSessionOuverte() {
+        List<SessionBranchDTO> result = new ArrayList<>();
+        for (Branche b : getAllBranches()) {
+            result.add(buildSessionOuverte(b));
+        }
+        return result;
+    }
+
+    private SessionBranchDTO buildSessionOuverte(Branche branche) {
+        SessionBranchDTO dto = new SessionBranchDTO();
+        dto.setBranche(brancheMapper.asLite(branche));
+        dto.setData(sessionRepository.findAllByBranche(branche).stream().filter(session -> !session.getEstTerminee()).map(LiteSessionDTO::new).collect(Collectors.toList()));
+        return dto;
+    }
+
+    public List<StudentBranchDTO> getAllStudentByBranch() {
     List<Etudiant> etudiants = (List<Etudiant>) etudiantRepository.findAll();
     List<StudentBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
@@ -66,7 +191,7 @@ public class StateService extends MainService {
     return result;
   }
 
-  private StudentBranchDTO buildData(Branche branche, List<Etudiant> etudiants) {
+    StudentBranchDTO buildData(Branche branche, List<Etudiant> etudiants) {
     List<LiteEtudiantForStateDTO> data = etudiants.stream()
             .filter(e -> belongsToTheCurrentBranch(branche, e))
             .map(LiteEtudiantForStateDTO::new)
@@ -77,7 +202,7 @@ public class StateService extends MainService {
     return dto;
   }
 
-  private boolean belongsToTheCurrentBranch(Branche branche, Etudiant e) {
+    boolean belongsToTheCurrentBranch(Branche branche, Etudiant e) {
     return e.getBranche().getId().equals(branche.getId());
   }
 
@@ -105,7 +230,7 @@ public class StateService extends MainService {
     return result;
   }
 
-  private StateEtudiantBranchDTO buildEtudiantScolariteUnpaid(Branche branche, Boolean haveUnpaid) {
+    StateEtudiantBranchDTO buildEtudiantScolariteUnpaid(Branche branche, Boolean haveUnpaid) {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
@@ -127,7 +252,7 @@ public class StateService extends MainService {
     return stateEtudiantBranchDTO;
   }
 
-    private boolean haveUnpaid(Inscription inscription, Niveau niveau) {
+    boolean haveUnpaid(Inscription inscription, Niveau niveau) {
         BigDecimal solde = BigDecimal.valueOf(0.0);
         BigDecimal netApayer = niveau.getFraisPension().add(niveau.getFraisInscription());
         Compte compte = compteRepository.findByInscription(inscription);
@@ -150,7 +275,7 @@ public class StateService extends MainService {
     return result;
   }
 
-  private StateEtudiantBranchDTO buildEtudiantEnRattrapage(Branche branche) {
+    StateEtudiantBranchDTO buildEtudiantEnRattrapage(Branche branche) {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
@@ -172,7 +297,7 @@ public class StateService extends MainService {
     return stateEtudiantBranchDTO;
   }
 
-  private boolean isRattrapage(Inscription inscription) {
+    boolean isRattrapage(Inscription inscription) {
     Examen examen = examenRepository.findByInscription(inscription);
     List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
     for (Epreuve epreuve : epreuves) {
@@ -193,7 +318,7 @@ public class StateService extends MainService {
     return result;
   }
 
-  private StateEtudiantBranchDTO buildEtudiantAdmis(Branche branche) {
+    StateEtudiantBranchDTO buildEtudiantAdmis(Branche branche) {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
@@ -227,7 +352,7 @@ public class StateService extends MainService {
     return result;
   }
 
-  private StateEtudiantBranchDTO buildEtudiantEchec(Branche branche) {
+    StateEtudiantBranchDTO buildEtudiantEchec(Branche branche) {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
@@ -249,7 +374,7 @@ public class StateService extends MainService {
     return stateEtudiantBranchDTO;
   }
 
-  private boolean hasWin(Inscription inscription) {
+    boolean hasWin(Inscription inscription) {
     Float totalNote = 0F;
     float moyenne = 0F;
     boolean hisNotValid = false;
@@ -277,7 +402,7 @@ public class StateService extends MainService {
     return result;
   }
 
-  private StateEtudiantBranchDTO buildEtudiantInscription(Branche branche) {
+    StateEtudiantBranchDTO buildEtudiantInscription(Branche branche) {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();

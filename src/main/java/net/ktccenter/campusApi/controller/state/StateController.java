@@ -1,6 +1,8 @@
 package net.ktccenter.campusApi.controller.state;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ktccenter.campusApi.dto.reponse.branch.CampusBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.SessionBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.StateEtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.StudentBranchDTO;
 import net.ktccenter.campusApi.dto.state.StateReponse;
@@ -28,9 +30,9 @@ public class StateController {
     return stateService.getAllState();
   }
 
-  @GetMapping("/by/branch")
-  public List<StudentBranchDTO> getAllEtudiantBySession() {
-    return stateService.getAllEtudiantBySession();
+  @GetMapping("/student/by/branch")
+  public List<StudentBranchDTO> getAllStudentByBranch() {
+    return stateService.getAllStudentByBranch();
   }
 
   @GetMapping("/student/fail")
@@ -61,5 +63,20 @@ public class StateController {
   @GetMapping("/student/registration")
   public List<StateEtudiantBranchDTO> getAllEtudiantInscription() {
     return stateService.getAllEtudiantInscription();
+  }
+
+  @GetMapping("/campus/by/branch")
+  public List<CampusBranchDTO> getAllCampusByBranch() {
+    return stateService.getAllCampusByBranch();
+  }
+
+  @GetMapping("/session/open/by/branch")
+  public List<SessionBranchDTO> getAllSessionOuverte() {
+    return stateService.getAllSessionOuverte();
+  }
+
+  @GetMapping("/current/session/by/branch")
+  public List<SessionBranchDTO> getAllSessionSurAnnee() {
+    return stateService.getAllSessionSurAnnee();
   }
 }

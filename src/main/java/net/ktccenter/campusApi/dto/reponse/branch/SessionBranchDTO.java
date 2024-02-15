@@ -17,4 +17,8 @@ import java.util.List;
 public class SessionBranchDTO {
     private LiteBrancheDTO branche;
     private List<LiteSessionDTO> data = new ArrayList<>();
+
+    public Long getNbreTotelSessions() {
+        return data.stream().count();
+    }
 }

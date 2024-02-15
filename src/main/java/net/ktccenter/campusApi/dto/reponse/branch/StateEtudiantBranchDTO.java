@@ -13,7 +13,6 @@ import java.util.List;
 public class StateEtudiantBranchDTO {
     private LiteBrancheForStateDTO branche;
     private List<StateEtudiantSessionDTO> data = new ArrayList<>();
-    private Long nbreTotelEtudiant;
 
     public Long getNbreTotelEtudiant() {
         long count = 0L;

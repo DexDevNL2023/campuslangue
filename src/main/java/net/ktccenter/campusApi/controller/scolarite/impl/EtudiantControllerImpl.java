@@ -77,7 +77,9 @@ public class EtudiantControllerImpl implements EtudiantController {
     @Override
     @GetMapping
     public List<EtudiantBranchDTO> list() {
-        return service.findAll();
+        List<EtudiantBranchDTO> result = service.findAll();
+        if (result.isEmpty()) return getEmptyList();
+        return result;
     }
 
     @Override

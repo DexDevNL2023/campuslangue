@@ -152,6 +152,7 @@ public class CampusApplication implements CommandLineRunner {
       String encodedPassword = bCryptPasswordEncoder.encode("default");
       newUser.setPassword(encodedPassword);
       newUser.setAuthorities(authority);
+        newUser.setBranche(mainService.getDefaultBranch());
       userRepository.save(newUser);
       formateur.setUser(newUser);
       log.info("user create successful "+ newUser);
@@ -165,6 +166,7 @@ public class CampusApplication implements CommandLineRunner {
       formateur.setPrenom("Sonny");
       formateur.setEmail("sonnymba@gmail.com");
       formateur.setIsDefault(true);
+        formateur.setBranche(mainService.getDefaultBranch());
       formateur = formateurRepository.save(formateur);
       log.info("Personnel-Formateur : "+ formateur);
       return formateur;

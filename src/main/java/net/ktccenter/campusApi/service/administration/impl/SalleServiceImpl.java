@@ -114,8 +114,6 @@ public class SalleServiceImpl extends MainService implements SalleService {
     );
   }
 
-
-
   @Override
   public Page<LiteSalleDTO> findAll(Pageable pageable) {
     Page<Salle> entityPage = repository.findAll(pageable);

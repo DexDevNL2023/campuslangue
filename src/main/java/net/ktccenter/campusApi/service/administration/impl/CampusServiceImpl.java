@@ -1,14 +1,23 @@
 package net.ktccenter.campusApi.service.administration.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ktccenter.campusApi.dao.administration.BrancheRepository;
 import net.ktccenter.campusApi.dao.administration.CampusRepository;
+import net.ktccenter.campusApi.dao.administration.OccupationSalleRepository;
+import net.ktccenter.campusApi.dao.administration.SalleRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportCampusRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteOccupationSalleDTO;
+import net.ktccenter.campusApi.dto.lite.cours.LitePlageHoraireDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.CampusByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.CampusDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.SalleByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CampusBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.CampusRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Campus;
+import net.ktccenter.campusApi.entities.administration.OccupationSalle;
+import net.ktccenter.campusApi.entities.administration.Salle;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.CampusMapper;
 import net.ktccenter.campusApi.service.MainService;
@@ -21,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,11 +39,17 @@ import java.util.stream.Collectors;
 public class CampusServiceImpl extends MainService implements CampusService {
   private final CampusRepository repository;
   private final CampusMapper mapper;
+    public final BrancheRepository brancheRepository;
+    private final SalleRepository salleRepository;
+    private final OccupationSalleRepository occupationSalleRepository;
 
 
-  public CampusServiceImpl(CampusRepository repository, CampusMapper mapper) {
+    public CampusServiceImpl(CampusRepository repository, CampusMapper mapper, BrancheRepository brancheRepository, SalleRepository salleRepository, OccupationSalleRepository occupationSalleRepository) {
     this.repository = repository;
     this.mapper = mapper;
+        this.brancheRepository = brancheRepository;
+        this.salleRepository = salleRepository;
+        this.occupationSalleRepository = occupationSalleRepository;
   }
 
   @Override
@@ -121,6 +137,37 @@ public class CampusServiceImpl extends MainService implements CampusService {
     }
     return result;
   }
+
+    @Override
+    public List<CampusByBranchDTO> findAllByBranch(Long branchId) {
+        Branche branche = brancheRepository.findById(branchId).orElseThrow(
+                () -> new ResourceNotFoundException("La branche avec l'id " + branchId + " n'existe pas")
+        );
+        List<CampusByBranchDTO> result = new ArrayList<>();
+        List<Campus> campusList = repository.findAllByBranche(branche);
+        for (Campus campus : campusList) {
+            CampusByBranchDTO campusByBranchDTO = new CampusByBranchDTO(campus);
+            campusByBranchDTO.setSalles(salleRepository.findAllByCampus(campus).stream().map(this::buildSalleDto).collect(Collectors.toSet()));
+            result.add(campusByBranchDTO);
+        }
+        return result;
+    }
+
+    private SalleByBranchDTO buildSalleDto(Salle salle) {
+        SalleByBranchDTO dto = new SalleByBranchDTO(salle);
+        dto.setOccupations(getOccupationsForSalle(salle));
+        return dto;
+    }
+
+    private Set<LiteOccupationSalleDTO> getOccupationsForSalle(Salle salle) {
+        return occupationSalleRepository.findAllBySalleAndEstOccupee(salle, false).stream().map(this::buildOccupationLiteDto).collect(Collectors.toSet());
+    }
+
+    private LiteOccupationSalleDTO buildOccupationLiteDto(OccupationSalle occupation) {
+        LiteOccupationSalleDTO lite = new LiteOccupationSalleDTO(occupation);
+        lite.setPlageHoraire(new LitePlageHoraireDTO(occupation.getPlageHoraire()));
+        return lite;
+    }
 
   private CampusBranchDTO buildData(Branche branche) {
     CampusBranchDTO dto = new CampusBranchDTO();

@@ -2,11 +2,13 @@ package net.ktccenter.campusApi.controller.scolarite.impl;
 
 import net.ktccenter.campusApi.controller.scolarite.FormateurController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.scolarite.FormateurService;
 import net.ktccenter.campusApi.utils.MyUtils;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/api/scolarite/formateurs")
@@ -22,9 +25,11 @@ import java.util.List;
 @CrossOrigin("*")
 public class FormateurControllerImpl implements FormateurController {
   private final FormateurService service;
+    private final MainService mainService;
 
-  public FormateurControllerImpl(FormateurService service) {
+    public FormateurControllerImpl(FormateurService service, MainService mainService) {
     this.service = service;
+        this.mainService = mainService;
   }
 
   @Override
@@ -71,7 +76,19 @@ public class FormateurControllerImpl implements FormateurController {
   @Override
   @GetMapping
   public List<FormateurBranchDTO> list() {
-    return service.findAll();
+      List<FormateurBranchDTO> result = service.findAll();
+      if (result.isEmpty()) return getEmptyList();
+      return result;
+  }
+
+    private List<FormateurBranchDTO> getEmptyList() {
+        List<FormateurBranchDTO> result = new ArrayList<>();
+        FormateurBranchDTO dto = new FormateurBranchDTO();
+        //dto.setBranche(new LiteBrancheDTO(mainService.getDefaultBranch()));
+        dto.setBranche(new LiteBrancheDTO(mainService.getCurrentUserBranch()));
+        dto.setData(new ArrayList<>());
+        result.add(dto);
+        return result;
   }
 
   @Override

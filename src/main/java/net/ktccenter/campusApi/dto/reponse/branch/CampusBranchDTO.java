@@ -15,4 +15,8 @@ import java.util.List;
 public class CampusBranchDTO {
     private LiteBrancheDTO branche;
     private List<LiteCampusDTO> data = new ArrayList<>();
+
+    public Long getNbreTotelCampus() {
+        return data.stream().count();
+    }
 }

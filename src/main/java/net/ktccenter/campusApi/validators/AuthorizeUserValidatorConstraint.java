@@ -8,7 +8,6 @@ import javax.validation.ConstraintValidatorContext;
 
 public class AuthorizeUserValidatorConstraint implements ConstraintValidator<AuthorizeUser, Object> {
 
-
     private String actionKey;
 
     @Autowired

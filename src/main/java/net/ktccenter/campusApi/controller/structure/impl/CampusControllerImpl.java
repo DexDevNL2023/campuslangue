@@ -3,6 +3,7 @@ package net.ktccenter.campusApi.controller.structure.impl;
 import net.ktccenter.campusApi.controller.structure.CampusController;
 import net.ktccenter.campusApi.dto.importation.administration.ImportCampusRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.CampusByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.CampusDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CampusBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.CampusRequestDTO;
@@ -83,6 +84,14 @@ public class CampusControllerImpl implements CampusController {
     autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
     return service.findAll();
   }
+
+    @Override
+    @GetMapping("/by/branch/{branchId}")
+    //@AuthorizeUser(actionKey = "salle-list")
+    public List<CampusByBranchDTO> listByBranch(@PathVariable("branchId") Long branchId) {
+        autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
+        return service.findAllByBranch(branchId);
+    }
 
   @Override
   @GetMapping("/page-query")

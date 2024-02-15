@@ -42,10 +42,10 @@ public class NoteController {
     return testModuleService.getAllTestBySession(sessionId, moduleId);
   }
 
-  @GetMapping("/get/examen/{sessionId}/{uniteId}")
+    @GetMapping("/get/examen/{sessionId}/{uniteId}")
   @ResponseStatus(HttpStatus.OK)
-  public FullExamenForNoteDTO getAllExamenBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("uniteId") Long uniteId) {
-    return examenService.getAllExamenBySession(sessionId, uniteId);
+    public FullExamenForNoteDTO getAllExamenBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("uniteId") Long uniteId) {
+        return examenService.getAllExamenBySession(sessionId, uniteId);
   }
 
   @PostMapping("/saisie/notes/test-module")

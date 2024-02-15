@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.controller.structure;
 
 import net.ktccenter.campusApi.dto.importation.administration.ImportCampusRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
+import net.ktccenter.campusApi.dto.reponse.administration.CampusByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.CampusDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CampusBranchDTO;
 import net.ktccenter.campusApi.dto.request.administration.CampusRequestDTO;
@@ -22,6 +23,8 @@ public interface CampusController {
   void delete(@PathVariable("id") Long id);
 
   List<CampusBranchDTO> list();
+
+    List<CampusByBranchDTO> listByBranch(@PathVariable("branchId") Long branchId);
 
   Page<LiteCampusDTO> pageQuery(Pageable pageable);
 
