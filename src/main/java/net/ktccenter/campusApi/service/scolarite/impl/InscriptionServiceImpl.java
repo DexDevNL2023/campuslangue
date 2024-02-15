@@ -404,7 +404,8 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   }
 
   private Compte getEtudiantComptePaiement(Inscription inscription) {
-    String code = MyUtils.GenerateCode("CMPT"+"-"+inscription.getCampus().getBranche().getCode()+"-"+inscription.getEtudiant().getMatricule());
+    //String code = MyUtils.GenerateCode("CMPT"+"-"+inscription.getCampus().getBranche().getCode()+"-"+inscription.getEtudiant().getMatricule());
+    String code = MyUtils.GenerateCode("CMPT" + "-" + inscription.getEtudiant().getMatricule());
     log.info("50");
     //log.info(code);
     Compte compte = new Compte();
