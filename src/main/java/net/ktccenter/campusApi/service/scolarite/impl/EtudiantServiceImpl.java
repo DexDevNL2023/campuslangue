@@ -10,7 +10,7 @@ import net.ktccenter.campusApi.dao.scolarite.EtudiantRepository;
 import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
 import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportEtudiantRequestDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteCampusForInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.cours.*;
 import net.ktccenter.campusApi.dto.lite.scolarite.*;
 import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
@@ -79,29 +79,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId())));
     }
 
-    private EtudiantDTO buildEtudiantDto(Etudiant etudiant) {
-        EtudiantDTO dto = mapper.asDTO(etudiant);
-        dto.setInscriptions(getAllInscriptionsForEtudiantDto(etudiant));
-        return buildStateSurCompte(dto);
-    }
-
-    private EtudiantDTO buildStateSurCompte(EtudiantDTO dto) {
-        BigDecimal soldeTotal = BigDecimal.valueOf(0.0);
-        BigDecimal resteTotal = BigDecimal.valueOf(0.0);
-        Integer nbrePaiement = 0;
-        List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(dto.getId());
-        for (Inscription inscription : inscriptions) {
-            LiteCompteForInscriptionDTO compte = getCompteForInscription(inscription.getId());
-            soldeTotal = soldeTotal.add(compte.getSolde());
-            resteTotal = resteTotal.add(compte.getResteApayer());
-            nbrePaiement = nbrePaiement + compte.getPaiements().size();
-        }
-        dto.setSoldeTotal(soldeTotal);
-        dto.setResteApayer(resteTotal);
-        dto.setNbrePaiement(nbrePaiement);
-        return dto;
-    }
-
     private Etudiant construitEtudiant(Etudiant etudiant, Long brancheId) {
         Branche branche = brancheRepository.findById(brancheId).orElse(null);
         if (branche == null)
@@ -166,7 +143,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     private LiteInscriptionForEtudiantDTO buildInscriptionLiteDto(Inscription entity) {
         LiteInscriptionForEtudiantDTO lite = new LiteInscriptionForEtudiantDTO(entity);
         lite.setSession(new LiteSessionForInscriptionDTO(entity.getSession()));
-        lite.setCampus(new LiteCampusDTO(getCampus(entity.getCampusId())));
+        lite.setCampus(new LiteCampusForInscriptionDTO(getCampus(entity.getCampusId())));
         lite.setCompte(getCompteForInscription(entity.getId()));
         lite.setExamen(getExamenForInscription(entity));
         lite.setTestModule(getTestModuleForInscription(entity));
@@ -178,7 +155,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private LiteTestModuleDTO buildTestModuleLiteDto(TestModule entity) {
-        if (entity == null) return null;
+        if (entity == null) return new LiteTestModuleDTO();
         LiteTestModuleDTO lite = new LiteTestModuleDTO(entity);
         Set<LiteEvaluationTestDTO> evaluations = getAllEvaluationsForTestModule(entity);
         lite.setEvaluations(evaluations);
@@ -209,7 +186,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private LiteExamenDTO buildExamenLiteDto(Examen entity) {
-        if (entity == null) return null;
+        if (entity == null) return new LiteExamenDTO();
         LiteExamenDTO lite = new LiteExamenDTO(entity);
         Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(entity);
         lite.setEpreuves(epreuves);
@@ -241,9 +218,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
 
     private LiteEpreuveDTO buildEpreuveLiteDto(Epreuve entity) {
         LiteEpreuveDTO lite = new LiteEpreuveDTO(entity);
-        LiteUniteDTO liteUniteDTO = new LiteUniteDTO(entity.getUnite());
-        liteUniteDTO.setNiveau(new LiteNiveauDTO(entity.getUnite().getNiveau()));
-        lite.setUnite(liteUniteDTO);
+        lite.setUnite(new LiteUniteDTO(entity.getUnite()));
         return lite;
     }
 
@@ -279,25 +254,18 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private LiteCompteForInscriptionDTO buildCompteLiteDto(Compte entity) {
-        if (entity == null) return null;
+        if (entity == null) return new LiteCompteForInscriptionDTO();
         LiteCompteForInscriptionDTO lite = new LiteCompteForInscriptionDTO(entity);
-        CalculTotals calcul = calculSolde(getAllPaiementsForCompte(entity));
+        List<Paiement> paiements = paiementRepository.findAllByCompte(entity);
+        CalculTotals calcul = calculSolde(paiements);
         lite.setSolde(calcul.getSolde());
         lite.setResteApayer(calcul.getResteApayer());
-        lite.setPaiements(getAllPaiementsForCompteDto(entity));
+        lite.setPaiements(getAllPaiementsForCompteDto(paiements));
         return lite;
     }
 
-    private List<Paiement> getAllPaiementsForCompte(Compte compte) {
-        return paiementRepository.findAllByCompte(compte);
-    }
-
-    private Set<LitePaiementForInscriptionDTO> getAllPaiementsForCompteDto(Compte compte) {
-        return paiementRepository.findAllByCompte(compte).stream().map(this::buildPaiementLiteDto).collect(Collectors.toSet());
-    }
-
-    private LitePaiementForInscriptionDTO buildPaiementLiteDto(Paiement entity) {
-        return new LitePaiementForInscriptionDTO(entity);
+    private Set<LitePaiementForInscriptionDTO> getAllPaiementsForCompteDto(List<Paiement> paiements) {
+        return paiements.stream().map(LitePaiementForInscriptionDTO::new).collect(Collectors.toSet());
     }
 
     private CalculTotals calculSolde(List<Paiement> paiements) {
@@ -328,6 +296,31 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     @Override
     public EtudiantDTO getOne(Long id) {
         return buildEtudiantDto(findById(id));
+    }
+
+    private EtudiantDTO buildEtudiantDto(Etudiant etudiant) {
+        EtudiantDTO dto = mapper.asDTO(etudiant);
+        dto.setInscriptions(getAllInscriptionsForEtudiantDto(etudiant));
+        return buildStateSurCompte(dto);
+    }
+
+    private EtudiantDTO buildStateSurCompte(EtudiantDTO dto) {
+        BigDecimal soldeTotal = BigDecimal.valueOf(0.0);
+        BigDecimal resteTotal = BigDecimal.valueOf(0.0);
+        Integer nbrePaiement = 0;
+        List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(dto.getId());
+        for (Inscription inscription : inscriptions) {
+            Compte compte = compteRepository.findByInscription(inscription);
+            List<Paiement> paiements = paiementRepository.findAllByCompte(compte);
+            CalculTotals calcul = calculSolde(paiements);
+            soldeTotal = soldeTotal.add(calcul.getSolde());
+            resteTotal = resteTotal.add(calcul.getResteApayer());
+            nbrePaiement = nbrePaiement + paiements.size();
+        }
+        dto.setSoldeTotal(soldeTotal);
+        dto.setResteApayer(resteTotal);
+        dto.setNbrePaiement(nbrePaiement);
+        return dto;
     }
 
     @Override
@@ -495,8 +488,10 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
                 BigDecimal netApayer = inscription.getSession().getNiveau().getFraisPension().add(inscription.getSession().getNiveau().getFraisInscription());
-                LiteCompteForInscriptionDTO liteCompte = getCompteForInscription(inscription.getId());
-                if (liteCompte.getSolde().compareTo(netApayer) != 0) return true;
+                Compte compte = compteRepository.findByInscription(inscription);
+                List<Paiement> paiements = paiementRepository.findAllByCompte(compte);
+                CalculTotals calcul = calculSolde(paiements);
+                if (calcul.getSolde().compareTo(netApayer) != 0) return true;
             }
         }
         return false;

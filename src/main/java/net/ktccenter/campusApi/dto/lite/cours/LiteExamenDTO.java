@@ -18,10 +18,10 @@ public class LiteExamenDTO {
   private String code;
   private Date dateExamen;
   private Double pourcentage;
-  private BigDecimal totalFraisPension;
-  private BigDecimal totalFraisRattrapage;
+  private BigDecimal totalFraisPension = new BigDecimal(0.0);
+  private BigDecimal totalFraisRattrapage = new BigDecimal(0.0);
   private Set<LiteEpreuveDTO> epreuves = new HashSet<>();
-    private Float moyenne = 0.0F;
+  private Float moyenne = 0.0F;
   private String appreciation;
 
   public LiteExamenDTO(Examen examen) {

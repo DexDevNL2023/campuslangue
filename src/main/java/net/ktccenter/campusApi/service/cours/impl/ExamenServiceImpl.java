@@ -10,6 +10,7 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteExamenDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauForSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
@@ -113,9 +114,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
 
     private LiteEpreuveDTO buildEpreuveLiteDto(Epreuve entity) {
         LiteEpreuveDTO lite = new LiteEpreuveDTO(entity);
-        LiteUniteDTO liteUniteDTO = new LiteUniteDTO(entity.getUnite());
-        liteUniteDTO.setNiveau(new LiteNiveauDTO(entity.getUnite().getNiveau()));
-        lite.setUnite(liteUniteDTO);
+        lite.setUnite(new LiteUniteDTO(entity.getUnite()));
         return lite;
     }
 
@@ -250,7 +249,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
                 Epreuve epreuve = epreuveRepository.findById(examenDto.getEpreuve().getEpreuveId()).orElse(null);
                 if (epreuve != null) {
                     if (epreuve.getEstRattrapee()) {
-                        epreuve.setNoteRattrapage(examenDto.getEpreuve().getNoteRattrapage());
+                        epreuve.setNoteRattrapage(examenDto.getEpreuve().getNoteObtenue());
                     } else {
                         epreuve.setNoteObtenue(examenDto.getEpreuve().getNoteObtenue());
                         boolean success = (examenDto.getEpreuve().getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
@@ -377,14 +376,14 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
                     Epreuve epreuve = epreuveRepository.findById(epreuveDto.getEpreuveId()).orElse(null);
                     if (epreuve != null) {
                         if (epreuve.getEstRattrapee()) {
-                            epreuve.setNoteRattrapage(epreuveDto.getNoteRattrapage());
+                            epreuve.setNoteRattrapage(epreuveDto.getNoteObtenue());
                         } else {
                             epreuve.setNoteObtenue(epreuveDto.getNoteObtenue());
                             boolean success = (epreuveDto.getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
                             epreuve.setEstValidee(success);
                             if (!success) epreuve.setEstRattrapee(true);
                         }
-                        epreuve = epreuveRepository.save(epreuve);
+                        epreuveRepository.save(epreuve);
                     }
                 }
                 examen.setDateExamen(dto.getDateExamen());

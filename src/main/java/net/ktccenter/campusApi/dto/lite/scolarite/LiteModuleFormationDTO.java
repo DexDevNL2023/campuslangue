@@ -12,7 +12,7 @@ public class LiteModuleFormationDTO {
   private Long id;
   private String code;
   private String libelle;
-  private LiteNiveauDTO niveau;
+  private LiteNiveauForSessionDTO niveau;
 
   public LiteModuleFormationDTO(ModuleFormation module) {
     this.id = module.getId();

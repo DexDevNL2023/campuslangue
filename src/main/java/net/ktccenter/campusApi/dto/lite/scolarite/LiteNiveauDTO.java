@@ -17,9 +17,9 @@ public class LiteNiveauDTO {
     private Long id;
     private String code;
     private String libelle;
-    private BigDecimal fraisInscription;
-    private BigDecimal fraisPension;
-    private BigDecimal fraisRattrapage;
+    private BigDecimal fraisInscription = new BigDecimal(0.0);
+    private BigDecimal fraisPension = new BigDecimal(0.0);
+    private BigDecimal fraisRattrapage = new BigDecimal(0.0);
     private LiteDiplomeDTO diplomeRequis;
     private LiteDiplomeDTO diplomeFinFormation;
     Set<LiteModuleFormationDTO> modules = new HashSet<>();

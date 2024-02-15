@@ -11,9 +11,9 @@ import net.ktccenter.campusApi.entities.cours.Epreuve;
 public class LiteEpreuveDTO {
   private Long id;
   private LiteUniteDTO unite;
-    private Float noteObtenue = 0.0F;
+  private Float noteObtenue = 0.0F;
   private Boolean estValidee;
-    private Float noteRattrapage = 0.0F;
+  private Float noteRattrapage = 0.0F;
   private Boolean estRattrapee;
 
   public LiteEpreuveDTO(Epreuve epreuve) {
