@@ -9,6 +9,7 @@ import net.ktccenter.campusApi.dto.importation.cours.ImportTestModuleRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEvaluationTestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteTestModuleDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauForSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.TestModuleBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
@@ -106,9 +107,11 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
     return evaluationTestRepository.findAllByTestModule(testModule).stream().map(this::buildEvaluationLiteDto).collect(Collectors.toSet());
   }
 
-  private LiteEvaluationTestDTO buildEvaluationLiteDto(EvaluationTest evaluation) {
-    LiteEvaluationTestDTO lite = new LiteEvaluationTestDTO(evaluation);
-    lite.setModuleFormation(new LiteModuleFormationDTO(evaluation.getModuleFormation()));
+  private LiteEvaluationTestDTO buildEvaluationLiteDto(EvaluationTest entity) {
+    LiteEvaluationTestDTO lite = new LiteEvaluationTestDTO(entity);
+    LiteModuleFormationDTO liteModuleFormationDTO = new LiteModuleFormationDTO(entity.getModuleFormation());
+    liteModuleFormationDTO.setNiveau(new LiteNiveauForSessionDTO(entity.getModuleFormation().getNiveau()));
+    lite.setModuleFormation(liteModuleFormationDTO);
     return lite;
   }
 

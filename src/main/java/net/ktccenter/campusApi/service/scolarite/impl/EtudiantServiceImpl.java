@@ -181,9 +181,11 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return evaluations.stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
     }
 
-    private LiteEvaluationTestDTO buildEpreuveLiteDto(EvaluationTest evaluation) {
-        LiteEvaluationTestDTO lite = new LiteEvaluationTestDTO(evaluation);
-        lite.setModuleFormation(new LiteModuleFormationDTO(evaluation.getModuleFormation()));
+    private LiteEvaluationTestDTO buildEpreuveLiteDto(EvaluationTest entity) {
+        LiteEvaluationTestDTO lite = new LiteEvaluationTestDTO(entity);
+        LiteModuleFormationDTO liteModuleFormationDTO = new LiteModuleFormationDTO(entity.getModuleFormation());
+        liteModuleFormationDTO.setNiveau(new LiteNiveauForSessionDTO(entity.getModuleFormation().getNiveau()));
+        lite.setModuleFormation(liteModuleFormationDTO);
         return lite;
     }
 
