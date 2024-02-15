@@ -7,7 +7,7 @@ import net.ktccenter.campusApi.dto.importation.scolarite.ImportCompteRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteCompteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModePaiementDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForcompteDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForCompteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteRubriqueDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.CompteBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.CompteDTO;
@@ -111,12 +111,12 @@ public class CompteServiceImpl extends MainService implements CompteService {
         return paiementRepository.findAllByCompte(compte);
     }
 
-    private Set<LitePaiementForcompteDTO> getAllPaiementsForCompteDto(Compte compte) {
+    private Set<LitePaiementForCompteDTO> getAllPaiementsForCompteDto(Compte compte) {
         return paiementRepository.findAllByCompte(compte).stream().map(this::buildPaiementLiteDto).collect(Collectors.toSet());
     }
 
-    private LitePaiementForcompteDTO buildPaiementLiteDto(Paiement entity) {
-        LitePaiementForcompteDTO lite = new LitePaiementForcompteDTO(entity);
+    private LitePaiementForCompteDTO buildPaiementLiteDto(Paiement entity) {
+        LitePaiementForCompteDTO lite = new LitePaiementForCompteDTO(entity);
         lite.setModePaiement(new LiteModePaiementDTO(entity.getModePaiement()));
         lite.setRubrique(new LiteRubriqueDTO(entity.getRubrique()));
         return lite;

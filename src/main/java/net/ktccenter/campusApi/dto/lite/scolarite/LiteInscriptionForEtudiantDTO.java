@@ -20,9 +20,9 @@ public class LiteInscriptionForEtudiantDTO {
     private Date dateInscription;
     private Date dateDelivranceAttestation;
     private Boolean estRedoublant;
-    private LiteSessionForNoteDTO session;
+    private LiteSessionForInscriptionDTO session;
     private LiteCampusDTO campus;
-    private LiteCompteDTO compte;
+    private LiteCompteForInscriptionDTO compte;
     private LiteExamenDTO examen;
     private LiteTestModuleDTO testModule;
 

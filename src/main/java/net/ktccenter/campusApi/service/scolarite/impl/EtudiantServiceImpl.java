@@ -91,7 +91,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         Integer nbrePaiement = 0;
         List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(dto.getId());
         for (Inscription inscription : inscriptions) {
-            LiteCompteDTO compte = getCompteForInscription(inscription.getId());
+            LiteCompteForInscriptionDTO compte = getCompteForInscription(inscription.getId());
             soldeTotal = soldeTotal.add(compte.getSolde());
             resteTotal = resteTotal.add(compte.getResteApayer());
             nbrePaiement = nbrePaiement + compte.getPaiements().size();
@@ -165,7 +165,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
 
     private LiteInscriptionForEtudiantDTO buildInscriptionLiteDto(Inscription entity) {
         LiteInscriptionForEtudiantDTO lite = new LiteInscriptionForEtudiantDTO(entity);
-        lite.setSession(new LiteSessionForNoteDTO(entity.getSession()));
+        lite.setSession(new LiteSessionForInscriptionDTO(entity.getSession()));
         lite.setCampus(new LiteCampusDTO(getCampus(entity.getCampusId())));
         lite.setCompte(getCompteForInscription(entity.getId()));
         lite.setExamen(getExamenForInscription(entity));
@@ -274,13 +274,13 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return totalFraisRattrapage;
     }
 
-    private LiteCompteDTO getCompteForInscription(Long inscriptionId) {
+    private LiteCompteForInscriptionDTO getCompteForInscription(Long inscriptionId) {
         return buildCompteLiteDto(compteRepository.findByInscriptionId(inscriptionId));
     }
 
-    private LiteCompteDTO buildCompteLiteDto(Compte entity) {
+    private LiteCompteForInscriptionDTO buildCompteLiteDto(Compte entity) {
         if (entity == null) return null;
-        LiteCompteDTO lite = new LiteCompteDTO(entity);
+        LiteCompteForInscriptionDTO lite = new LiteCompteForInscriptionDTO(entity);
         CalculTotals calcul = calculSolde(getAllPaiementsForCompte(entity));
         lite.setSolde(calcul.getSolde());
         lite.setResteApayer(calcul.getResteApayer());
@@ -292,12 +292,12 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return paiementRepository.findAllByCompte(compte);
     }
 
-    private Set<LitePaiementForcompteDTO> getAllPaiementsForCompteDto(Compte compte) {
+    private Set<LitePaiementForInscriptionDTO> getAllPaiementsForCompteDto(Compte compte) {
         return paiementRepository.findAllByCompte(compte).stream().map(this::buildPaiementLiteDto).collect(Collectors.toSet());
     }
 
-    private LitePaiementForcompteDTO buildPaiementLiteDto(Paiement entity) {
-        return new LitePaiementForcompteDTO(entity);
+    private LitePaiementForInscriptionDTO buildPaiementLiteDto(Paiement entity) {
+        return new LitePaiementForInscriptionDTO(entity);
     }
 
     private CalculTotals calculSolde(List<Paiement> paiements) {
@@ -495,7 +495,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
                 BigDecimal netApayer = inscription.getSession().getNiveau().getFraisPension().add(inscription.getSession().getNiveau().getFraisInscription());
-                LiteCompteDTO liteCompte = getCompteForInscription(inscription.getId());
+                LiteCompteForInscriptionDTO liteCompte = getCompteForInscription(inscription.getId());
                 if (liteCompte.getSolde().compareTo(netApayer) != 0) return true;
             }
         }

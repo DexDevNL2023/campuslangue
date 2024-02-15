@@ -16,7 +16,6 @@ public class LiteTestModuleDTO {
   private Long id;
   private String code;
   private Double pourcentage;
-  private LiteInscriptionDTO inscription;
   private Set<LiteEvaluationTestDTO> evaluations = new HashSet<>();
     private Float moyenne = 0.0F;
 

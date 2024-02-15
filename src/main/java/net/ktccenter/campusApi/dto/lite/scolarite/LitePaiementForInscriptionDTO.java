@@ -13,15 +13,13 @@ import java.time.Instant;
 @Getter
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class LitePaiementForcompteDTO {
+public class LitePaiementForInscriptionDTO {
   private Long id;
   private String refPaiement;
   private BigDecimal montant;
   private Instant datePaiement;
-  private LiteModePaiementDTO modePaiement;
-  private LiteRubriqueDTO rubrique;
 
-  public LitePaiementForcompteDTO(Paiement paiement) {
+  public LitePaiementForInscriptionDTO(Paiement paiement) {
     this.id = paiement.getId();
     this.refPaiement = paiement.getRefPaiement();
     this.montant = paiement.getMontant();

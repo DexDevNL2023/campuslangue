@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForCompteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForcompteDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForCompteDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 
 import java.math.BigDecimal;
@@ -19,5 +19,5 @@ public class CompteDTO extends AbstractDTO {
   private BigDecimal solde;
   private BigDecimal resteApayer;
   private LiteInscriptionForCompteDTO inscription;
-  private Set<LitePaiementForcompteDTO> paiements = new HashSet<>();
+  private Set<LitePaiementForCompteDTO> paiements = new HashSet<>();
 }

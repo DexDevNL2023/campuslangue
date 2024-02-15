@@ -18,7 +18,7 @@ public class LiteCompteDTO {
   private BigDecimal solde;
   private BigDecimal resteApayer;
   private LiteInscriptionForCompteDTO inscription;
-  private Set<LitePaiementForcompteDTO> paiements = new HashSet<>();
+  private Set<LitePaiementForCompteDTO> paiements = new HashSet<>();
 
   public LiteCompteDTO(Compte compte) {
     this.id = compte.getId();
