@@ -33,7 +33,6 @@ public class FormateurControllerImpl implements FormateurController {
     this.service = service;
         this.mainService = mainService;
   }
-
   @Override
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)

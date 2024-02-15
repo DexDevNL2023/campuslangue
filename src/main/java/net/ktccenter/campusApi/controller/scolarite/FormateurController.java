@@ -3,7 +3,6 @@ package net.ktccenter.campusApi.controller.scolarite;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
-import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import org.springframework.data.domain.Page;
