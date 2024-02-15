@@ -3,10 +3,7 @@ package net.ktccenter.campusApi.controller.evaluation;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
-import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteImportDTO;
-import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
-import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteImportDTO;
+import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
 import net.ktccenter.campusApi.service.scolarite.SessionService;
@@ -42,21 +39,33 @@ public class NoteController {
     return testModuleService.getAllTestBySession(sessionId, moduleId);
   }
 
-    @GetMapping("/get/examen/{sessionId}/{uniteId}")
-  @ResponseStatus(HttpStatus.OK)
-    public FullExamenForNoteDTO getAllExamenBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("uniteId") Long uniteId) {
-        return examenService.getAllExamenBySession(sessionId, uniteId);
-  }
-
   @PostMapping("/saisie/notes/test-module")
   @ResponseStatus(HttpStatus.OK)
   public List<TestModuleForNoteReponseDTO> saisieNotesTest(@Valid @RequestBody FullTestModuleForNoteDTO dto) {
     return testModuleService.saisieNotesTest(dto);
   }
 
+  @GetMapping("/get/multiple/examen/{sessionId}")
+  @ResponseStatus(HttpStatus.OK)
+  public FullExamen2ForNoteDTO getAllExamenBySession(@PathVariable("sessionId") Long sessionId) {
+    return examenService.getAllExamenBySession(sessionId);
+  }
+
+  @PostMapping("/saisie/multiple/notes/examen")
+  @ResponseStatus(HttpStatus.OK)
+  public List<ExamenForNoteReponseDTO> saisieNotesExamen2(@Valid @RequestBody FullExamen2ForNoteDTO dto) {
+    return examenService.saisieNotesExamen2(dto);
+  }
+
+  @GetMapping("/get/examen/{sessionId}/{uniteId}")
+  @ResponseStatus(HttpStatus.OK)
+  public FullExamenForNoteDTO getAllExamenBySessionAndUnite(@PathVariable("sessionId") Long sessionId, @PathVariable("uniteId") Long uniteId) {
+    return examenService.getAllExamenBySessionAndUnite(sessionId, uniteId);
+  }
+
   @PostMapping("/saisie/notes/examen")
   @ResponseStatus(HttpStatus.OK)
-  public List<ExamenForNoteReponseDTO> saisieNotesexamen(@Valid @RequestBody FullExamenForNoteDTO dto) {
+  public List<ExamenForNoteReponseDTO> saisieNotesExamen(@Valid @RequestBody FullExamenForNoteDTO dto) {
     return examenService.saisieNotesExamen(dto);
   }
 

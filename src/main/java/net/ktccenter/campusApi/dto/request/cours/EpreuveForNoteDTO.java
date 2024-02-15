@@ -10,8 +10,8 @@ import net.ktccenter.campusApi.entities.cours.Epreuve;
 @NoArgsConstructor
 public class EpreuveForNoteDTO {
   private Long epreuveId;
-    private Float noteObtenue = 0.0F;
-    private Float noteRattrapage = 0.0F;
+  private Float noteObtenue = 0.0F;
+  private Float noteRattrapage = 0.0F;
   private String uniteCode;
 
   public EpreuveForNoteDTO(Epreuve epreuve) {

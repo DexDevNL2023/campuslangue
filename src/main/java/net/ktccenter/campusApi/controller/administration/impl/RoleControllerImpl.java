@@ -31,8 +31,9 @@ public class RoleControllerImpl implements RoleController {
     @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    //@AuthorizeUser(actionKey = "role-add")
     public RoleDTO save(@Valid @RequestBody RoleRequestDTO dto) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Ajouter une autorisation", "autorisation-add", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Ajouter un role", "role-add", "POST", false));
         if (service.existsByRoleName(dto.getLibelle()))
             throw new RuntimeException("Le role avec le nom " + dto.getLibelle() + " existe déjà");
         return service.save(dto);
@@ -41,8 +42,9 @@ public class RoleControllerImpl implements RoleController {
     @Override
     @PostMapping("/imports")
     @ResponseStatus(HttpStatus.CREATED)
+    //@AuthorizeUser(actionKey = "role-import")
     public List<LiteRoleDTO> saveAll(@Valid @RequestBody List<ImportRoleRequestDTO> dtos) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Importer des autorisations", "autorisation-import", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Importer des roles", "role-import", "POST", false));
         for (ImportRoleRequestDTO dto : dtos) {
             if (service.existsByRoleName(dto.getLibelle()))
                 throw new RuntimeException("Le role avec le nom " + dto.getLibelle() + " existe déjà");
@@ -52,23 +54,26 @@ public class RoleControllerImpl implements RoleController {
 
     @Override
     @GetMapping("/{id}")
+    //@AuthorizeUser(actionKey = "role-details")
     public RoleDTO findById(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Détails d'une autorisation", "autorisation-details", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Détails d'un role", "role-details", "GET", false));
         return service.getOne(id);
     }
 
     @Override
     @DeleteMapping("/{id}")
+    //@AuthorizeUser(actionKey = "role-delet")
     public void delete(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Supprimer une autorisation", "autorisation-delet", "DELET", false));
+        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Supprimer un role", "role-delet", "DELET", false));
         if (service.findById(id) == null) throw new RuntimeException("Le role avec l'id " + id + " n'existe pas");
         service.deleteById(id);
     }
 
     @Override
     @GetMapping
+    //@AuthorizeUser(actionKey = "role-list")
     public List<LiteRoleDTO> list() {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Lister les autorisations", "autorisation-list", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Lister les roles", "role-list", "GET", false));
         return service.findAll();
     }
 
@@ -80,8 +85,9 @@ public class RoleControllerImpl implements RoleController {
 
     @Override
     @PutMapping("/{id}")
+    //@AuthorizeUser(actionKey = "role-edit")
     public void update(@Valid @RequestBody RoleRequestDTO dto, @PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Modifier une autorisation", "autorisation-edit", "PUT", false));
+        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Modifier un role", "role-edit", "PUT", false));
         if (service.findById(id) == null) throw new RuntimeException("Le role avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))
             throw new RuntimeException("Le role avec les données suivante : " + dto.toString() + " existe déjà");

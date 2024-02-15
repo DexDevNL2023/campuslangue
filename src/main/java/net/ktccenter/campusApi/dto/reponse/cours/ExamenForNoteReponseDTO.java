@@ -8,6 +8,8 @@ import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 import net.ktccenter.campusApi.entities.cours.Examen;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -20,7 +22,7 @@ public class ExamenForNoteReponseDTO extends AbstractDTO {
   private String nom;
   private String prenom;
   private String fullName;
-    private LiteEpreuveDTO epreuve;
+  private Set<LiteEpreuveDTO> epreuves = new HashSet<>();
   private Float moyenne = 0.0F;
   private String appreciation;
 
