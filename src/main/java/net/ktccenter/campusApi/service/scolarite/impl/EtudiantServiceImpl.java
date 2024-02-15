@@ -218,7 +218,9 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
 
     private LiteEpreuveDTO buildEpreuveLiteDto(Epreuve entity) {
         LiteEpreuveDTO lite = new LiteEpreuveDTO(entity);
-        lite.setUnite(new LiteUniteDTO(entity.getUnite()));
+        LiteUniteDTO liteUnite = new LiteUniteDTO(entity.getUnite());
+        liteUnite.setNiveau(new LiteNiveauForSessionDTO(entity.getUnite().getNiveau()));
+        lite.setUnite(liteUnite);
         return lite;
     }
 
