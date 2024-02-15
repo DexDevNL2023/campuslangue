@@ -66,6 +66,13 @@ public class VagueControllerImpl implements VagueController {
   }
 
   @Override
+  @GetMapping("/by/branch/{branchId}")
+  //@AuthorizeUser(actionKey = "salle-list")
+  public List<LiteVagueDTO> listByBranch(@PathVariable("branchId") Long branchId) {
+    return service.findAllByBranch(branchId);
+  }
+
+  @Override
   @GetMapping("/page-query")
   public Page<LiteVagueDTO> pageQuery(Pageable pageable) {
     return service.findAll(pageable);

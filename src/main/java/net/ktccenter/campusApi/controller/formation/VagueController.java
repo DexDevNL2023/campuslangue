@@ -23,6 +23,8 @@ public interface VagueController {
 
   List<VagueBranchDTO> list();
 
+  List<LiteVagueDTO> listByBranch(@PathVariable("branchId") Long branchId);
+
   Page<LiteVagueDTO> pageQuery(Pageable pageable);
 
   void update(@RequestBody VagueRequestDTO dto, @PathVariable("id") Long id);

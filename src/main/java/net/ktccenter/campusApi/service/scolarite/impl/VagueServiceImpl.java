@@ -139,6 +139,19 @@ public class VagueServiceImpl extends MainService implements VagueService {
   }
 
   @Override
+  public List<LiteVagueDTO> findAllByBranch(Long branchId) {
+    Branche branche = brancheRepository.findById(branchId).orElseThrow(
+            () -> new ResourceNotFoundException("La branche avec l'id " + branchId + " n'existe pas")
+    );
+    List<LiteVagueDTO> result = new ArrayList<>();
+    List<Vague> vagues = repository.findAllByBranche(branche);
+    for (Vague vague : vagues) {
+      result.add(new LiteVagueDTO(vague));
+    }
+    return result;
+  }
+
+  @Override
   public boolean equalsByDto(VagueRequestDTO dto, Long id) {
     Vague ressource = repository.findByCode(dto.getCode()).orElse(null);
     if (ressource == null) return false;

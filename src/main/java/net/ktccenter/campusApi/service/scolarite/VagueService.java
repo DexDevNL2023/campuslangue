@@ -19,4 +19,6 @@ public interface VagueService extends GenericService<Vague, VagueRequestDTO, Vag
   List<VagueBranchDTO> findAll();
 
   boolean existByCode(String code);
+
+  List<LiteVagueDTO> findAllByBranch(Long branchId);
 }
