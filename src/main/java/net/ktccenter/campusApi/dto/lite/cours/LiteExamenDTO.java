@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.ktccenter.campusApi.entities.cours.Examen;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,8 +17,6 @@ public class LiteExamenDTO {
   private String code;
   private Date dateExamen;
   private Double pourcentage;
-  private BigDecimal totalFraisPension = new BigDecimal(0.0);
-  private BigDecimal totalFraisRattrapage = new BigDecimal(0.0);
   private Set<LiteEpreuveDTO> epreuves = new HashSet<>();
   private Float moyenne = 0.0F;
   private String appreciation;

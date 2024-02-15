@@ -212,10 +212,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         log.info("set examen moyen okay");
         lite.setAppreciation(buildAppreciation(lite.getMoyenne()));
         log.info("set appreciation okay");
-        lite.setTotalFraisPension(calculTotalPension(epreuves));
-        log.info("set total frais pension okay");
-        lite.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
-        log.info("set total frais rattrapage okay");
         return lite;
     }
 
@@ -274,14 +270,14 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     private LiteCompteForInscriptionDTO getCompteForInscription(Long inscriptionId) {
-        log.info("begin set lite campus okay");
+        log.info("begin set lite compte okay");
         return buildCompteLiteDto(compteRepository.findByInscriptionId(inscriptionId));
     }
 
     private LiteCompteForInscriptionDTO buildCompteLiteDto(Compte entity) {
         if (entity == null) return new LiteCompteForInscriptionDTO();
         LiteCompteForInscriptionDTO lite = new LiteCompteForInscriptionDTO(entity);
-        log.info("new lite campus okay");
+        log.info("new lite compte okay");
         List<Paiement> paiements = paiementRepository.findAllByCompte(entity);
         log.info("find all paiement okay");
         CalculTotals calcul = calculSolde(paiements);

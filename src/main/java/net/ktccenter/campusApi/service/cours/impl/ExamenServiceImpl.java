@@ -9,7 +9,6 @@ import net.ktccenter.campusApi.dto.importation.cours.ImportExamenRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteExamenDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauForSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
@@ -30,7 +29,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,8 +64,6 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         dto.setEpreuves(epreuves);
         dto.setMoyenne(calculMoyenne(epreuves));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
-        dto.setTotalFraisPension(calculTotalPension(epreuves));
-        dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
         return dto;
     }
 
@@ -166,8 +162,6 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         dto.setEpreuves(epreuves);
         dto.setMoyenne(calculMoyenne(epreuves));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
-        dto.setTotalFraisPension(calculTotalPension(epreuves));
-        dto.setTotalFraisRattrapage(calculTotalRatrappage(epreuves));
         return dto;
     }
 
@@ -312,23 +306,6 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             moyenne += epreuve.getNoteObtenue();
         }
         return !epreuves.isEmpty() ? moyenne / epreuves.size() : 0;
-    }
-
-    private BigDecimal calculTotalRatrappage(Set<LiteEpreuveDTO> epreuves) {
-        BigDecimal totalFraisPension = BigDecimal.valueOf(0.0);
-        for (LiteEpreuveDTO epreuve : epreuves) {
-            totalFraisPension = totalFraisPension.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
-        }
-        return totalFraisPension;
-    }
-
-    private BigDecimal calculTotalPension(Set<LiteEpreuveDTO> epreuves) {
-        BigDecimal totalFraisRattrapage = BigDecimal.valueOf(0.0);
-        for (LiteEpreuveDTO epreuve : epreuves) {
-            if (!epreuve.getEstValidee())
-                totalFraisRattrapage = totalFraisRattrapage.add(epreuve.getUnite().getNiveau().getFraisRattrapage());
-        }
-        return totalFraisRattrapage;
     }
 
     @Override
