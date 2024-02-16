@@ -103,6 +103,7 @@ public class InscriptionControllerImpl implements InscriptionController {
   @Override
   @GetMapping("/download/attestation/{inscriptionId}")
   @CrossOrigin(origins = {"*"}, exposedHeaders = {"Content-Disposition"})
+  @ResponseStatus(HttpStatus.OK)
   public void download(@PathVariable("inscriptionId") Long inscriptionId, HttpServletResponse response) throws URISyntaxException, JRException, IOException {
 
     //File contains all stored paths, names, and extensions
@@ -122,6 +123,7 @@ public class InscriptionControllerImpl implements InscriptionController {
     response.setHeader("Content-Disposition", "attachment; filename=\"" + fileNamePath + "\"");
     try {
       Files.copy(fileNamePath, response.getOutputStream());
+      response.flushBuffer();
       log.info("Copy to " + response.getStatus());
     } catch (IOException ex) {
       System.out.println("IOException");

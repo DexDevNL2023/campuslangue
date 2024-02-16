@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +35,7 @@ public class ReportGenerator {
     }
 
     public Path downloadAttestationFormationAllemandToPdf(Inscription inscription) throws JRException, IOException {
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         Institution institution = institutionRepository.findFirstByOrderByName().orElseThrow(
                 () -> new ResourceNotFoundException("Aucune institution n'est enregistrée")
         );
@@ -49,13 +52,13 @@ public class ReportGenerator {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("titre", "Bescheinigung über Sprachkenntnisse in Deutsch");
         params.put("fullName", fullName);
-        params.put("dateDebut", inscription.getSession().getDateDebut());
-        params.put("dateFin", inscription.getSession().getDateFin());
+        params.put("dateDebut", dateFormat.format(inscription.getSession().getDateDebut()));
+        params.put("dateFin", dateFormat.format(inscription.getSession().getDateFin()));
         params.put("moyenne", examen.getMoyenne());
         params.put("niveau", inscription.getSession().getNiveau().getCode());
         params.put("institution", institution.getName());
         params.put("adresse", institution.getAdresse());
-        params.put("dateDelivrance", inscription.getDateDelivranceAttestation());
+        params.put("dateDelivrance", dateFormat.format(inscription.getDateDelivranceAttestation()));
 
         ClassPathResource file = new ClassPathResource("data/attestation-formation-allemand.jrxml", this.getClass().getClassLoader());
         JasperPrint print = JasperFillManager.fillReport(JasperCompileManager.compileReport(file.getPath()), params, new JREmptyDataSource());
