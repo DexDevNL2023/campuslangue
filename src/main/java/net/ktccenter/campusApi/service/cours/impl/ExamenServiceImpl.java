@@ -350,7 +350,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         for (Examen2ForNoteDTO examenDto : listExamenDto) {
             Examen examen = repository.findById(examenDto.getExamenId()).orElse(null);
             if (examen != null) {
-                List<EpreuveForNoteDTO> listEpreuveDto = new ArrayList<>();
+                List<EpreuveForNoteDTO> listEpreuveDto = examenDto.getEpreuves();
                 for (EpreuveForNoteDTO epreuveDto : listEpreuveDto) {
                     Epreuve epreuve = epreuveRepository.findById(epreuveDto.getEpreuveId()).orElse(null);
                     if (epreuve != null) {
