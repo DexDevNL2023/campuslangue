@@ -246,13 +246,14 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
 
     private Float calculMoyenneExamen(List<Epreuve> epreuves) {
         Float moyenne = 0F;
+        if (epreuves.isEmpty()) return 0F;
         for (Epreuve epreuve : epreuves) {
             if (!epreuve.getEstValidee()) {
                 return 0F;
             }
             moyenne += epreuve.getNoteObtenue();
         }
-        return !epreuves.isEmpty() ? moyenne/epreuves.size() : 0;
+        return moyenne / epreuves.size();
     }
 
     private BigDecimal calculTotalRatrappage(List<Epreuve> epreuves) {

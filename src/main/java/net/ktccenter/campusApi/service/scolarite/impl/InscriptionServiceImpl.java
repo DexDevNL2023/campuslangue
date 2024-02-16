@@ -586,7 +586,21 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
 
   private boolean isNotWin(Inscription inscription) {
     Examen examen = examenRepository.findByInscription(inscription);
-    int note = examen.getMoyenne().intValue();
+    List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
+    int note = calculMoyenneExamen(epreuves);
     return (note < 12);
+  }
+
+  private int calculMoyenneExamen(List<Epreuve> epreuves) {
+    Float moyenne = 0F;
+    if (epreuves.isEmpty()) return 0;
+    for (Epreuve epreuve : epreuves) {
+      if (!epreuve.getEstValidee()) {
+        return 0;
+      }
+      moyenne += epreuve.getNoteObtenue();
+    }
+    moyenne = moyenne / epreuves.size();
+    return moyenne.intValue();
   }
 }
