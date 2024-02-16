@@ -45,7 +45,7 @@
 				<reportElement x="0" y="0" width="554" height="99" uuid="737fed4e-28f7-47b7-b4df-e5b354720703">
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
-				<imageExpression><![CDATA["/home/ktc/Images/entete_page_ktc.png"]]></imageExpression>
+				<imageExpression><![CDATA["entete_page_ktc.png"]]></imageExpression>
 			</image>
 		</band>
 	</title>
@@ -408,7 +408,7 @@
 				<reportElement x="0" y="0" width="554" height="70" uuid="39e3e486-5451-4311-aba2-4c4eddee48d8">
 					<property name="com.jaspersoft.studio.unit.x" value="px"/>
 				</reportElement>
-				<imageExpression><![CDATA["/home/ktc/Images/pied_page_ktc.png"]]></imageExpression>
+				<imageExpression><![CDATA["pied_page_ktc.png"]]></imageExpression>
 			</image>
 		</band>
 	</pageFooter>
