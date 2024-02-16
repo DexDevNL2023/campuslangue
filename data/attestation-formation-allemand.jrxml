@@ -12,10 +12,10 @@
 	<parameter name="fullName" class="java.lang.String">
 		<defaultValueExpression><![CDATA[$P{fullName}]]></defaultValueExpression>
 	</parameter>
-	<parameter name="dateDebut" class="java.util.Date" evaluationTime="Early">
+	<parameter name="dateDebut" class="java.lang.String">
 		<defaultValueExpression><![CDATA[$P{dateDebut}]]></defaultValueExpression>
 	</parameter>
-	<parameter name="dateFin" class="java.util.Date" evaluationTime="Early">
+	<parameter name="dateFin" class="java.lang.String">
 		<defaultValueExpression><![CDATA[$P{dateFin}]]></defaultValueExpression>
 	</parameter>
 	<parameter name="moyenne" class="java.lang.Float">
@@ -27,7 +27,7 @@
 	<parameter name="adresse" class="java.lang.String">
 		<defaultValueExpression><![CDATA[$P{adresse}]]></defaultValueExpression>
 	</parameter>
-	<parameter name="dateDelivrance" class="java.util.Date">
+	<parameter name="dateDelivrance" class="java.lang.String">
 		<defaultValueExpression><![CDATA[$P{dateDelivrance}]]></defaultValueExpression>
 	</parameter>
 	<parameter name="niveau" class="java.lang.String">
