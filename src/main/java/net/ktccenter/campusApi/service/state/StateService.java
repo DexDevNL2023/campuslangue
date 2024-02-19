@@ -234,7 +234,7 @@ public class StateService extends MainService {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
-    List<Session> sessions = sessionRepository.findAllByBranche(getCurrentUserBranch());
+    List<Session> sessions = sessionRepository.findAllByBranche(branche);
     for (Session session : sessions) {
       StateEtudiantSessionDTO stateEtudiantSessionDTO = new StateEtudiantSessionDTO();
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
@@ -279,7 +279,7 @@ public class StateService extends MainService {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
-    List<Session> sessions = sessionRepository.findAllByBranche(getCurrentUserBranch());
+    List<Session> sessions = sessionRepository.findAllByBranche(branche);
     for (Session session : sessions) {
       StateEtudiantSessionDTO stateEtudiantSessionDTO = new StateEtudiantSessionDTO();
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
@@ -322,7 +322,7 @@ public class StateService extends MainService {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
-    List<Session> sessions = sessionRepository.findAllByBranche(getCurrentUserBranch());
+    List<Session> sessions = sessionRepository.findAllByBranche(branche);
     for (Session session : sessions) {
       StateEtudiantSessionDTO stateEtudiantSessionDTO = new StateEtudiantSessionDTO();
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
@@ -356,7 +356,7 @@ public class StateService extends MainService {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
-    List<Session> sessions = sessionRepository.findAllByBranche(getCurrentUserBranch());
+    List<Session> sessions = sessionRepository.findAllByBranche(branche);
     for (Session session : sessions) {
       StateEtudiantSessionDTO stateEtudiantSessionDTO = new StateEtudiantSessionDTO();
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
@@ -406,7 +406,7 @@ public class StateService extends MainService {
     StateEtudiantBranchDTO stateEtudiantBranchDTO = new StateEtudiantBranchDTO();
     stateEtudiantBranchDTO.setBranche(new LiteBrancheForStateDTO(branche));
     List<StateEtudiantSessionDTO> dataStateEtudiantBranchDTO = new ArrayList<>();
-    List<Session> sessions = sessionRepository.findAllByBranche(getCurrentUserBranch());
+    List<Session> sessions = sessionRepository.findAllByBranche(branche);
     for (Session session : sessions) {
       StateEtudiantSessionDTO stateEtudiantSessionDTO = new StateEtudiantSessionDTO();
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
