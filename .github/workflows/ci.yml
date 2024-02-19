@@ -41,7 +41,7 @@ jobs:
         ls -a
         sed -i 's/spring.profiles.active=dev/#spring.profiles.active=dev/' src/main/resources/application.properties
         sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
-        # sed -i 's/localhost/5.196.68.13/' src/main/resources/application.properties
+        sed -i 's/localhost/5.196.68.13/' src/main/resources/application.properties
         # cat src/main/resources/application.properties
         docker build -t campus-langue-api .
   deployment:
