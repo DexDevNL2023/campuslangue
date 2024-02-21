@@ -1,16 +1,21 @@
 package net.ktccenter.campusApi.controller.evaluation;
 
+import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.*;
+import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
+import net.ktccenter.campusApi.service.scolarite.EtudiantService;
 import net.ktccenter.campusApi.service.scolarite.SessionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequestMapping("/api/evaluation/notes")
@@ -20,11 +25,15 @@ public class NoteController {
   private final TestModuleService testModuleService;
   private final ExamenService examenService;
   private final SessionService sessionService;
+  private final EtudiantService etudiantService;
+  private final MainService mainService;
 
-  public NoteController(TestModuleService testModuleService, ExamenService examenService, SessionService sessionService) {
+  public NoteController(TestModuleService testModuleService, ExamenService examenService, SessionService sessionService, EtudiantService etudiantService, MainService mainService) {
     this.testModuleService = testModuleService;
     this.examenService = examenService;
     this.sessionService = sessionService;
+      this.etudiantService = etudiantService;
+      this.mainService = mainService;
   }
 
   @GetMapping("/get/all/session")
@@ -79,5 +88,22 @@ public class NoteController {
   @ResponseStatus(HttpStatus.OK)
   public void importNotesexamen(@Valid @RequestBody FullExamenForNoteImportDTO dto) {
     examenService.importNotesExamen(dto);
+  }
+
+  @GetMapping("/is/rattrapage")
+  public List<EtudiantBranchDTO> getAllIsRattapage() {
+    List<EtudiantBranchDTO> result = etudiantService.getAllIsRattapage();
+    if (result.isEmpty()) return getEmptyList();
+    return result;
+  }
+
+  private List<EtudiantBranchDTO> getEmptyList() {
+    List<EtudiantBranchDTO> result = new ArrayList<>();
+    EtudiantBranchDTO dto = new EtudiantBranchDTO();
+    //dto.setBranche(new LiteBrancheDTO(mainService.getDefaultBranch()));
+    dto.setBranche(new LiteBrancheDTO(mainService.getCurrentUserBranch()));
+    dto.setData(new ArrayList<>());
+    result.add(dto);
+    return result;
   }
 }
