@@ -15,6 +15,5 @@ public class EpreuveForNoteDTO {
 
   public EpreuveForNoteDTO(Epreuve epreuve) {
     this.epreuveId = epreuve.getId();
-    this.noteObtenue = epreuve.getNoteObtenue();
   }
 }

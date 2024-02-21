@@ -52,4 +52,18 @@ public class PublicController {
             .map(e -> new EnumValue(e.name(), e.getValue()))
             .collect(Collectors.toList());
   }
+
+  @GetMapping(value = "/enums/result-order", produces = MediaTypes.HAL_JSON_VALUE)
+  public List<EnumValue> getResultatFilters() {
+    return ResultatFilter.orderedValues.stream()
+            .map(e -> new EnumValue(e.name(), e.getValue()))
+            .collect(Collectors.toList());
+  }
+
+  @GetMapping(value = "/enums/result-state", produces = MediaTypes.HAL_JSON_VALUE)
+  public List<EnumValue> getResultatStates() {
+    return ResultatState.orderedValues.stream()
+            .map(e -> new EnumValue(e.name(), e.getValue()))
+            .collect(Collectors.toList());
+  }
 }

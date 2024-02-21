@@ -106,4 +106,9 @@ public class NoteController {
     result.add(dto);
     return result;
   }
+
+  @GetMapping("/is/rattrapage/{sessionId}/{uniteId}")
+  public FullExamenForNoteDTO getAllNoteStudentIsRattapage(@PathVariable("sessionId") Long sessionId, @PathVariable("uniteId") Long uniteId) {
+    return examenService.getAllNoteStudentIsRattapage(sessionId, uniteId);
+  }
 }
