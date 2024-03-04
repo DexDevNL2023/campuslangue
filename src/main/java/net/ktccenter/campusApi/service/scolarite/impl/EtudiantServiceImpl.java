@@ -6,15 +6,13 @@ import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
 import net.ktccenter.campusApi.dao.cours.ExamenRepository;
 import net.ktccenter.campusApi.dao.cours.TestModuleRepository;
-import net.ktccenter.campusApi.dao.scolarite.CompteRepository;
-import net.ktccenter.campusApi.dao.scolarite.EtudiantRepository;
-import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
-import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
+import net.ktccenter.campusApi.dao.scolarite.*;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportEtudiantRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusForInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.cours.*;
 import net.ktccenter.campusApi.dto.lite.scolarite.*;
-import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.*;
 import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
@@ -51,6 +49,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     private final EtudiantRepository repository;
     private final EtudiantMapper mapper;
     private final UserService userService;
+    final SessionRepository sessionRepository;
     private final InscriptionRepository inscriptionRepository;
     private final CampusRepository campusRepository;
     private final PaiementRepository paiementRepository;
@@ -60,10 +59,11 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     private final EvaluationTestRepository evaluationTestRepository;
     private final EpreuveRepository epreuveRepository;
 
-    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository) {
+    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, SessionRepository sessionRepository, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.userService = userService;
+        this.sessionRepository = sessionRepository;
         this.inscriptionRepository = inscriptionRepository;
         this.campusRepository = campusRepository;
         this.paiementRepository = paiementRepository;
@@ -522,6 +522,44 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
                 .stream()
                 .filter(this::unpaid)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<EtudiantBranchDTO> getAllIsRattapage() {
+        List<EtudiantBranchDTO> result = new ArrayList<>();
+        if (hasGrantAuthorized()) {
+            for (Branche b : getAllBranches()) {
+                result.add(buildEtudiantEnRattrapage(b));
+            }
+        } else {
+            result.add(buildEtudiantEnRattrapage(getCurrentUserBranch()));
+        }
+        return result;
+    }
+
+    EtudiantBranchDTO buildEtudiantEnRattrapage(Branche branche) {
+        EtudiantBranchDTO result = new EtudiantBranchDTO();
+        List<LiteEtudiantDTO> etudiants = new ArrayList<>();
+        result.setBranche(new LiteBrancheDTO(branche));
+        List<Session> sessions = sessionRepository.findAllByBranche(branche);
+        for (Session session : sessions) {
+            List<Inscription> inscriptions = inscriptionRepository.findAllBySession(session);
+            for (Inscription inscription : inscriptions) {
+                if (isRattrapage(inscription))
+                    etudiants.add(new LiteEtudiantDTO(inscription.getEtudiant()));
+            }
+        }
+        result.setData(etudiants);
+        return result;
+    }
+
+    boolean isRattrapage(Inscription inscription) {
+        Examen examen = examenRepository.findByInscription(inscription);
+        List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
+        for (Epreuve epreuve : epreuves) {
+            if (epreuve.getEstRattrapee()) return true;
+        }
+        return false;
     }
 
     private boolean unpaid(EtudiantBranchDTO etudiant) {

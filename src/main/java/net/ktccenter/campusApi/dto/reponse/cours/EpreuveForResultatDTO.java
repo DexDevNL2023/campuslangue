@@ -1,4 +1,4 @@
-package net.ktccenter.campusApi.dto.request.cours;
+package net.ktccenter.campusApi.dto.reponse.cours;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,16 +8,17 @@ import net.ktccenter.campusApi.entities.cours.Epreuve;
 @Setter
 @Getter
 @NoArgsConstructor
-public class EpreuveForNoteDTO {
+public class EpreuveForResultatDTO {
   private Long epreuveId;
-  private Float noteObtenue = 0.0F;
+  private Float noteFinal = 0.0F;
+  private Float noteExamen = 0.0F;
   private Float noteRattrapage = 0.0F;
   private String uniteCode;
   private Boolean estValidee = false;
 
-  public EpreuveForNoteDTO(Epreuve epreuve) {
+  public EpreuveForResultatDTO(Epreuve epreuve) {
     this.epreuveId = epreuve.getId();
-    this.noteObtenue = epreuve.getNoteObtenue();
+    this.noteExamen = epreuve.getNoteObtenue();
     this.noteRattrapage = epreuve.getNoteRattrapage();
     this.estValidee = epreuve.getEstValidee();
   }

@@ -11,14 +11,19 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteExamenDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauForSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.ExamenBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.cours.EpreuveForResultatDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
+import net.ktccenter.campusApi.dto.reponse.cours.ExamenForResultatReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.cours.Unite;
+import net.ktccenter.campusApi.entities.scolarite.Etudiant;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
+import net.ktccenter.campusApi.enums.ResultatFilter;
+import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.ExamenMapper;
 import net.ktccenter.campusApi.service.MainService;
@@ -245,14 +250,16 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
                 Epreuve epreuve = epreuveRepository.findById(examenDto.getEpreuve().getEpreuveId()).orElse(null);
                 if (epreuve != null) {
                     if (epreuve.getEstRattrapee()) {
-                        epreuve.setNoteRattrapage(examenDto.getEpreuve().getNoteObtenue());
+                        epreuve.setNoteRattrapage(examenDto.getEpreuve().getNoteRattrapage());
+                        boolean success = (examenDto.getEpreuve().getNoteRattrapage() >= epreuve.getUnite().getNoteAdmission());
+                        epreuve.setEstValidee(success);
                     } else {
                         epreuve.setNoteObtenue(examenDto.getEpreuve().getNoteObtenue());
                         boolean success = (examenDto.getEpreuve().getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
                         epreuve.setEstValidee(success);
                         if (!success) epreuve.setEstRattrapee(true);
                     }
-                    epreuve = epreuveRepository.save(epreuve);
+                    epreuveRepository.save(epreuve);
                 }
                 examen.setDateExamen(dto.getDateExamen());
                 examen = repository.save(examen);
@@ -270,6 +277,8 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             if (epreuve != null) {
                 if (epreuve.getEstRattrapee()) {
                     epreuve.setNoteRattrapage(epreuveDto.getNoteRattrapage());
+                    boolean success = (epreuveDto.getNoteRattrapage() >= epreuve.getUnite().getNoteAdmission());
+                    epreuve.setEstValidee(success);
                 } else {
                     epreuve.setNoteObtenue(epreuveDto.getNoteObtenue());
                     boolean success = (epreuveDto.getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());
@@ -284,6 +293,99 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
                 }
             }
         }
+    }
+
+    @Override
+    public FullExamenForNoteDTO getAllNoteStudentIsRattapage(Long sessionId, Long uniteId) {
+        return buildExamenForNoteIsRattapageDto(sessionId, uniteId);
+    }
+
+    @Override
+    public List<ExamenForResultatReponseDTO> getAllResultatExamenBySession(Long sessionId, ResultatState state, ResultatFilter order) {
+        if (order == ResultatFilter.ALPHABETIQUE) {
+            return repository.findAllBySessionId(sessionId)
+                    .stream()
+                    .filter(e -> getByAppreciation(e, state))
+                    .map(e -> buildExamenResultatDto(e, state))
+                    .sorted(Comparator.comparing(ExamenForResultatReponseDTO::getFullName))
+                    .collect(Collectors.toList());
+        } else {
+            return repository.findAllBySessionId(sessionId)
+                    .stream()
+                    .filter(e -> getByAppreciation(e, state))
+                    .map(e -> buildExamenResultatDto(e, state))
+                    .sorted(Comparator.comparingInt(e -> e.getMoyenne().intValue()))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    private boolean getByAppreciation(Examen examen, ResultatState state) {
+        List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
+        Float moyenne = 0F;
+        boolean isFail = false;
+        for (Epreuve epreuve : epreuves) {
+            if (!epreuve.getEstValidee()) {
+                isFail = true;
+            }
+            moyenne += epreuve.getNoteObtenue();
+        }
+        moyenne = !epreuves.isEmpty() && !isFail ? moyenne / epreuves.size() : 0;
+        int note = moyenne.intValue();
+        switch (state) {
+            case ALL:
+                return true;
+            case WIN:
+                return (note >= 10);
+            case FAIL:
+                return (note < 10);
+            default:
+                return false;
+        }
+    }
+
+    private ExamenForResultatReponseDTO buildExamenResultatDto(Examen examen, ResultatState state) {
+        Set<EpreuveForResultatDTO> listEpreuveDto = new HashSet<>();
+        ExamenForResultatReponseDTO dto = new ExamenForResultatReponseDTO();
+        dto.setMatricule(examen.getInscription().getEtudiant().getMatricule());
+        dto.setFullName(getFullName(examen.getInscription().getEtudiant()));
+        List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
+        for (Epreuve epreuve : epreuves) {
+            listEpreuveDto.add(buildEpreuveForResultatDto(epreuve));
+        }
+        dto.setEpreuves(listEpreuveDto);
+        return dto;
+    }
+
+    private EpreuveForResultatDTO buildEpreuveForResultatDto(Epreuve epreuve) {
+        EpreuveForResultatDTO epreuveLite = new EpreuveForResultatDTO(epreuve);
+        if (epreuve.getEstRattrapee()) {
+            epreuveLite.setNoteFinal(epreuve.getNoteRattrapage());
+        } else {
+            epreuveLite.setNoteFinal(epreuve.getNoteObtenue());
+        }
+        epreuveLite.setUniteCode(epreuve.getUnite().getCode());
+        return epreuveLite;
+    }
+
+    public String getFullName(Etudiant etudiant) {
+        return !etudiant.getPrenom().isEmpty() ? etudiant.getNom() + " " + etudiant.getPrenom() : etudiant.getNom();
+    }
+
+    private FullExamenForNoteDTO buildExamenForNoteIsRattapageDto(Long sessionId, Long uniteId) {
+        Date dateExamen = new Date();
+        List<ExamenForNoteDTO> listExamenDto = new ArrayList<>();
+        List<Examen> listExamen = repository.findAllBySessionId(sessionId);
+        for (Examen examen : listExamen) {
+            dateExamen = examen.getDateExamen();
+            List<Epreuve> epreuves = epreuveRepository.findAllByExamenIdAndUniteId(examen.getId(), uniteId);
+            if (epreuves.isEmpty()) {
+                continue;
+            }
+            for (Epreuve epreuve : epreuves) {
+                if (epreuve.getEstRattrapee()) listExamenDto.add(buildExamenForNoteDto(examen, epreuve));
+            }
+        }
+        return new FullExamenForNoteDTO(dateExamen, listExamenDto);
     }
 
     private ExamenForNoteDTO buildExamenForNoteDto(Examen examen, Epreuve epreuve) {
@@ -355,7 +457,9 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
                     Epreuve epreuve = epreuveRepository.findById(epreuveDto.getEpreuveId()).orElse(null);
                     if (epreuve != null) {
                         if (epreuve.getEstRattrapee()) {
-                            epreuve.setNoteRattrapage(epreuveDto.getNoteObtenue());
+                            epreuve.setNoteRattrapage(epreuveDto.getNoteRattrapage());
+                            boolean success = (epreuveDto.getNoteRattrapage() >= epreuve.getUnite().getNoteAdmission());
+                            epreuve.setEstValidee(success);
                         } else {
                             epreuve.setNoteObtenue(epreuveDto.getNoteObtenue());
                             boolean success = (epreuveDto.getNoteObtenue() >= epreuve.getUnite().getNoteAdmission());

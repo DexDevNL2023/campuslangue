@@ -11,14 +11,21 @@ import net.ktccenter.campusApi.dto.lite.cours.LiteTestModuleDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteModuleFormationDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauForSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.TestModuleBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.cours.ExamenForResultatReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
+import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForResultatReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.entities.administration.Branche;
+import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
+import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.cours.TestModule;
+import net.ktccenter.campusApi.entities.scolarite.Etudiant;
 import net.ktccenter.campusApi.entities.scolarite.ModuleFormation;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
+import net.ktccenter.campusApi.enums.ResultatFilter;
+import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.TestModuleMapper;
 import net.ktccenter.campusApi.service.MainService;
@@ -248,6 +255,69 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
         evaluationTestRepository.save(test);
       }
     }
+  }
+
+  @Override
+  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state, ResultatFilter order) {
+    if (order == ResultatFilter.ALPHABETIQUE) {
+      return repository.findAllBySessionId(sessionId)
+              .stream()
+              .filter(t -> getByAppreciation(t, state))
+              .map(t -> buildTestModuleResultatDto(t, moduleId, state))
+              .sorted(Comparator.comparing(TestModuleForResultatReponseDTO::getFullName))
+              .collect(Collectors.toList());
+    } else {
+      return repository.findAllBySessionId(sessionId)
+              .stream()
+              .filter(t -> getByAppreciation(t, state))
+              .map(t -> buildTestModuleResultatDto(t, moduleId, state))
+              .sorted(Comparator.comparingInt(t -> t.getMoyenne().intValue()))
+              .collect(Collectors.toList());
+    }
+  }
+
+  private boolean getByAppreciation(TestModule testModule, ResultatState state) {
+    List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
+    Float moyenne = 0F;
+    boolean isFail = false;
+    for (EvaluationTest evaluation : evaluations) {
+      moyenne += evaluation.getNote();
+    }
+    moyenne = !evaluations.isEmpty() && !isFail ? moyenne / evaluations.size() : 0;
+    int note = moyenne.intValue();
+    switch (state) {
+      case ALL:
+        return true;
+      case WIN:
+        return (note >= 10);
+      case FAIL:
+        return (note < 10);
+      default:
+        return false;
+    }
+  }
+
+  private TestModuleForResultatReponseDTO buildTestModuleResultatDto(TestModule testModule, Long moduleId, ResultatState state) {
+    Set<EvaluationTestForNoteDTO> listEvaluationDto = new HashSet<>();
+    TestModuleForResultatReponseDTO dto = new TestModuleForResultatReponseDTO();
+    dto.setMatricule(testModule.getInscription().getEtudiant().getMatricule());
+    dto.setFullName(getFullName(testModule.getInscription().getEtudiant()));
+    List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModuleIdAndModuleId(testModule.getId(), moduleId);
+    for (EvaluationTest evaluation : evaluations) {
+      listEvaluationDto.add(buildEvaluationForResultatDto(evaluation));
+    }
+    dto.setEvaluations(listEvaluationDto);
+    return dto;
+  }
+
+  private EvaluationTestForNoteDTO buildEvaluationForResultatDto(EvaluationTest evaluation) {
+    EvaluationTestForNoteDTO evaluationLite = new EvaluationTestForNoteDTO(evaluation);
+    evaluationLite.setModuleFormationCode(evaluation.getModuleFormation().getCode());
+    return evaluationLite;
+  }
+
+  public String getFullName(Etudiant etudiant) {
+    return !etudiant.getPrenom().isEmpty() ? etudiant.getNom() + " " + etudiant.getPrenom() : etudiant.getNom();
   }
 
   private TestModuleForNoteDTO buildTestModuleForNoteDto(TestModule testModule, EvaluationTest evaluation) {

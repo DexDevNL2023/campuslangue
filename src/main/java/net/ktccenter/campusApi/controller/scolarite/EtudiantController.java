@@ -7,6 +7,7 @@ import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,6 +25,9 @@ public interface EtudiantController {
     List<EtudiantBranchDTO> list();
 
     List<EtudiantBranchDTO> getAllBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("salleId") Long salleId, @PathVariable("niveauId") Long niveauId);
+
+    @GetMapping("/is/rattrapage")
+    List<EtudiantBranchDTO> getAllIsRattapage();
 
     List<EtudiantBranchDTO> getAllWithUnpaid();
 

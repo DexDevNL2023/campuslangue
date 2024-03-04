@@ -24,4 +24,6 @@ public interface EtudiantService extends GenericService<Etudiant, EtudiantReques
     List<EtudiantBranchDTO> getAllBySession(Long sessionId, Long salleId, Long niveauId);
 
     List<EtudiantBranchDTO> getAllWithUnpaid();
+
+    List<EtudiantBranchDTO> getAllIsRattapage();
 }

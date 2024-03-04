@@ -90,6 +90,14 @@ public class EtudiantControllerImpl implements EtudiantController {
         return result;
     }
 
+    @Override
+    @GetMapping("/is/rattrapage")
+    public List<EtudiantBranchDTO> getAllIsRattapage() {
+        List<EtudiantBranchDTO> result = service.getAllIsRattapage();
+        if (result.isEmpty()) return getEmptyList();
+        return result;
+    }
+
     private List<EtudiantBranchDTO> getEmptyList() {
         List<EtudiantBranchDTO> result = new ArrayList<>();
         EtudiantBranchDTO dto = new EtudiantBranchDTO();
