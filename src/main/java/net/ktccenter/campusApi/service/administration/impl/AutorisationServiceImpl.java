@@ -5,6 +5,7 @@ import net.ktccenter.campusApi.dao.administration.DroitRepository;
 import net.ktccenter.campusApi.dao.administration.ModuleRepository;
 import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
+import net.ktccenter.campusApi.dto.LitePermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.DroitDTO;
 import net.ktccenter.campusApi.dto.request.administration.PermissionDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
@@ -21,6 +22,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -100,6 +102,28 @@ public class AutorisationServiceImpl implements AutorisationService {
         }catch (Exception e){
             throw new APIException(e.getMessage());
         }
+    }
+
+    @Override
+    public List<LitePermissionModuleDTO> getRolePersmission(String roleName) {
+        Role role = roleRepository.findByRoleName(roleName);
+        if (role == null) {
+            throw new ResourceNotFoundException("Role introuvable");
+        }
+        return getAllPermissionsByRole(role);
+    }
+
+    private List<LitePermissionModuleDTO> getAllPermissionsByRole(Role role) {
+        List<LitePermissionModuleDTO> list = new ArrayList<>();
+        List<Module> modules = (List<Module>) moduleRepository.findAll();
+        for (Module module : modules) {
+            LitePermissionModuleDTO dto = new LitePermissionModuleDTO();
+            dto.setModule(module.getName());
+            List<String> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().map(p -> p.getDroit().getKey()).collect(Collectors.toList());
+            dto.setPermissions(data);
+            list.add(dto);
+        }
+        return list;
     }
 }
 

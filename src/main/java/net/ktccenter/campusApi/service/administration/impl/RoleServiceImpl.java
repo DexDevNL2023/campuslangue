@@ -48,7 +48,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleDTO save(RoleRequestDTO entity) {
-        Role role = mapper.asEntity(entity);
+        Role role = repository.save(mapper.asEntity(entity));
         List<Droit> list = (List<Droit>) droitRepository.findAll();
         for (Droit droit : list) {
             if (droit.getIsDefault()) {
@@ -56,7 +56,7 @@ public class RoleServiceImpl implements RoleService {
                 roleDroitRepository.save(permission);
             }
         }
-        return mapper.asDTO(repository.save(role));
+        return mapper.asDTO(role);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public boolean existsByRoleName(String libelle) {
         Role role = repository.findByRoleName(libelle);
-        return (role == null);
+        return !(role == null);
     }
 
     @Override

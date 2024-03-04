@@ -1,11 +1,15 @@
 package net.ktccenter.campusApi.controller.administration;
 
+import net.ktccenter.campusApi.dto.LitePermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.DroitDTO;
 import net.ktccenter.campusApi.dto.request.administration.PermissionDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @RestController
 @RequestMapping(path= "/api/autorisations")
@@ -39,6 +43,11 @@ public class AutorisationRestController {
             throw new APIException("IsDefault obligatoire.");
         }
         roleService.changeIsDefaultDroit(droitDTO);
+    }
+
+    @GetMapping(path = "/account/role/permission/{roleName}")
+    public List<LitePermissionModuleDTO> getRolePersmission(@NotNull String roleName) {
+        return roleService.getRolePersmission(roleName);
     }
 }
 
