@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class SalleServiceImpl extends MainService implements SalleService {
   private final SalleRepository repository;
+
   private final SalleMapper mapper;
   private final PlageHoraireRepository plageHoraireRepository;
   private final OccupationSalleRepository occupationSalleRepository;
@@ -193,7 +194,8 @@ public class SalleServiceImpl extends MainService implements SalleService {
     Salle salle = repository.findById(salleId).orElseThrow(
             () ->  new ResourceNotFoundException("La salle avec l'id " + salleId + " n'existe pas")
     );
-    return occupationSalleRepository.findAllBySalle(salle).stream().map(this::buildOccupationLiteDto).collect(Collectors.toList());
+
+    return occupationSalleRepository.findAllBySalleAndEstOccupee(salle, true).stream().map(this::buildOccupationLiteDto).collect(Collectors.toList());
   }
 
     @Override

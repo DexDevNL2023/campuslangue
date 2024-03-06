@@ -23,4 +23,5 @@ public interface OccupationSalleRepository extends PagingAndSortingRepository<Oc
 
     @Query("SELECT DISTINCT e FROM OccupationSalle e WHERE e.plageHoraire = :plage")
     List<OccupationSalle> findAllByPlageHoraire(PlageHoraire plage);
+
 }
