@@ -10,4 +10,5 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PlageHoraireMapper extends GenericMapper<PlageHoraire, PlageHoraireRequestDTO, PlageHoraireDTO, LitePlageHoraireDTO, ImportPlageHoraireRequestDTO> {
+
 }

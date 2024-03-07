@@ -6,6 +6,7 @@ import net.ktccenter.campusApi.dao.cours.PlageHoraireRepository;
 import net.ktccenter.campusApi.dto.importation.cours.ImportPlageHoraireRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteOccupationSalleDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LitePlageHoraireDTO;
+import net.ktccenter.campusApi.dto.reponse.cours.PlageDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.PlageHoraireDTO;
 import net.ktccenter.campusApi.dto.request.cours.PlageHoraireRequestDTO;
 import net.ktccenter.campusApi.entities.administration.OccupationSalle;
@@ -122,5 +123,10 @@ public class PlageHoraireServiceImpl implements PlageHoraireService {
         return repository.findByCode(code).orElseThrow(
                 () ->  new ResourceNotFoundException("La plage horaire avec le code " + code + " n'existe pas")
         );
+    }
+
+    @Override
+    public List<PlageDTO> findByJour(String code) {
+        return null;
     }
 }

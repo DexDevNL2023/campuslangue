@@ -26,7 +26,7 @@ public class FormateurDTO extends AbstractDTO {
   private String email;
   private Integer experience;
   private LiteDiplomeDTO diplome;
-    private LiteBrancheDTO branche;
+  private LiteBrancheDTO branche;
   private String fullName;
   Set<LiteSessionDTO> sessions = new HashSet<>();
 
