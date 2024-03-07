@@ -22,6 +22,5 @@ import javax.persistence.Table;
 public class JourOuvrable extends BaseAuditingEntity {
     @Enumerated(EnumType.STRING)
     private Jour jour;
-    private Float heureDebut;
-    private Float heureFin;
+    private Float[] intervalle;
 }

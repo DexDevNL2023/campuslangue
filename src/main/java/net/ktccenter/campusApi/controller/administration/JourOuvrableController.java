@@ -1,6 +1,5 @@
 package net.ktccenter.campusApi.controller.administration;
 
-import net.ktccenter.campusApi.dto.importation.administration.ImportJourOuvrableRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteJourOuvrableDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.JourOuvrableDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.RequestJourOuvrableDTO;
@@ -15,8 +14,6 @@ import java.util.List;
 public interface JourOuvrableController {
   JourOuvrableDTO save(@RequestBody JourOuvrableRequestDTO dto);
 
-  List<LiteJourOuvrableDTO> saveAll(@RequestBody List<ImportJourOuvrableRequestDTO> dtos);
-
   JourOuvrableDTO findById(@PathVariable("id") Long id);
 
   void delete(@PathVariable("id") Long id);
@@ -28,4 +25,6 @@ public interface JourOuvrableController {
   void update(@RequestBody JourOuvrableRequestDTO dto, @PathVariable("id") Long id);
 
   List<RequestJourOuvrableDTO> getDefaultJour();
+
+  List<JourOuvrableDTO> saveAll(List<JourOuvrableRequestDTO> dtos);
 }

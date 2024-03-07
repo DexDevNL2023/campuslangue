@@ -1,7 +1,6 @@
 package net.ktccenter.campusApi.controller.administration.impl;
 
 import net.ktccenter.campusApi.controller.administration.JourOuvrableController;
-import net.ktccenter.campusApi.dto.importation.administration.ImportJourOuvrableRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteJourOuvrableDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.JourOuvrableDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.RequestJourOuvrableDTO;
@@ -35,24 +34,24 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
   @ResponseStatus(HttpStatus.CREATED)
   //@AuthorizeUser(actionKey = "campus-add")
   public JourOuvrableDTO save(@Valid @RequestBody JourOuvrableRequestDTO dto) {
-    autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter un jour ouvrable", "campus-add", "POST", true));
+    autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter un jour ouvrable", "jour-ouvrable-add", "POST", true));
     return service.save(dto);
   }
 
   @Override
-  @PostMapping("/imports")
+  @PostMapping("/save")
   @ResponseStatus(HttpStatus.CREATED)
-  //@AuthorizeUser(actionKey = "campus-import")
-  public List<LiteJourOuvrableDTO> saveAll(@Valid @RequestBody List<ImportJourOuvrableRequestDTO> dtos) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Importer des jours ouvrables", "campus-import", "POST", true));
-    return service.save(dtos);
+  //@AuthorizeUser(actionKey = "campus-add")
+  public List<JourOuvrableDTO> saveAll(@Valid @RequestBody List<JourOuvrableRequestDTO> dtos) {
+    autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter un jour ouvrable", "jour-ouvrable-add", "POST", true));
+    return service.saveAll(dtos);
   }
 
   @Override
   @GetMapping("/{id}")
   //@AuthorizeUser(actionKey = "campus-find")
   public JourOuvrableDTO findById(@PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Afficher les détails d'un campus", "campus-find", "GET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Administration", "Afficher les détails d'un jour ouvrable", "jour-ouvrable-find", "GET", true));
     return service.getOne(id);
   }
 
@@ -60,8 +59,8 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
   @DeleteMapping("/{id}")
   //@AuthorizeUser(actionKey = "campus-delet")
   public void delete(@PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Supprimer un campus", "campus-delet", "DELET", true));
-    if (service.findById(id) == null) throw new RuntimeException("Le campus avec l'id " + id + " n'existe pas");
+    autorisationService.addDroit(new SaveDroitDTO("Administration", "Supprimer un jour ouvrable", "jour-ouvrable-delet", "DELET", true));
+    if (service.findById(id) == null) throw new RuntimeException("Le jour ouvrable avec l'id " + id + " n'existe pas");
     service.deleteById(id);
   }
 
@@ -69,7 +68,7 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
   @GetMapping
   //@AuthorizeUser(actionKey = "campus-list")
   public List<LiteJourOuvrableDTO> list() {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Administration", "Lister les jours ouvrables", "jour-ouvrable-list", "GET", true));
     return service.findAll();
   }
 
@@ -77,7 +76,7 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
   @GetMapping("/default")
   //@AuthorizeUser(actionKey = "campus-list")
   public List<RequestJourOuvrableDTO> getDefaultJour() {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les campus", "campus-list", "GET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Administration", "Lister les jours ouvrables", "jour-ouvrable-list", "GET", true));
     return service.getDefaultJour();
   }
 
@@ -91,10 +90,10 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
   @PutMapping("/{id}")
   //@AuthorizeUser(actionKey = "campus-update")
   public void update(@Valid @RequestBody JourOuvrableRequestDTO dto, @PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Mttre à jour un campus", "campus-update", "PUT", true));
-    if (service.findById(id) == null) throw new RuntimeException("Le campus avec l'id " + id + " n'existe pas");
+    autorisationService.addDroit(new SaveDroitDTO("Administration", "Mettre à jour un jour ouvrable", "jour-ouvrable-update", "PUT", true));
+    if (service.findById(id) == null) throw new RuntimeException("Le jour ouvrable avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
-      throw new RuntimeException("Le campus avec les données suivante : " + dto.toString() + " existe déjà");
+      throw new RuntimeException("Le jour ouvrable avec les données suivante : " + dto.toString() + " existe déjà");
     service.update(dto, id);
   }
 }
