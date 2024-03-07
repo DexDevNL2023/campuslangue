@@ -17,6 +17,7 @@ public class LiteNiveauForSessionDTO {
     private BigDecimal fraisInscription;
     private BigDecimal fraisPension;
     private BigDecimal fraisRattrapage;
+    private Float dureeSeance;
 
     public LiteNiveauForSessionDTO(Niveau niveau) {
         this.id = niveau.getId();

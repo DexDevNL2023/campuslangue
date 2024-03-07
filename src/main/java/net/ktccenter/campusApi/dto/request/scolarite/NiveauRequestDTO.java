@@ -2,10 +2,7 @@ package net.ktccenter.campusApi.dto.request.scolarite;
 
 import lombok.*;
 
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.math.BigDecimal;
 
 @AllArgsConstructor
@@ -30,4 +27,6 @@ public class NiveauRequestDTO {
     private Long diplomeRequisId;
     @NotNull(message = "Le diplôme de fin fr formation est obligatoire")
     private Long diplomeFinFormationId;
+    @Min(value = 1, message = "Vous devez indiquez la durée d'une séance de cours pour ce niveau")
+    private Float dureeSeance = 2F;
 }

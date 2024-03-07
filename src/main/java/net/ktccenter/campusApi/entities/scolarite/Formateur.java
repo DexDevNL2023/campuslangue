@@ -42,7 +42,7 @@ public class Formateur extends BaseEntity {
   private String email;
   private Integer experience;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JsonIgnore
   private Diplome diplome;
 

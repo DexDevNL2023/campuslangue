@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -27,4 +28,6 @@ public class ImportNiveauRequestDTO {
     private String diplomeRequisCode;
     @NotBlank(message = "Le diplôme de fin formation est obligatoire")
     private String diplomeFinFormationCode;
+    @Min(value = 1, message = "Vous devez indiquez la durée d'une séance de cours pour ce niveau")
+    private Float dureeSeance = 2F;
 }

@@ -23,7 +23,7 @@ public class LiteFormateurDTO {
   private Integer experience;
   private String fullName;
   private LiteBrancheDTO branche;
-
+    private LiteDiplomeDTO diplome;
 
   public LiteFormateurDTO(Formateur formateur) {
     this.id = formateur.getId();
