@@ -24,6 +24,7 @@ public class NiveauDTO extends AbstractDTO {
     private BigDecimal fraisRattrapage;
     private LiteDiplomeDTO diplomeRequis;
     private LiteDiplomeDTO diplomeFinFormation;
+    private Float dureeSeance;
     Set<LiteSessionDTO> sessions = new HashSet<>();
     Set<LiteModuleFormationDTO> modules = new HashSet<>();
     Set<LiteUniteDTO> unites = new HashSet<>();

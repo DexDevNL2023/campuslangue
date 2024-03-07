@@ -43,6 +43,8 @@ public class Niveau extends BaseAuditingEntity {
 	@JsonIgnore
 	private Diplome diplomeFinFormation;
 
+	private Float dureeSeance;
+
 	public Niveau(String code, String libelle) {
 		super();
 		this.code = code;

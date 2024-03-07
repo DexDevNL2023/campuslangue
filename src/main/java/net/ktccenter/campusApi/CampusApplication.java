@@ -11,6 +11,7 @@ import net.ktccenter.campusApi.dao.administration.InstitutionRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
 import net.ktccenter.campusApi.dao.administration.UserRepository;
 import net.ktccenter.campusApi.dao.cours.PlageHoraireRepository;
+import net.ktccenter.campusApi.dao.scolarite.DiplomeRepository;
 import net.ktccenter.campusApi.dao.scolarite.FormateurRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModePaiementRepository;
 import net.ktccenter.campusApi.dao.scolarite.RubriqueRepository;
@@ -19,6 +20,7 @@ import net.ktccenter.campusApi.entities.administration.Institution;
 import net.ktccenter.campusApi.entities.administration.Role;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.entities.cours.PlageHoraire;
+import net.ktccenter.campusApi.entities.scolarite.Diplome;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.entities.scolarite.ModePaiement;
 import net.ktccenter.campusApi.entities.scolarite.Rubrique;
@@ -60,11 +62,13 @@ public class CampusApplication implements CommandLineRunner {
     private final ModePaiementRepository modePaiementRepository;
     private final FormateurRepository formateurRepository;
     private final PlageHoraireRepository plageHoraireRepository;
+
+    private final DiplomeRepository diplomeRepository;
     private final String password = "passwords";
     private final String username = "admin@admin.com";
     private final PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
 
-    public CampusApplication(UserRepository userRepository, RoleRepository roleRepository, InstitutionRepository institutionRepository, RubriqueRepository rubriqueRepository, ModePaiementRepository modePaiementRepository, FormateurRepository formateurRepository, PlageHoraireRepository plageHoraireRepository) {
+    public CampusApplication(UserRepository userRepository, RoleRepository roleRepository, InstitutionRepository institutionRepository, RubriqueRepository rubriqueRepository, ModePaiementRepository modePaiementRepository, FormateurRepository formateurRepository, PlageHoraireRepository plageHoraireRepository, DiplomeRepository diplomeRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.institutionRepository = institutionRepository;
@@ -72,6 +76,7 @@ public class CampusApplication implements CommandLineRunner {
         this.modePaiementRepository = modePaiementRepository;
         this.formateurRepository = formateurRepository;
         this.plageHoraireRepository = plageHoraireRepository;
+        this.diplomeRepository = diplomeRepository;
     }
 
     public static void main(String[] args) {
@@ -167,6 +172,11 @@ public class CampusApplication implements CommandLineRunner {
       formateur.setEmail("sonnymba@gmail.com");
       formateur.setIsDefault(true);
         formateur.setBranche(mainService.getDefaultBranch());
+        Diplome diplome = diplomeRepository.findAll().iterator().next();
+        if (diplome == null) {
+            diplome = new Diplome("L3", "LICENCE");
+        }
+        formateur.setDiplome(diplome);
       formateur = formateurRepository.save(formateur);
       log.info("Personnel-Formateur : "+ formateur);
       return formateur;
