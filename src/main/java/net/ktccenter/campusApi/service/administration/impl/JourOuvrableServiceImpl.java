@@ -39,6 +39,15 @@ public class JourOuvrableServiceImpl implements JourOuvrableService {
     return mapper.asDTO(repository.save(mapper.asEntity(dto)));
   }
 
+  @Override
+  public List<JourOuvrableDTO> saveAll(List<JourOuvrableRequestDTO> dtos) {
+    List<JourOuvrableDTO> result = new ArrayList<>();
+    for (JourOuvrableRequestDTO dto : dtos) {
+      result.add(mapper.asDTO(repository.save(mapper.asEntity(dto))));
+    }
+    return result;
+  }
+
 
   @Override
   public List<LiteJourOuvrableDTO> save(List<ImportJourOuvrableRequestDTO> dtos) {
@@ -61,7 +70,7 @@ public class JourOuvrableServiceImpl implements JourOuvrableService {
   @Override
   public JourOuvrable findById(Long id) {
     return repository.findById(id).orElseThrow(
-            () -> new ResourceNotFoundException("Le campus avec l'id " + id + " n'existe pas")
+            () -> new ResourceNotFoundException("Le jour ouvrable avec l'id " + id + " n'existe pas")
     );
   }
 
@@ -93,7 +102,7 @@ public class JourOuvrableServiceImpl implements JourOuvrableService {
   }
 
   private LiteJourOuvrableDTO buildLiteJourOuvrable(JourOuvrable jourOuvrable) {
-    return null;
+    return new LiteJourOuvrableDTO(jourOuvrable);
   }
 
   @Override

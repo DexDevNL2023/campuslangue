@@ -16,4 +16,6 @@ public interface JourOuvrableService extends GenericService<JourOuvrable, JourOu
     List<LiteJourOuvrableDTO> findAll();
 
     List<RequestJourOuvrableDTO> getDefaultJour();
+
+    List<JourOuvrableDTO> saveAll(List<JourOuvrableRequestDTO> dtos);
 }
