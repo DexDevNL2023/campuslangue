@@ -6,6 +6,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteDiplomeDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.DiplomeDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.DiplomeRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
+import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.service.scolarite.DiplomeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +41,7 @@ public class DiplomeControllerImpl implements DiplomeController {
     public List<LiteDiplomeDTO> saveAll(@Valid @RequestBody List<ImportDiplomeRequestDTO> dtos) {
         for (ImportDiplomeRequestDTO dto : dtos) {
             if (service.existByCode(dto.getCode()))
-                throw new APIException("Le diplôme avec le code " + dto.getCode() + " existe déjà");
+                throw new ResourceNotFoundException("Le diplôme avec le code " + dto.getCode() + " existe déjà");
         }
         return service.save(dtos);
     }
