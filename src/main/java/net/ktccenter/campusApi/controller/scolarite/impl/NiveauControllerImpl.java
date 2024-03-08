@@ -6,6 +6,8 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.NiveauDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.NiveauRequestDTO;
 import net.ktccenter.campusApi.exceptions.APIException;
+import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
+import net.ktccenter.campusApi.service.scolarite.DiplomeService;
 import net.ktccenter.campusApi.service.scolarite.NiveauService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +23,11 @@ import java.util.List;
 public class NiveauControllerImpl implements NiveauController {
     private final NiveauService service;
 
-    public NiveauControllerImpl(NiveauService service) {
+    private final DiplomeService diplomeService;
+
+    public NiveauControllerImpl(NiveauService service, DiplomeService diplomeService) {
         this.service = service;
+        this.diplomeService = diplomeService;
     }
 
     @Override
@@ -41,6 +46,13 @@ public class NiveauControllerImpl implements NiveauController {
         for (ImportNiveauRequestDTO dto : dtos) {
             if (service.existByCode(dto.getCode()))
                 throw new APIException("Le niveau avec le code " + dto.getCode() + " existe déjà");
+
+            if (!diplomeService.existByCode(dto.getDiplomeRequisCode())) {
+                throw new ResourceNotFoundException("Diplôme réquis avec le code " + dto.getDiplomeRequisCode() + " n'existe pas!");
+            }
+            if (!diplomeService.existByCode(dto.getDiplomeFinFormationCode())) {
+                throw new ResourceNotFoundException("Diplôme de fin de formation avec le code " + dto.getDiplomeFinFormationCode() + " n'existe pas!");
+            }
         }
         return service.save(dtos);
     }
