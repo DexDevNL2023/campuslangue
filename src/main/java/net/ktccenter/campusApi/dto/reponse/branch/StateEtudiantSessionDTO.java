@@ -13,9 +13,8 @@ import java.util.List;
 public class StateEtudiantSessionDTO {
     private LiteSessionForStateDTO session;
     private List<LiteEtudiantForStateDTO> data = new ArrayList<>();
-    private Long nbreTotelEtudiant;
 
-    public Long getNbreTotelEtudiant() {
-        return data.stream().count();
+    public int getNbreTotelEtudiant() {
+        return data.size();
     }
 }

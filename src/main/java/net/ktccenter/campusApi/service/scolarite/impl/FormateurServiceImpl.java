@@ -6,13 +6,10 @@ import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestD
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
-import net.ktccenter.campusApi.dto.reponse.administration.CampusByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.FormateurBranchDTO;
-import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurByBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
-import net.ktccenter.campusApi.entities.administration.Campus;
 import net.ktccenter.campusApi.entities.administration.User;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.entities.scolarite.Session;
@@ -68,7 +65,7 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     User user = userService.createUser(formateur.getNom(), formateur.getPrenom(), formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", formateur.getImageUrl(), null, null, false, branche);
     formateur.setUser(user);
     formateur.setBranche(branche);
-    if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule("DEFAULT-TRAINER"));
+      if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
     return formateur;
   }
 
@@ -93,7 +90,7 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     // On vérifie que l'Formateur à une adresse mail, si oui on creer son compte utilisateur
     User user = userService.createUser(formateur.getNom(), formateur.getPrenom(), formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", formateur.getImageUrl(), null, null, false, branche);
     formateur.setUser(user);
-    if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule("DEFAULT-TRAINER"));
+      if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
     return formateur;
   }
 

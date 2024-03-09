@@ -14,7 +14,7 @@ public class StudentBranchDTO {
     private LiteBrancheForStateDTO branche;
     private List<LiteEtudiantForStateDTO> data = new ArrayList<>();
 
-    public Long getNbreTotelEtudiant() {
-        return data.stream().count();
+    public int getNbreTotelEtudiant() {
+        return data.size();
     }
 }

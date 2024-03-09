@@ -12,7 +12,7 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusForInscriptionDTO;
 import net.ktccenter.campusApi.dto.lite.cours.*;
 import net.ktccenter.campusApi.dto.lite.scolarite.*;
-import net.ktccenter.campusApi.dto.reponse.branch.*;
+import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
@@ -90,7 +90,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         etudiant.setUser(user);
         etudiant.setBranche(branche);
         // On génére le matricule de l"étudiant
-        etudiant.setMatricule(MyUtils.GenerateMatricule("DEFAULT-STUDENT"));
+        etudiant.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
         return etudiant;
     }
 
@@ -126,7 +126,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         etudiant.setUser(user);
 
         // On génére le matricule de l"étudiant
-        etudiant.setMatricule(MyUtils.GenerateMatricule("DEFAULT-STUDENT"));
+        etudiant.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
         return etudiant;
     }
 
@@ -554,12 +554,16 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     }
 
     boolean isRattrapage(Inscription inscription) {
+        boolean isRattrapage = false;
         Examen examen = examenRepository.findByInscription(inscription);
         List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
         for (Epreuve epreuve : epreuves) {
-            if (epreuve.getEstRattrapee()) return true;
+            if (epreuve.getEstRattrapee()) {
+                isRattrapage = true;
+                break;
+            }
         }
-        return false;
+        return isRattrapage;
     }
 
     private boolean unpaid(EtudiantBranchDTO etudiant) {

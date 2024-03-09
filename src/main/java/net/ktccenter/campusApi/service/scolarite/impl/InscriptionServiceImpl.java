@@ -316,7 +316,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
             new ResourceNotFoundException("L'étudiant " + etudiant.getNom().toLowerCase() + " est déjà inscrit pour cette session.");
     log.info("22");
     // On génére le matricule de l"étudiant
-    etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode()+"-"+session.getVague().getCode()+"-"+session.getNiveau().getCode()));
+    etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode() + "/" + session.getVague().getCode() + "/" + session.getNiveau().getCode()));
     log.info("23");
     // On met à jour le profil de l'étudiant
     etudiant = etudiantRepository.save(etudiant);
@@ -445,6 +445,10 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
       Epreuve epreuve = new Epreuve();
       epreuve.setUnite(unite);
       epreuve.setExamen(examen);
+      epreuve.setEstRattrapee(false);
+      epreuve.setEstValidee(false);
+      epreuve.setNoteRattrapage(0F);
+      epreuve.setNoteObtenue(0F);
       epreuve = epreuveRepository.save(epreuve);
       log.info("46");
       //log.info("new epreuve " + epreuve);
@@ -480,6 +484,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
       EvaluationTest test = new EvaluationTest();
       test.setModuleFormation(module);
       test.setTestModule(testModule);
+      test.setNote(0F);
       test = evaluationTestRepository.save(test);
       log.info("35");
       //log.info("new test " + test);
@@ -524,7 +529,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     etudiant.setPrenom(dto.getPrenom());
 
     // On génére le matricule de l"étudiant
-    etudiant.setMatricule(MyUtils.GenerateMatricule("DEFAULT-STUDENT"));
+    etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode() + "/" + session.getVague().getCode() + "/" + session.getNiveau().getCode()));
     //etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode()+"-"+session.getVague().getCode()+"-"+session.getNiveau().getCode()));
 
     // On construit l'objet etudiant
