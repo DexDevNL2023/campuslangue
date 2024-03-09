@@ -1,6 +1,5 @@
 package net.ktccenter.campusApi.entities.scolarite;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.Accessors;
 import net.ktccenter.campusApi.entities.BaseAuditingEntity;
@@ -36,11 +35,9 @@ public class Niveau extends BaseAuditingEntity {
 	private BigDecimal fraisRattrapage;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JsonIgnore
 	private Diplome diplomeRequis;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JsonIgnore
 	private Diplome diplomeFinFormation;
 
 	private Float dureeSeance;
