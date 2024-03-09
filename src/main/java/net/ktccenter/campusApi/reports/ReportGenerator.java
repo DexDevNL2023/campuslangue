@@ -7,6 +7,7 @@ import net.ktccenter.campusApi.entities.administration.Institution;
 import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.scolarite.Inscription;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
+import net.ktccenter.campusApi.service.LogImpressionService;
 import net.ktccenter.campusApi.utils.MyUtils;
 import net.sf.jasperreports.engine.*;
 import org.springframework.core.io.ClassPathResource;
@@ -27,11 +28,13 @@ public class ReportGenerator {
     private final ExamenRepository examenRepository;
     private final InstitutionRepository institutionRepository;
     private final InscriptionRepository inscriptionRepository;
+    private final LogImpressionService logImpressionService;
 
-    public ReportGenerator(ExamenRepository examenRepository, InstitutionRepository institutionRepository, InscriptionRepository inscriptionRepository) {
+    public ReportGenerator(ExamenRepository examenRepository, InstitutionRepository institutionRepository, InscriptionRepository inscriptionRepository, LogImpressionService logImpressionService) {
         this.examenRepository = examenRepository;
         this.institutionRepository = institutionRepository;
         this.inscriptionRepository = inscriptionRepository;
+        this.logImpressionService = logImpressionService;
     }
 
     public Path downloadAttestationFormationAllemandToPdf(Inscription inscription) throws JRException, IOException {
@@ -43,6 +46,7 @@ public class ReportGenerator {
         if (inscription.getDateDelivranceAttestation() == null) {
             inscription.setDateDelivranceAttestation(MyUtils.currentDate());
             inscription = inscriptionRepository.save(inscription);
+            logImpressionService.save(inscription);
         }
         Examen examen = examenRepository.findByInscription(inscription);
         if (examen == null)
