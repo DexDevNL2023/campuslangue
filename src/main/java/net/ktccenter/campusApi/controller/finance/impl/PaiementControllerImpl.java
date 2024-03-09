@@ -3,6 +3,8 @@ package net.ktccenter.campusApi.controller.finance.impl;
 import net.ktccenter.campusApi.controller.finance.PaiementController;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForCampusDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchAndCampusDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
@@ -66,6 +68,12 @@ public class PaiementControllerImpl implements PaiementController {
   }
 
   @Override
+  @GetMapping("/branch/and/campus")
+  public List<PaiementBranchAndCampusDTO> listAllAndGroupByBranchAndCampus() {
+    return service.findAllAndGroupByBranchAndCampus();
+  }
+
+  @Override
   @GetMapping("/page-query")
   public Page<LitePaiementDTO> pageQuery(Pageable pageable) {
     return service.findAll(pageable);
@@ -82,7 +90,7 @@ public class PaiementControllerImpl implements PaiementController {
 
   @Override
   @GetMapping("/campus/{campusId}")
-  public List<LitePaiementDTO> listByCampus(@PathVariable("campusId") Long campusId) {
+  public List<LitePaiementForCampusDTO> listByCampus(@PathVariable("campusId") Long campusId) {
     return service.findAllByCampus(campusId);
   }
 }

@@ -29,5 +29,5 @@ public class ImportNiveauRequestDTO {
     @NotBlank(message = "Le diplôme de fin formation est obligatoire")
     private String diplomeFinFormationCode;
     @Min(value = 1, message = "Vous devez indiquez la durée d'une séance de cours pour ce niveau")
-    private Float dureeSeance = 2F;
+    private Float dureeSeance;
 }

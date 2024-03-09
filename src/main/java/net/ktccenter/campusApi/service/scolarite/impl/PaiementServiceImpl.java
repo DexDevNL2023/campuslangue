@@ -4,8 +4,10 @@ import net.ktccenter.campusApi.dao.administration.CampusRepository;
 import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
-import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.*;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchAndCampusDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementCampusDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
@@ -56,12 +58,6 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
     return dto;
   }
 
-  private LitePaiementDTO buildLitePaiementDto(Paiement paiement) {
-    LitePaiementDTO dto = mapper.asLite(paiement);
-    dto.setCampus(new LiteCampusDTO(getCampus(paiement.getCampusId())));
-    return dto;
-  }
-
   private Campus getCampus(Long campusId) {
     return campusRepository.findById(campusId).orElse(null);
   }
@@ -76,7 +72,7 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
           BigDecimal resteAPayer = netApayer.subtract(netPayee);
           if (paiement.getMontant().compareTo(resteAPayer) > 0)
               throw new ResourceNotFoundException("Le montant paiement " + paiement.getMontant() + " n'peut pas supèrieur au reste à payer " + resteAPayer);
-          listDtos.add(buildLitePaiementDto(repository.save(paiement)));
+        listDtos.add(mapper.asLite(repository.save(paiement)));
       }
       return listDtos;
   }
@@ -128,6 +124,39 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
   }
 
   @Override
+  public List<PaiementBranchAndCampusDTO> findAllAndGroupByBranchAndCampus() {
+    List<PaiementBranchAndCampusDTO> result = new ArrayList<>();
+    if (hasGrantAuthorized()) {
+      for (Branche b : getAllBranches()) {
+        result.add(buildPaiementByBranchAndCampus(b));
+      }
+    } else {
+      result.add(buildPaiementByBranchAndCampus(getCurrentUserBranch()));
+    }
+    return result;
+  }
+
+  private PaiementBranchAndCampusDTO buildPaiementByBranchAndCampus(Branche branche) {
+    List<PaiementCampusDTO> data = new ArrayList<>();
+    PaiementBranchAndCampusDTO dto = new PaiementBranchAndCampusDTO();
+    dto.setBranche(brancheMapper.asLite(branche));
+    List<Campus> campusList = campusRepository.findAllByBranche(branche);
+    for (Campus campus : campusList) {
+      PaiementCampusDTO paiementCampusDTO = new PaiementCampusDTO();
+      paiementCampusDTO.setCampus(new LiteCampusDTO(campus));
+      List<Paiement> paiements = (List<Paiement>) repository.findAll();
+      paiementCampusDTO.setData(paiements.stream()
+              .filter(e -> belongsToTheCurrentBranch(branche, e))
+              .filter(p -> findByCampus(p, campus.getId()))
+              .map(this::buildLitePaiementDto)
+              .collect(Collectors.toList()));
+      data.add(paiementCampusDTO);
+    }
+    dto.setData(data);
+    return dto;
+  }
+
+  @Override
   public Page<LitePaiementDTO> findAll(Pageable pageable) {
     Page<Paiement> entityPage = repository.findAll(pageable);
     List<Paiement> entities = entityPage.getContent();
@@ -169,12 +198,27 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
   }
 
   @Override
-  public List<LitePaiementDTO> findAllByCampus(Long campusId) {
+  public List<LitePaiementForCampusDTO> findAllByCampus(Long campusId) {
     return ((List<Paiement>) repository.findAll())
             .stream()
             .filter(p -> findByCampus(p, campusId))
             .map(this::buildLitePaiementDto)
             .collect(Collectors.toList());
+  }
+
+  private LitePaiementForCampusDTO buildLitePaiementDto(Paiement paiement) {
+    LitePaiementForCampusDTO dto = new LitePaiementForCampusDTO(paiement);
+    dto.setModePaiement(new LiteModePaiementDTO(paiement.getModePaiement()));
+    dto.setRubrique(new LiteRubriqueDTO(paiement.getRubrique()));
+    LiteCompteForPaiementDTO liteCompte = new LiteCompteForPaiementDTO(paiement.getCompte());
+    LiteInscriptionForPaiementDTO liteInscription = new LiteInscriptionForPaiementDTO(paiement.getCompte().getInscription());
+    liteInscription.setEtudiant(new LiteEtudiantForNoteDTO(paiement.getCompte().getInscription().getEtudiant()));
+    LiteSessionForCompteDTO liteSession = new LiteSessionForCompteDTO(paiement.getCompte().getInscription().getSession());
+    liteSession.setNiveau(new LiteNiveauForSessionDTO(paiement.getCompte().getInscription().getSession().getNiveau()));
+    liteInscription.setSession(liteSession);
+    liteCompte.setInscription(liteInscription);
+    dto.setCompte(liteCompte);
+    return dto;
   }
 
   private boolean findByCampus(Paiement paiement, Long campusId) {
