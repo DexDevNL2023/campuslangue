@@ -3,12 +3,9 @@ package net.ktccenter.campusApi.dto.lite.scolarite;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.ktccenter.campusApi.dto.lite.cours.LiteUniteDTO;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
-import java.util.Set;
 
 @Setter
 @Getter
@@ -23,8 +20,6 @@ public class LiteNiveauDTO {
     private Float dureeSeance;
     private LiteDiplomeDTO diplomeRequis;
     private LiteDiplomeDTO diplomeFinFormation;
-    Set<LiteModuleFormationDTO> modules = new HashSet<>();
-    Set<LiteUniteDTO> unites = new HashSet<>();
 
     public LiteNiveauDTO(Niveau niveau) {
         this.id = niveau.getId();

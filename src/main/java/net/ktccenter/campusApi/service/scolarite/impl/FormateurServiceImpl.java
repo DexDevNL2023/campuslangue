@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.service.scolarite.impl;
 
+import net.ktccenter.campusApi.dao.scolarite.DiplomeRepository;
 import net.ktccenter.campusApi.dao.scolarite.FormateurRepository;
 import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestDTO;
@@ -11,6 +12,7 @@ import net.ktccenter.campusApi.dto.reponse.scolarite.FormateurDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.FormateurRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.User;
+import net.ktccenter.campusApi.entities.scolarite.Diplome;
 import net.ktccenter.campusApi.entities.scolarite.Formateur;
 import net.ktccenter.campusApi.entities.scolarite.Session;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
@@ -38,17 +40,19 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
   private final FormateurMapper mapper;
   private final UserService userService;
   private final SessionRepository sessionRepository;
+  private final DiplomeRepository diplomeRepository;
 
-  public FormateurServiceImpl(FormateurRepository repository, FormateurMapper mapper, UserService userService, SessionRepository sessionRepository) {
+  public FormateurServiceImpl(FormateurRepository repository, FormateurMapper mapper, UserService userService, SessionRepository sessionRepository, DiplomeRepository diplomeRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.userService = userService;
     this.sessionRepository = sessionRepository;
+    this.diplomeRepository = diplomeRepository;
   }
 
   @Override
   public FormateurDTO save(FormateurRequestDTO dto) {
-    return buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId())));
+    return buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId(), dto.getDiplomeId())));
   }
 
   private FormateurDTO buildFormateurDto(Formateur formateur) {
@@ -57,15 +61,22 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     return dto;
   }
 
-  private Formateur construitFormateur(Formateur formateur, Long brancheId) {
+  private Formateur construitFormateur(Formateur formateur, Long brancheId, Long diplomeId) {
     Branche branche = brancheRepository.findById(brancheId).orElse(null);
     if (branche == null)
       throw new ResourceNotFoundException("Aucune branche avec l'id " + brancheId);
+    formateur.setBranche(branche);
+
+    Diplome diplome = diplomeRepository.findById(diplomeId).orElse(null);
+    if (diplome == null)
+      throw new ResourceNotFoundException("Aucune diplome avec l'id " + diplomeId);
+    formateur.setDiplome(diplome);
+
     // On vérifie que l'Formateur à une adresse mail, si oui on creer son compte utilisateur
     User user = userService.createUser(formateur.getNom(), formateur.getPrenom(), formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", formateur.getImageUrl(), null, null, false, branche);
     formateur.setUser(user);
-    formateur.setBranche(branche);
-      if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
+
+    if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
     return formateur;
   }
 
@@ -74,7 +85,7 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
     List<Formateur> list = new ArrayList<>();
     for (ImportFormateurRequestDTO dto : dtos) {
       Formateur formateur = mapper.asEntity(dto);
-      formateur = importConstruitFormateur(formateur, dto.getBrancheCode());
+      formateur = importConstruitFormateur(formateur, dto.getBrancheCode(), dto.getDiplomeCode());
       list.add(formateur);
     }
     return  ((List<Formateur>) repository.saveAll(list))
@@ -83,14 +94,22 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
             .collect(Collectors.toList());
   }
 
-  private Formateur importConstruitFormateur(Formateur formateur, String brancheCode) {
+  private Formateur importConstruitFormateur(Formateur formateur, String brancheCode, String diplomeCode) {
     Branche branche = brancheRepository.findByCode(brancheCode).orElse(null);
     if (branche == null)
       throw new ResourceNotFoundException("Aucune branche avec le code " + brancheCode);
+    formateur.setBranche(branche);
+
+    Diplome diplome = diplomeRepository.findByCode(diplomeCode).orElse(null);
+    if (diplome == null)
+      throw new ResourceNotFoundException("Aucune diplome avec le code " + diplomeCode);
+    formateur.setDiplome(diplome);
+
     // On vérifie que l'Formateur à une adresse mail, si oui on creer son compte utilisateur
     User user = userService.createUser(formateur.getNom(), formateur.getPrenom(), formateur.getEmail().toLowerCase(), "ROLE_FORMATEUR", formateur.getImageUrl(), null, null, false, branche);
     formateur.setUser(user);
-      if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
+
+    if (formateur.getMatricule().isEmpty()) formateur.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
     return formateur;
   }
 
@@ -171,7 +190,7 @@ public class FormateurServiceImpl extends MainService implements FormateurServic
   public FormateurDTO update(FormateurRequestDTO dto, Long id) {
     Formateur exist = findById(id);
     dto.setId(exist.getId());
-    return buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId())));
+    return buildFormateurDto(repository.save(construitFormateur(mapper.asEntity(dto), dto.getBrancheId(), dto.getDiplomeId())));
   }
 
   @Override
