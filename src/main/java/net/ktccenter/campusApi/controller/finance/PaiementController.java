@@ -2,6 +2,8 @@ package net.ktccenter.campusApi.controller.finance;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementDTO;
+import net.ktccenter.campusApi.dto.lite.scolarite.LitePaiementForCampusDTO;
+import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchAndCampusDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.PaiementBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
@@ -23,9 +25,11 @@ public interface PaiementController {
 
     List<PaiementBranchDTO> list();
 
+    List<PaiementBranchAndCampusDTO> listAllAndGroupByBranchAndCampus();
+
   Page<LitePaiementDTO> pageQuery(Pageable pageable);
 
   void update(@RequestBody PaiementRequestDTO dto, @PathVariable("id") Long id);
 
-  List<LitePaiementDTO> listByCampus(@PathVariable("campusId") Long campusId);
+    List<LitePaiementForCampusDTO> listByCampus(@PathVariable("campusId") Long campusId);
 }
