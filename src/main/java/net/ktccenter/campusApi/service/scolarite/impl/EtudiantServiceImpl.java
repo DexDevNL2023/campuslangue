@@ -58,8 +58,9 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     private final ExamenRepository examenRepository;
     private final EvaluationTestRepository evaluationTestRepository;
     private final EpreuveRepository epreuveRepository;
+    private final DiplomeRepository diplomeRepository;
 
-    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, SessionRepository sessionRepository, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository) {
+    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, SessionRepository sessionRepository, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository, DiplomeRepository diplomeRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.userService = userService;
@@ -72,23 +73,31 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         this.examenRepository = examenRepository;
         this.evaluationTestRepository = evaluationTestRepository;
         this.epreuveRepository = epreuveRepository;
+        this.diplomeRepository = diplomeRepository;
     }
 
     @Override
     public EtudiantDTO save(EtudiantRequestDTO dto) {
         if (dto.getTelephone().equals(dto.getContactTuteur()))
             throw new ResourceNotFoundException("L'apprenant ne saurais avoir le même numéro de téléphone que son tuteur");
-        return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId())));
+        return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId(), dto.getDernierDiplomeId())));
     }
 
-    private Etudiant construitEtudiant(Etudiant etudiant, Long brancheId) {
+    private Etudiant construitEtudiant(Etudiant etudiant, Long brancheId, Long diplomeId) {
         Branche branche = brancheRepository.findById(brancheId).orElse(null);
         if (branche == null)
             throw new ResourceNotFoundException("Aucune branche avec l'id " + brancheId);
+        etudiant.setBranche(branche);
+
+        Diplome diplome = diplomeRepository.findById(diplomeId).orElse(null);
+        if (diplome == null)
+            throw new ResourceNotFoundException("Aucune diplome avec l'id " + diplomeId);
+        etudiant.setDernierDiplome(diplome);
+
         // On vérifie que l'etudiant à une adresse mail, si oui on creer son compte utilisateur
         User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl(), null, null, false, branche);
         etudiant.setUser(user);
-        etudiant.setBranche(branche);
+
         // On génére le matricule de l"étudiant
         etudiant.setMatricule(MyUtils.GenerateMatricule(branche.getCode()));
         return etudiant;
@@ -108,7 +117,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         List<Etudiant> list = new ArrayList<>();
         for (ImportEtudiantRequestDTO dto : dtos) {
             Etudiant etudiant = mapper.asEntity(dto);
-            etudiant = importConstruitEtudiant(etudiant, dto.getBrancheCode());
+            etudiant = importConstruitEtudiant(etudiant, dto.getBrancheCode(), dto.getDernierDiplomeCode());
             list.add(etudiant);
         }
         return  ((List<Etudiant>) repository.saveAll(list))
@@ -117,10 +126,17 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
                 .collect(Collectors.toList());
     }
 
-    private Etudiant importConstruitEtudiant(Etudiant etudiant, String brancheCode) {
+    private Etudiant importConstruitEtudiant(Etudiant etudiant, String brancheCode, String diplomeCode) {
         Branche branche = brancheRepository.findByCode(brancheCode).orElse(null);
         if (branche == null)
             throw new ResourceNotFoundException("Aucune branche avec le code " + brancheCode);
+        etudiant.setBranche(branche);
+
+        Diplome diplome = diplomeRepository.findByCode(diplomeCode).orElse(null);
+        if (diplome == null)
+            throw new ResourceNotFoundException("Aucune diplome avec le code " + diplomeCode);
+        etudiant.setDernierDiplome(diplome);
+
         // On vérifie que l'etudiant à une adresse mail, si oui on creer son compte utilisateur
         User user = userService.createUser(etudiant.getNom(), etudiant.getPrenom(), etudiant.getEmail().toLowerCase(), "ROLE_ETUDIANT", etudiant.getImageUrl(), null, null, false, branche);
         etudiant.setUser(user);
@@ -407,7 +423,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
             throw new ResourceNotFoundException("L'apprenant ne saurais avoir le même numéro de téléphone que son tuteur");
         Etudiant exist = findById(id);
         dto.setId(exist.getId());
-        return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId())));
+        return buildEtudiantDto(repository.save(construitEtudiant(mapper.asEntity(dto), dto.getBrancheId(), dto.getDernierDiplomeId())));
     }
 
     @Override
@@ -571,11 +587,16 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         for (LiteEtudiantDTO e : etudiants) {
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
+                BigDecimal unpaid = BigDecimal.valueOf(0.0);
+                BigDecimal solde = BigDecimal.valueOf(0.0);
                 BigDecimal netApayer = inscription.getSession().getNiveau().getFraisPension().add(inscription.getSession().getNiveau().getFraisInscription());
                 Compte compte = compteRepository.findByInscription(inscription);
                 List<Paiement> paiements = paiementRepository.findAllByCompte(compte);
-                CalculTotals calcul = calculSolde(paiements);
-                if (calcul.getSolde().compareTo(netApayer) != 0) return true;
+                for (Paiement paiement : paiements) {
+                    solde = solde.add(paiement.getMontant());
+                }
+                unpaid = netApayer.subtract(solde);
+                return unpaid.intValue() > 0;
             }
         }
         return false;

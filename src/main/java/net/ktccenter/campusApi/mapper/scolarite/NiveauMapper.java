@@ -23,4 +23,8 @@ public interface NiveauMapper extends GenericMapper<Niveau, NiveauRequestDTO, Ni
     @Mapping(source = "diplomeRequisCode", target = "diplomeRequis")
     @Mapping(source = "diplomeFinFormationCode", target = "diplomeFinFormation")
     List<Niveau> asEntityList(List<ImportNiveauRequestDTO> dtoList);
+
+    @Mapping(source = "diplomeRequisCode", target = "diplomeRequis")
+    @Mapping(source = "diplomeFinFormationCode", target = "diplomeFinFormation")
+    Niveau asEntity(ImportNiveauRequestDTO dto);
 }

@@ -1,6 +1,7 @@
 package net.ktccenter.campusApi.service.scolarite.impl;
 
 import net.ktccenter.campusApi.dao.cours.UniteRepository;
+import net.ktccenter.campusApi.dao.scolarite.DiplomeRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModuleFormationRepository;
 import net.ktccenter.campusApi.dao.scolarite.NiveauRepository;
 import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
@@ -13,6 +14,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.NiveauDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.NiveauRequestDTO;
 import net.ktccenter.campusApi.entities.cours.Unite;
+import net.ktccenter.campusApi.entities.scolarite.Diplome;
 import net.ktccenter.campusApi.entities.scolarite.ModuleFormation;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
 import net.ktccenter.campusApi.entities.scolarite.Session;
@@ -25,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,13 +40,15 @@ public class NiveauServiceImpl implements NiveauService {
     private final ModuleFormationRepository moduleFormationRepository;
     private final SessionRepository sessionRepository;
     private final UniteRepository uniteRepository;
+    private final DiplomeRepository diplomeRepository;
 
-    public NiveauServiceImpl(NiveauRepository repository, NiveauMapper mapper, ModuleFormationRepository moduleFormationRepository, SessionRepository sessionRepository, UniteRepository uniteRepository) {
+    public NiveauServiceImpl(NiveauRepository repository, NiveauMapper mapper, ModuleFormationRepository moduleFormationRepository, SessionRepository sessionRepository, UniteRepository uniteRepository, DiplomeRepository diplomeRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.moduleFormationRepository = moduleFormationRepository;
         this.sessionRepository = sessionRepository;
         this.uniteRepository = uniteRepository;
+        this.diplomeRepository = diplomeRepository;
     }
 
     @Override
@@ -53,10 +58,29 @@ public class NiveauServiceImpl implements NiveauService {
 
     @Override
     public List<LiteNiveauDTO> save(List<ImportNiveauRequestDTO> dtos) {
-        return  ((List<Niveau>) repository.saveAll(mapper.asEntityList(dtos)))
+        List<Niveau> list = new ArrayList<>();
+        for (ImportNiveauRequestDTO dto : dtos) {
+            Niveau niveau = mapper.asEntity(dto);
+            niveau = importConstruitNiveau(niveau, dto.getDiplomeRequisCode(), dto.getDiplomeFinFormationCode());
+            list.add(niveau);
+        }
+        return ((List<Niveau>) repository.saveAll(list))
                 .stream()
-                .map(this::buildLiteNiveauDto)
+                .map(mapper::asLite)
                 .collect(Collectors.toList());
+    }
+
+    private Niveau importConstruitNiveau(Niveau niveau, String diplomeRequisCode, String diplomeFinFormationCode) {
+        Diplome diplomeRequis = diplomeRepository.findByCode(diplomeRequisCode).orElse(null);
+        if (diplomeRequis == null)
+            throw new ResourceNotFoundException("Aucune diplome avec le code " + diplomeRequisCode);
+        niveau.setDiplomeRequis(diplomeRequis);
+
+        Diplome diplomeFinFormation = diplomeRepository.findByCode(diplomeFinFormationCode).orElse(null);
+        if (diplomeFinFormation == null)
+            throw new ResourceNotFoundException("Aucune diplome avec le code " + diplomeFinFormationCode);
+        niveau.setDiplomeFinFormation(diplomeFinFormation);
+        return niveau;
     }
 
     @Override

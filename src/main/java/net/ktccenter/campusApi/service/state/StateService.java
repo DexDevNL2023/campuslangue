@@ -158,16 +158,19 @@ public class StateService extends MainService {
     }
 
     private SessionBranchDTO buildSessionSurAnnee(Branche branche) {
-        Date currentDate = MyUtils.currentDate();
-        log.info(currentDate.toString());
         SessionBranchDTO dto = new SessionBranchDTO();
         dto.setBranche(brancheMapper.asLite(branche));
         dto.setData(sessionRepository.findAllByBranche(branche)
                 .stream()
-                .filter(session -> session.getDateDebut().before(currentDate))
-                .filter(session -> session.getDateFin().after(currentDate))
+                .filter(this::hisInCurrentYear)
                 .map(LiteSessionDTO::new).collect(Collectors.toList()));
         return dto;
+    }
+
+    private boolean hisInCurrentYear(Session session) {
+        Date currentDate = MyUtils.currentDate();
+        log.info(currentDate.toString());
+        return session.getDateDebut().before(currentDate) && session.getDateFin().after(currentDate);
     }
 
     public List<SessionBranchDTO> getAllSessionOuverte() {
@@ -186,17 +189,17 @@ public class StateService extends MainService {
     }
 
     public List<StudentBranchDTO> getAllStudentByBranch() {
-    List<Etudiant> etudiants = (List<Etudiant>) etudiantRepository.findAll();
-    List<StudentBranchDTO> result = new ArrayList<>();
-    if (hasGrantAuthorized()) {
-      for (Branche b : getAllBranches()) {
-        result.add(buildData(b, etudiants));
-      }
-    } else {
-      result.add(buildData(getCurrentUserBranch(), etudiants));
+        List<Etudiant> etudiants = (List<Etudiant>) etudiantRepository.findAll();
+        List<StudentBranchDTO> result = new ArrayList<>();
+        if (hasGrantAuthorized()) {
+            for (Branche b : getAllBranches()) {
+                result.add(buildData(b, etudiants));
+            }
+        } else {
+            result.add(buildData(getCurrentUserBranch(), etudiants));
+        }
+        return result;
     }
-    return result;
-  }
 
     StudentBranchDTO buildData(Branche branche, List<Etudiant> etudiants) {
     List<LiteEtudiantForStateDTO> data = etudiants.stream()
@@ -247,13 +250,14 @@ public class StateService extends MainService {
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
       liteSessionForStateDTO.setNiveau(new LiteNiveauForStateDTO(session.getNiveau()));
       stateEtudiantSessionDTO.setSession(liteSessionForStateDTO);
-      List<LiteEtudiantForStateDTO> dataStateEtudiantSessionDTO = new ArrayList<>();
+        List<LiteEtudiantForStateDTO> data = new ArrayList<>();
       List<Inscription> inscriptions = inscriptionRepository.findAllBySession(session);
       for (Inscription inscription : inscriptions) {
           if (haveUnpaid(inscription, session.getNiveau()) == haveUnpaid) {
-              dataStateEtudiantSessionDTO.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
+              data.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
           }
       }
+        stateEtudiantSessionDTO.setData(data);
       dataStateEtudiantBranchDTO.add(stateEtudiantSessionDTO);
     }
     stateEtudiantBranchDTO.setData(dataStateEtudiantBranchDTO);
@@ -295,12 +299,13 @@ public class StateService extends MainService {
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
       liteSessionForStateDTO.setNiveau(new LiteNiveauForStateDTO(session.getNiveau()));
       stateEtudiantSessionDTO.setSession(liteSessionForStateDTO);
-      List<LiteEtudiantForStateDTO> dataStateEtudiantSessionDTO = new ArrayList<>();
+        List<LiteEtudiantForStateDTO> data = new ArrayList<>();
       List<Inscription> inscriptions = inscriptionRepository.findAllBySession(session);
       for (Inscription inscription : inscriptions) {
         if (isRattrapage(inscription))
-          dataStateEtudiantSessionDTO.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
+            data.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
       }
+        stateEtudiantSessionDTO.setData(data);
       dataStateEtudiantBranchDTO.add(stateEtudiantSessionDTO);
     }
     stateEtudiantBranchDTO.setData(dataStateEtudiantBranchDTO);
@@ -342,12 +347,13 @@ public class StateService extends MainService {
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
       liteSessionForStateDTO.setNiveau(new LiteNiveauForStateDTO(session.getNiveau()));
       stateEtudiantSessionDTO.setSession(liteSessionForStateDTO);
-      List<LiteEtudiantForStateDTO> dataStateEtudiantSessionDTO = new ArrayList<>();
+        List<LiteEtudiantForStateDTO> data = new ArrayList<>();
       List<Inscription> inscriptions = inscriptionRepository.findAllBySession(session);
       for (Inscription inscription : inscriptions) {
         if (hasWin(inscription))
-          dataStateEtudiantSessionDTO.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
+            data.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
       }
+        stateEtudiantSessionDTO.setData(data);
       dataStateEtudiantBranchDTO.add(stateEtudiantSessionDTO);
     }
     stateEtudiantBranchDTO.setData(dataStateEtudiantBranchDTO);
@@ -376,12 +382,13 @@ public class StateService extends MainService {
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
       liteSessionForStateDTO.setNiveau(new LiteNiveauForStateDTO(session.getNiveau()));
       stateEtudiantSessionDTO.setSession(liteSessionForStateDTO);
-      List<LiteEtudiantForStateDTO> dataStateEtudiantSessionDTO = new ArrayList<>();
+        List<LiteEtudiantForStateDTO> data = new ArrayList<>();
       List<Inscription> inscriptions = inscriptionRepository.findAllBySession(session);
       for (Inscription inscription : inscriptions) {
         if (!hasWin(inscription))
-          dataStateEtudiantSessionDTO.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
+            data.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
       }
+        stateEtudiantSessionDTO.setData(data);
       dataStateEtudiantBranchDTO.add(stateEtudiantSessionDTO);
     }
     stateEtudiantBranchDTO.setData(dataStateEtudiantBranchDTO);
@@ -435,11 +442,12 @@ public class StateService extends MainService {
       LiteSessionForStateDTO liteSessionForStateDTO = new LiteSessionForStateDTO(session);
       liteSessionForStateDTO.setNiveau(new LiteNiveauForStateDTO(session.getNiveau()));
       stateEtudiantSessionDTO.setSession(liteSessionForStateDTO);
-      List<LiteEtudiantForStateDTO> dataStateEtudiantSessionDTO = new ArrayList<>();
+        List<LiteEtudiantForStateDTO> data = new ArrayList<>();
       List<Inscription> inscriptions = inscriptionRepository.findAllBySession(session);
       for (Inscription inscription : inscriptions) {
-        dataStateEtudiantSessionDTO.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
+          data.add(new LiteEtudiantForStateDTO(inscription.getEtudiant()));
       }
+        stateEtudiantSessionDTO.setData(data);
       dataStateEtudiantBranchDTO.add(stateEtudiantSessionDTO);
     }
     stateEtudiantBranchDTO.setData(dataStateEtudiantBranchDTO);
