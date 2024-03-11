@@ -231,9 +231,10 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
 
   @Override
   public boolean equalsByDto(PaiementRequestDTO dto, Long id) {
-    Paiement ressource = repository.findByRefPaiement(dto.getRefPaiement()).orElse(null);
+//    Paiement ressource = repository.findByRefPaiement(dto.getRefPaiement()).orElse(null);
+    Paiement ressource = repository.findById(id).orElse(null);
     if (ressource == null) return false;
-    return !ressource.getId().equals(id);
+    return !ressource.equals(dto);
   }
 
   @Override

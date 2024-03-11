@@ -32,8 +32,8 @@ public class PaiementControllerImpl implements PaiementController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public PaiementDTO save(@Valid @RequestBody PaiementRequestDTO dto) {
-    if (service.existByRefPaiement(dto.getRefPaiement()))
-      throw new APIException("Le paiement avec la reference " + dto.getRefPaiement() + " existe déjà");
+    /*if (service.existByRefPaiement(dto.getRefPaiement()))
+      throw new APIException("Le paiement avec la reference " + dto.getRefPaiement() + " existe déjà");*/
     return service.save(dto);
   }
 
@@ -41,10 +41,10 @@ public class PaiementControllerImpl implements PaiementController {
   @PostMapping("/imports")
   @ResponseStatus(HttpStatus.CREATED)
   public List<LitePaiementDTO> saveAll(@Valid @RequestBody List<ImportPaiementRequestDTO> dtos) {
-    for (ImportPaiementRequestDTO dto : dtos) {
+    /*for (ImportPaiementRequestDTO dto : dtos) {
       if (service.existByRefPaiement(dto.getRefPaiement()))
         throw new APIException("Le paiement avec la reference " + dto.getRefPaiement() + " existe déjà");
-    }
+    }*/
     return service.save(dtos);
   }
 
@@ -83,8 +83,8 @@ public class PaiementControllerImpl implements PaiementController {
   @PutMapping("/{id}")
   public void update(@Valid @RequestBody PaiementRequestDTO dto, @PathVariable("id") Long id) {
     if (service.findById(id) == null) throw new APIException("Le paiement avec l'id " + id + " n'existe pas");
-    if (service.equalsByDto(dto, id))
-      throw new APIException("Le paiement avec les données suivante : " + dto.toString() + " existe déjà");
+    /*if (service.equalsByDto(dto, id))
+      throw new APIException("Le paiement avec les données suivante : " + dto.toString() + " existe déjà");*/
     service.update(dto, id);
   }
 
