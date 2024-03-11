@@ -1,6 +1,8 @@
 package net.ktccenter.campusApi.service.scolarite.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.CampusRepository;
+import net.ktccenter.campusApi.dao.scolarite.CompteRepository;
 import net.ktccenter.campusApi.dao.scolarite.PaiementRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportPaiementRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteCampusDTO;
@@ -12,6 +14,8 @@ import net.ktccenter.campusApi.dto.reponse.scolarite.PaiementDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.PaiementRequestDTO;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.Campus;
+import net.ktccenter.campusApi.entities.scolarite.CalculTotals;
+import net.ktccenter.campusApi.entities.scolarite.Compte;
 import net.ktccenter.campusApi.entities.scolarite.Paiement;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.scolarite.PaiementMapper;
@@ -30,36 +34,51 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Slf4j
 public class PaiementServiceImpl extends MainService implements PaiementService {
   private final PaiementRepository repository;
   private final PaiementMapper mapper;
   private final CampusRepository campusRepository;
+  private final CompteRepository compteRepository;
 
-  public PaiementServiceImpl(PaiementRepository repository, PaiementMapper mapper, CampusRepository campusRepository) {
+  public PaiementServiceImpl(PaiementRepository repository, PaiementMapper mapper, CampusRepository campusRepository, CompteRepository compteRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.campusRepository = campusRepository;
+    this.compteRepository = compteRepository;
   }
 
   @Override
   public PaiementDTO save(PaiementRequestDTO dto) {
+    log.info("1");
       Paiement paiement = mapper.asEntity(dto);
-      BigDecimal netApayer = paiement.getCompte().getInscription().getSession().getNiveau().getFraisPension().add(paiement.getCompte().getInscription().getSession().getNiveau().getFraisInscription());
-      BigDecimal netPayee = paiement.getCompte().getSolde();
+    log.info("2");
+    Campus campus = campusRepository.findById(dto.getCampusId()).orElseThrow(
+            () -> new ResourceNotFoundException("Le campus avec l'id " + dto.getCampusId() + " n'existe pas")
+    );
+    log.info("3");
+    paiement.setCampusId(campus.getId());
+    paiement.setCampus(campus);
+    log.info("4");
+    Compte compte = compteRepository.findById(dto.getCompteId()).orElseThrow(
+            () -> new ResourceNotFoundException("Le compte avec l'id " + dto.getCompteId() + " n'existe pas")
+    );
+    log.info("5");
+    paiement.setCompte(compte);
+    log.info("6");
+    BigDecimal netApayer = compte.getInscription().getSession().getNiveau().getFraisPension().add(compte.getInscription().getSession().getNiveau().getFraisInscription());
+    log.info("7");
+    CalculTotals calcul = calculSolde(getAllPaiementsForCompte(compte));
+    BigDecimal netPayee = calcul.getSolde();
+    log.info("8");
       BigDecimal resteAPayer = netApayer.subtract(netPayee);
+    log.info("9");
       if (paiement.getMontant().compareTo(resteAPayer) > 0)
           throw new ResourceNotFoundException("Le montant paiement " + paiement.getMontant() + " n'peut pas supèrieur au reste à payer " + resteAPayer);
-      return buildPaiementDto(repository.save(paiement));
-  }
-
-  private PaiementDTO buildPaiementDto(Paiement paiement) {
-    PaiementDTO dto = mapper.asDTO(paiement);
-    dto.setCampus(new LiteCampusDTO(getCampus(paiement.getCampusId())));
-    return dto;
-  }
-
-  private Campus getCampus(Long campusId) {
-    return campusRepository.findById(campusId).orElse(null);
+    log.info("10");
+    paiement = repository.save(paiement);
+    log.info("11");
+    return mapper.asDTO(paiement);
   }
 
   @Override
@@ -85,14 +104,19 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
 
   @Override
   public Paiement findById(Long id) {
-    return repository.findById(id).orElseThrow(
+    Paiement paiement = repository.findById(id).orElseThrow(
             () -> new ResourceNotFoundException("Le paiement avec l'id " + id + " n'existe pas")
     );
+    Campus campus = campusRepository.findById(paiement.getCampusId()).orElseThrow(
+            () -> new ResourceNotFoundException("Le campus avec l'id " + paiement.getCampusId() + " n'existe pas")
+    );
+    paiement.setCampus(campus);
+    return paiement;
   }
 
   @Override
   public PaiementDTO getOne(Long id) {
-    return buildPaiementDto(findById(id));
+    return mapper.asDTO(findById(id));
   }
 
   @Override
@@ -166,15 +190,37 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
 
   @Override
   public PaiementDTO update(PaiementRequestDTO dto, Long id) {
+    log.info("1");
     Paiement exist = findById(id);
-      Paiement paiement = mapper.asEntity(dto);
-      paiement.setId(exist.getId());
-      BigDecimal netApayer = paiement.getCompte().getInscription().getSession().getNiveau().getFraisPension().add(paiement.getCompte().getInscription().getSession().getNiveau().getFraisInscription());
-      BigDecimal netPayee = paiement.getCompte().getSolde();
-      BigDecimal resteAPayer = netApayer.subtract(netPayee);
-      if (paiement.getMontant().compareTo(resteAPayer) > 0)
-          throw new ResourceNotFoundException("Le montant paiement " + paiement.getMontant() + " n'peut pas supèrieur au reste à payer " + resteAPayer);
-    return buildPaiementDto(repository.save(paiement));
+    Paiement paiement = mapper.asEntity(dto);
+    paiement.setId(exist.getId());
+    log.info("2");
+    Campus campus = campusRepository.findById(dto.getCampusId()).orElseThrow(
+            () -> new ResourceNotFoundException("Le campus avec l'id " + dto.getCampusId() + " n'existe pas")
+    );
+    log.info("3");
+    paiement.setCampusId(campus.getId());
+    paiement.setCampus(campus);
+    log.info("4");
+    Compte compte = compteRepository.findById(dto.getCompteId()).orElseThrow(
+            () -> new ResourceNotFoundException("Le compte avec l'id " + dto.getCompteId() + " n'existe pas")
+    );
+    log.info("5");
+    paiement.setCompte(compte);
+    log.info("6");
+    BigDecimal netApayer = compte.getInscription().getSession().getNiveau().getFraisPension().add(compte.getInscription().getSession().getNiveau().getFraisInscription());
+    log.info("7");
+    CalculTotals calcul = calculSolde(getAllPaiementsForCompte(compte));
+    BigDecimal netPayee = calcul.getSolde();
+    log.info("8");
+    BigDecimal resteAPayer = netApayer.subtract(netPayee);
+    log.info("9");
+    if (paiement.getMontant().compareTo(resteAPayer) > 0)
+      throw new ResourceNotFoundException("Le montant paiement " + paiement.getMontant() + " n'peut pas supèrieur au reste à payer " + resteAPayer);
+    log.info("10");
+    paiement = repository.save(paiement);
+    log.info("11");
+    return mapper.asDTO(paiement);
   }
 
 
@@ -223,5 +269,23 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
 
   private boolean findByCampus(Paiement paiement, Long campusId) {
     return paiement.getCampusId().equals(campusId);
+  }
+
+  private List<Paiement> getAllPaiementsForCompte(Compte compte) {
+    return repository.findAllByCompte(compte);
+  }
+
+  private CalculTotals calculSolde(List<Paiement> paiements) {
+    CalculTotals calcul = new CalculTotals();
+    BigDecimal solde = BigDecimal.valueOf(0.0);
+    BigDecimal reste = BigDecimal.valueOf(0.0);
+    for (Paiement paiement : paiements) {
+      BigDecimal netApayer = paiement.getCompte().getInscription().getSession().getNiveau().getFraisPension().add(paiement.getCompte().getInscription().getSession().getNiveau().getFraisInscription());
+      solde = solde.add(paiement.getMontant());
+      reste = netApayer.subtract(solde);
+    }
+    calcul.setSolde(solde);
+    calcul.setResteApayer(reste);
+    return calcul;
   }
 }
