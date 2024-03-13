@@ -49,5 +49,10 @@ public class AutorisationRestController {
     public List<LitePermissionModuleDTO> getRolePersmission(@NotNull String roleName) {
         return roleService.getRolePersmission(roleName);
     }
+
+    @GetMapping(path = "/all/permissions")
+    public List<LitePermissionModuleDTO> getAllPermissions() {
+        return roleService.getAllPermissions();
+    }
 }
 
