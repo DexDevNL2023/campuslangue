@@ -11,7 +11,6 @@ import net.ktccenter.campusApi.dto.request.cours.FullExamen2ForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.FullExamenForNoteImportDTO;
 import net.ktccenter.campusApi.entities.cours.Examen;
-import net.ktccenter.campusApi.enums.ResultatFilter;
 import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.service.GenericService;
 
@@ -38,5 +37,5 @@ public interface ExamenService extends GenericService<Examen, ExamenRequestDTO, 
 
     FullExamenForNoteDTO getAllNoteStudentIsRattapage(Long sessionId, Long uniteId);
 
-    List<ExamenForResultatReponseDTO> getAllResultatExamenBySession(Long sessionId, ResultatState state, ResultatFilter order);
+    List<ExamenForResultatReponseDTO> getAllResultatExamenBySession(Long sessionId, ResultatState state);
 }

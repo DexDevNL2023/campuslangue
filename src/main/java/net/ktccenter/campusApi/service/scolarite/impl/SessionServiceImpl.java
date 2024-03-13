@@ -2,12 +2,12 @@ package net.ktccenter.campusApi.service.scolarite.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.OccupationSalleRepository;
-import net.ktccenter.campusApi.dao.cours.UniteRepository;
 import net.ktccenter.campusApi.dao.scolarite.FormateurRepository;
 import net.ktccenter.campusApi.dao.scolarite.InscriptionRepository;
-import net.ktccenter.campusApi.dao.scolarite.ModuleFormationRepository;
 import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportSessionRequestDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteCampusForSalleDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteSalleDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
@@ -47,17 +47,13 @@ public class SessionServiceImpl extends MainService implements SessionService {
   private final SessionMapper mapper;
   private final OccupationSalleRepository occupationSalleRepository;
   private final InscriptionRepository inscriptionRepository;
-  private final ModuleFormationRepository moduleFormationRepository;
-  private final UniteRepository uniteRepository;
   private final FormateurRepository formateurRepository;
 
-  public SessionServiceImpl(SessionRepository repository, SessionMapper mapper, OccupationSalleRepository occupationSalleRepository, InscriptionRepository inscriptionRepository, ModuleFormationRepository moduleFormationRepository, UniteRepository uniteRepository, FormateurRepository formateurRepository) {
+  public SessionServiceImpl(SessionRepository repository, SessionMapper mapper, OccupationSalleRepository occupationSalleRepository, InscriptionRepository inscriptionRepository, FormateurRepository formateurRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.occupationSalleRepository = occupationSalleRepository;
     this.inscriptionRepository = inscriptionRepository;
-    this.moduleFormationRepository = moduleFormationRepository;
-    this.uniteRepository = uniteRepository;
     this.formateurRepository = formateurRepository;
   }
 
@@ -77,10 +73,6 @@ public class SessionServiceImpl extends MainService implements SessionService {
     }
     log.info(session.getDateDebut().toString());
     log.info(session.getDateDebut().toString());
-    //Year year = Year.of(session.getDateDebut().getYear());
-    //Month mounthD = Month.of(session.getDateDebut().getMonth());
-    //Month mounthF = Month.of(session.getDateFin().getMonth());
-    //SimpleDateFormat formatNowMonth = new SimpleDateFormat("MM");
     SimpleDateFormat formatNowYear = new SimpleDateFormat("YYYY");
 
     String monthDebut = Month.of(session.getDateDebut().getMonth()).toString(); // formatNowMonth.format(session.getDateDebut()).toUpperCase();
@@ -89,12 +81,8 @@ public class SessionServiceImpl extends MainService implements SessionService {
     log.info(monthDebut);
     log.info(monthFin);
     log.info(currentYear);
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
     String code = MyUtils.GenerateCode(dto.getCode());
 
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.name()+"-"+mounthF.name()+"-"+year);
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.toString()+"-"+mounthF.toString()+"-"+year.toString());
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode());
     log.info(code);
     session.setCode(code);
     session.setOccupations(occupations);
@@ -104,7 +92,18 @@ public class SessionServiceImpl extends MainService implements SessionService {
 
   private SessionDTO buildSessionDto(Session session) {
     SessionDTO dto = mapper.asDTO(session);
+    dto.setSalle(getSalleForOccupation(session));
     dto.setInscriptions(getAllInscriptionsForSession(session));
+    return dto;
+  }
+
+  private LiteSalleDTO getSalleForOccupation(Session session) {
+    LiteSalleDTO dto = new LiteSalleDTO();
+    for (OccupationSalle occupation : session.getOccupations()) {
+      dto = new LiteSalleDTO(occupation.getSalle());
+      dto.setCampus(new LiteCampusForSalleDTO(occupation.getSalle().getCampus()));
+      if (!dto.getCode().isEmpty()) break;
+    }
     return dto;
   }
 
@@ -113,7 +112,6 @@ public class SessionServiceImpl extends MainService implements SessionService {
   }
 
   private LiteInscriptionForNoteDTO buildInscriptionLiteDto(Inscription entity) {
-    //lite.setCampus(new LiteCampusDTO(entity.getCampus()));
     return new LiteInscriptionForNoteDTO(entity);
   }
 
@@ -135,10 +133,6 @@ public class SessionServiceImpl extends MainService implements SessionService {
       }
       log.info(session.getDateDebut().toString());
       log.info(session.getDateDebut().toString());
-      //Year year = Year.of(session.getDateDebut().getYear());
-      //Month mounthD = Month.of(session.getDateDebut().getMonth());
-      //Month mounthF = Month.of(session.getDateFin().getMonth());
-      //SimpleDateFormat formatNowMonth = new SimpleDateFormat("MM");
       SimpleDateFormat formatNowYear = new SimpleDateFormat("YYYY");
 
       String monthDebut = Month.of(session.getDateDebut().getMonth()).toString(); // formatNowMonth.format(session.getDateDebut()).toUpperCase();
@@ -147,12 +141,8 @@ public class SessionServiceImpl extends MainService implements SessionService {
       log.info(monthDebut);
       log.info(monthFin);
       log.info(currentYear);
-      //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
       String code = MyUtils.GenerateCode(dto.getCode());
 
-      //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.name()+"-"+mounthF.name()+"-"+year);
-      //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.toString()+"-"+mounthF.toString()+"-"+year.toString());
-      //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode());
       log.info(code);
       session.setCode(code);
       session.setOccupations(occupations);
@@ -186,7 +176,6 @@ public class SessionServiceImpl extends MainService implements SessionService {
 
   @Override
   public List<SessionBranchDTO> findAll() {
-      //return ((List<Session>) repository.findAll()).stream().map(this::buildSessionLiteDto).collect(Collectors.toList());
     List<Session> sessions = (List<Session>) repository.findAll();
     List<SessionBranchDTO> result = new ArrayList<>();
     if (hasGrantAuthorized()) {
@@ -214,18 +203,8 @@ public class SessionServiceImpl extends MainService implements SessionService {
   }
 
   private LiteSessionDTO buildSessionLiteDto(Session session) {
-    //lite.getNiveau().setUnites(getAllUnitesForNiveau(lite.getNiveau()));
-    //lite.getNiveau().setModules(getAllModulesForNiveau(lite.getNiveau()));
     return mapper.asLite(session);
   }
-
-  /*private Set<LiteModuleFormationDTO> getAllModulesForNiveau(LiteNiveauDTO niveau) {
-    return moduleFormationRepository.findAllByNiveauId(niveau.getId()).stream().map(LiteModuleFormationDTO::new).collect(Collectors.toSet());
-  }
-
-  private Set<LiteUniteDTO> getAllUnitesForNiveau(LiteNiveauDTO niveau) {
-    return uniteRepository.findAllByNiveauId(niveau.getId()).stream().map(LiteUniteDTO::new).collect(Collectors.toSet());
-  }*/
 
   @Override
   public Page<LiteSessionDTO> findAll(Pageable pageable) {
@@ -286,10 +265,6 @@ public class SessionServiceImpl extends MainService implements SessionService {
     }
     log.info(session.getDateDebut().toString());
     log.info(session.getDateDebut().toString());
-    //Year year = Year.of(session.getDateDebut().getYear());
-    //Month mounthD = Month.of(session.getDateDebut().getMonth());
-    //Month mounthF = Month.of(session.getDateFin().getMonth());
-    //SimpleDateFormat formatNowMonth = new SimpleDateFormat("MM");
     SimpleDateFormat formatNowYear = new SimpleDateFormat("YYYY");
 
     String monthDebut = Month.of(session.getDateDebut().getMonth()).toString(); // formatNowMonth.format(session.getDateDebut()).toUpperCase();
@@ -298,12 +273,8 @@ public class SessionServiceImpl extends MainService implements SessionService {
     log.info(monthDebut);
     log.info(monthFin);
     log.info(currentYear);
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+monthDebut+"-"+monthFin+"-"+currentYear);
     String code = MyUtils.GenerateCode(dto.getCode());
 
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.name()+"-"+mounthF.name()+"-"+year);
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode()+"-"+mounthD.toString()+"-"+mounthF.toString()+"-"+year.toString());
-    //String code = MyUtils.GenerateCode(session.getVague().getCode()+"-"+session.getNiveau().getCode());
     log.info(code);
     session.setCode(code);
     session.setOccupations(occupations);

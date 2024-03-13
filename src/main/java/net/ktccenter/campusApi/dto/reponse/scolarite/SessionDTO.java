@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import net.ktccenter.campusApi.dto.lite.administration.LiteBrancheDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteOccupationSalleDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteSalleDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteInscriptionForNoteDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteNiveauDTO;
@@ -28,6 +29,7 @@ public class SessionDTO extends AbstractDTO {
   private LiteBrancheDTO branche;
   private LiteNiveauDTO niveau;
   private LiteVagueDTO vague;
+  private LiteSalleDTO salle;
   public Set<LiteOccupationSalleDTO> occupations = new HashSet<>();
   private LiteFormateurDTO formateur;
   private Set<LiteInscriptionForNoteDTO> inscriptions = new HashSet<>();

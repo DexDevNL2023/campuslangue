@@ -21,7 +21,6 @@ import net.ktccenter.campusApi.entities.cours.TestModule;
 import net.ktccenter.campusApi.entities.scolarite.Etudiant;
 import net.ktccenter.campusApi.entities.scolarite.ModuleFormation;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
-import net.ktccenter.campusApi.enums.ResultatFilter;
 import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.TestModuleMapper;
@@ -59,19 +58,23 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
     return buildTestModuleDto(repository.save(mapper.asEntity(dto)));
   }
 
+  private Set<LiteEvaluationTestDTO> buildAllEvaluationsDto(List<EvaluationTest> evaluations) {
+    return evaluations.stream().map(this::buildEvaluationLiteDto).collect(Collectors.toSet());
+  }
+
   private TestModuleDTO buildTestModuleDto(TestModule testModule) {
     TestModuleDTO dto = mapper.asDTO(testModule);
-    Set<LiteEvaluationTestDTO> evaluations = getAllEvaluationsForTestModule(testModule);
+    List<EvaluationTest> evaluations = getAllEvaluationsForTestModule(testModule);
     if (evaluations.isEmpty()) {
       evaluations = createAllEvaluationsForTestModule(testModule);
     }
-    dto.setEvaluations(evaluations);
+    dto.setEvaluations(buildAllEvaluationsDto(evaluations));
     dto.setMoyenne(calculMoyenne(evaluations));
     return dto;
   }
 
-  private Set<LiteEvaluationTestDTO> createAllEvaluationsForTestModule(TestModule testModule) {
-    Set<LiteEvaluationTestDTO> list = new HashSet<>();
+  private List<EvaluationTest> createAllEvaluationsForTestModule(TestModule testModule) {
+    List<EvaluationTest> list = new ArrayList<>();
     Niveau niveau = niveauRepository.findById(testModule.getInscription().getSession().getNiveau().getId()).orElseThrow(
             () ->  new ResourceNotFoundException("Le niveau avec l'id "+testModule.getInscription().getSession().getNiveau().getId()+" n'existe pas")
     );
@@ -87,7 +90,7 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
         test.setNote(0F);
       test = evaluationTestRepository.save(test);
       log.info("new test " + test);
-      list.add(buildEvaluationLiteDto(test));
+      list.add(test);
     }
     return list;
   }
@@ -108,8 +111,8 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
     repository.deleteById(id);
   }
 
-  private Set<LiteEvaluationTestDTO> getAllEvaluationsForTestModule(TestModule testModule) {
-    return evaluationTestRepository.findAllByTestModule(testModule).stream().map(this::buildEvaluationLiteDto).collect(Collectors.toSet());
+  private List<EvaluationTest> getAllEvaluationsForTestModule(TestModule testModule) {
+    return evaluationTestRepository.findAllByTestModule(testModule);
   }
 
   private LiteEvaluationTestDTO buildEvaluationLiteDto(EvaluationTest entity) {
@@ -162,8 +165,8 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
 
   private LiteTestModuleDTO buildTestModuleLiteDto(TestModule testModule) {
     LiteTestModuleDTO dto = mapper.asLite(testModule);
-    Set<LiteEvaluationTestDTO> evaluations = getAllEvaluationsForTestModule(testModule);
-    dto.setEvaluations(evaluations);
+    List<EvaluationTest> evaluations = getAllEvaluationsForTestModule(testModule);
+    dto.setEvaluations(buildAllEvaluationsDto(evaluations));
     dto.setMoyenne(calculMoyenne(evaluations));
     return dto;
   }
@@ -256,22 +259,12 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
   }
 
   @Override
-  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state, ResultatFilter order) {
-    if (order == ResultatFilter.ALPHABETIQUE) {
-      return repository.findAllBySessionId(sessionId)
-              .stream()
-              .filter(t -> getByAppreciation(t, state))
-              .map(t -> buildTestModuleResultatDto(t, moduleId, state))
-              .sorted(Comparator.comparing(TestModuleForResultatReponseDTO::getFullName))
-              .collect(Collectors.toList());
-    } else {
-      return repository.findAllBySessionId(sessionId)
-              .stream()
-              .filter(t -> getByAppreciation(t, state))
-              .map(t -> buildTestModuleResultatDto(t, moduleId, state))
-              .sorted(Comparator.comparingInt(t -> t.getMoyenne().intValue()))
-              .collect(Collectors.toList());
-    }
+  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state) {
+    return repository.findAllBySessionId(sessionId)
+            .stream()
+            .filter(t -> getByAppreciation(t, state))
+            .map(t -> buildTestModuleResultatDto(t, moduleId))
+            .collect(Collectors.toList());
   }
 
   private boolean getByAppreciation(TestModule testModule, ResultatState state) {
@@ -295,7 +288,7 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
     }
   }
 
-  private TestModuleForResultatReponseDTO buildTestModuleResultatDto(TestModule testModule, Long moduleId, ResultatState state) {
+  private TestModuleForResultatReponseDTO buildTestModuleResultatDto(TestModule testModule, Long moduleId) {
     Set<EvaluationTestForNoteDTO> listEvaluationDto = new HashSet<>();
     TestModuleForResultatReponseDTO dto = new TestModuleForResultatReponseDTO();
     dto.setMatricule(testModule.getInscription().getEtudiant().getMatricule());
@@ -305,6 +298,7 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
       listEvaluationDto.add(buildEvaluationForResultatDto(evaluation));
     }
     dto.setEvaluations(listEvaluationDto);
+    dto.setMoyenne(calculMoyenne(evaluations));
     return dto;
   }
 
@@ -341,9 +335,9 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
     return dto;
   }
 
-  private Float calculMoyenne(Set<LiteEvaluationTestDTO> evaluations) {
+  private Float calculMoyenne(List<EvaluationTest> evaluations) {
     Float moyenne = 0F;
-    for (LiteEvaluationTestDTO test : evaluations) {
+    for (EvaluationTest test : evaluations) {
       moyenne += test.getNote();
     }
     return !evaluations.isEmpty() ? moyenne/evaluations.size() : 0;

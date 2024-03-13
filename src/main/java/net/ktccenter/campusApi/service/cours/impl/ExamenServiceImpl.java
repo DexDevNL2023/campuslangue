@@ -22,7 +22,6 @@ import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.cours.Unite;
 import net.ktccenter.campusApi.entities.scolarite.Etudiant;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
-import net.ktccenter.campusApi.enums.ResultatFilter;
 import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.cours.ExamenMapper;
@@ -60,20 +59,24 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         return buildExamenDto(repository.save(mapper.asEntity(dto)));
     }
 
+    private Set<LiteEpreuveDTO> buildAllEpreuvesDto(List<Epreuve> epreuves) {
+        return epreuves.stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
+    }
+
     private ExamenDTO buildExamenDto(Examen examen) {
         ExamenDTO dto = mapper.asDTO(examen);
-        Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
+        List<Epreuve> epreuves = getAllEpreuvessForExamen(examen);
         if (epreuves.isEmpty()) {
             epreuves = createAllEpreuvesForExamen(examen);
         }
-        dto.setEpreuves(epreuves);
+        dto.setEpreuves(buildAllEpreuvesDto(epreuves));
         dto.setMoyenne(calculMoyenne(epreuves));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
     }
 
-    private Set<LiteEpreuveDTO> createAllEpreuvesForExamen(Examen examen) {
-        Set<LiteEpreuveDTO> list = new HashSet<>();
+    private List<Epreuve> createAllEpreuvesForExamen(Examen examen) {
+        List<Epreuve> list = new ArrayList<>();
         Niveau niveau = niveauRepository.findById(examen.getInscription().getSession().getNiveau().getId()).orElseThrow(
                 () -> new ResourceNotFoundException("Le niveau avec l'id " + examen.getInscription().getSession().getNiveau().getId() + " n'existe pas")
         );
@@ -91,7 +94,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             epreuve.setNoteRattrapage(0F);
             epreuve.setNoteObtenue(0F);
             epreuve = epreuveRepository.save(epreuve);
-            list.add(buildEpreuveLiteDto(epreuve));
+            list.add(epreuve);
             log.info("new epreuve " + epreuve);
         }
         return list;
@@ -113,8 +116,8 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         repository.deleteById(id);
     }
 
-    private Set<LiteEpreuveDTO> getAllEpreuvessForExamen(Examen examen) {
-        return epreuveRepository.findAllByExamen(examen).stream().map(this::buildEpreuveLiteDto).collect(Collectors.toSet());
+    private List<Epreuve> getAllEpreuvessForExamen(Examen examen) {
+        return epreuveRepository.findAllByExamen(examen);
     }
 
     private LiteEpreuveDTO buildEpreuveLiteDto(Epreuve entity) {
@@ -167,8 +170,8 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
 
     private LiteExamenDTO buildExamenLiteDto(Examen examen) {
         LiteExamenDTO dto = mapper.asLite(examen);
-        Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
-        dto.setEpreuves(epreuves);
+        List<Epreuve> epreuves = getAllEpreuvessForExamen(examen);
+        dto.setEpreuves(buildAllEpreuvesDto(epreuves));
         dto.setMoyenne(calculMoyenne(epreuves));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
@@ -305,22 +308,12 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
     }
 
     @Override
-    public List<ExamenForResultatReponseDTO> getAllResultatExamenBySession(Long sessionId, ResultatState state, ResultatFilter order) {
-        if (order == ResultatFilter.ALPHABETIQUE) {
-            return repository.findAllBySessionId(sessionId)
-                    .stream()
-                    .filter(e -> getByAppreciation(e, state))
-                    .map(e -> buildExamenResultatDto(e, state))
-                    .sorted(Comparator.comparing(ExamenForResultatReponseDTO::getFullName))
-                    .collect(Collectors.toList());
-        } else {
-            return repository.findAllBySessionId(sessionId)
-                    .stream()
-                    .filter(e -> getByAppreciation(e, state))
-                    .map(e -> buildExamenResultatDto(e, state))
-                    .sorted(Comparator.comparingInt(e -> e.getMoyenne().intValue()))
-                    .collect(Collectors.toList());
-        }
+    public List<ExamenForResultatReponseDTO> getAllResultatExamenBySession(Long sessionId, ResultatState state) {
+        return repository.findAllBySessionId(sessionId)
+                .stream()
+                .filter(e -> getByAppreciation(e, state))
+                .map(this::buildExamenResultatDto)
+                .collect(Collectors.toList());
     }
 
     private boolean getByAppreciation(Examen examen, ResultatState state) {
@@ -347,7 +340,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         }
     }
 
-    private ExamenForResultatReponseDTO buildExamenResultatDto(Examen examen, ResultatState state) {
+    private ExamenForResultatReponseDTO buildExamenResultatDto(Examen examen) {
         Set<EpreuveForResultatDTO> listEpreuveDto = new HashSet<>();
         ExamenForResultatReponseDTO dto = new ExamenForResultatReponseDTO();
         dto.setMatricule(examen.getInscription().getEtudiant().getMatricule());
@@ -357,6 +350,8 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             listEpreuveDto.add(buildEpreuveForResultatDto(epreuve));
         }
         dto.setEpreuves(listEpreuveDto);
+        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
     }
 
@@ -402,9 +397,9 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         return dto;
     }
 
-    private Float calculMoyenne(Set<LiteEpreuveDTO> epreuves) {
+    private Float calculMoyenne(List<Epreuve> epreuves) {
         Float moyenne = 0F;
-        for (LiteEpreuveDTO epreuve : epreuves) {
+        for (Epreuve epreuve : epreuves) {
             if (!epreuve.getEstValidee()) {
                 return 0F;
             }
@@ -482,11 +477,11 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
 
     private ExamenForNoteReponseDTO buildExamenForNoteReponseDto(Examen examen) {
         ExamenForNoteReponseDTO dto = new ExamenForNoteReponseDTO(examen);
-        Set<LiteEpreuveDTO> epreuves = getAllEpreuvessForExamen(examen);
-        dto.setEpreuves(epreuves);
+        List<Epreuve> epreuves = getAllEpreuvessForExamen(examen);
         dto.setMatricule(examen.getInscription().getEtudiant().getMatricule());
         dto.setNom(examen.getInscription().getEtudiant().getNom());
         dto.setPrenom(examen.getInscription().getEtudiant().getPrenom());
+        dto.setEpreuves(buildAllEpreuvesDto(epreuves));
         dto.setMoyenne(calculMoyenne(epreuves));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
