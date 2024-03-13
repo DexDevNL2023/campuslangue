@@ -76,21 +76,24 @@ public class MainService {
     }
 
     public boolean isAuthorized(String actionKey) {
+        boolean isAuthorized = false;
         for (Role role : getCurrentUser().getRoles()) {
             if (role.getIsSuper()) {
-                return true;
+                isAuthorized = true;
             } else {
                 List<RoleDroit> permissions = roleDroitRepository.findAllByRole(role);
                 for (RoleDroit permission : permissions) {
-                    if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) return true;
+                    if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) {
+                        isAuthorized = true;
+                        break;
+                    }
                 }
             }
         }
-        return false;
+        return isAuthorized;
     }
 
     public LiteBrancheDTO getCurrentLiteBranche() {
         return new LiteBrancheDTO(getCurrentUser().getBranche());
     }
-
 }

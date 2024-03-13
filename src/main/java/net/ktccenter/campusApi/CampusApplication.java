@@ -154,6 +154,7 @@ public class CampusApplication implements CommandLineRunner {
       newUser.setAccountNonLocked(true);
       newUser.setCredentialsNonExpired(true);
       newUser.setEnabled(true);
+        newUser.setIsGrant(true);
       String encodedPassword = bCryptPasswordEncoder.encode("default");
       newUser.setPassword(encodedPassword);
       newUser.setAuthorities(authority);
