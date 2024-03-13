@@ -11,6 +11,7 @@ import net.ktccenter.campusApi.exceptions.APIException;
 import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.UserService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,9 +40,9 @@ public class UserControllerImpl implements UserController {
     @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //@AuthorizeUser(actionKey = "user-add")
+    @AuthorizeUser(actionKey = "user-add")
     public UserDTO save(@Valid @RequestBody UserRequestDTO dto) {
-        autorisationService.addDroit(new SaveDroitDTO("UTILISATEURS", "Ajouter un utilisateur", "user-add", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter un utilisateur", "user-add", "POST", false));
         if (service.existsByNomAndEmail(dto.getNom(), dto.getEmail()))
             throw new RuntimeException("L'utilisateur avec le nom " + dto.getNom() + ", l'email " + dto.getEmail() + " existe déjà");
         return service.save(dto);
@@ -50,9 +51,9 @@ public class UserControllerImpl implements UserController {
     @Override
     @PostMapping("/imports")
     @ResponseStatus(HttpStatus.CREATED)
-    //@AuthorizeUser(actionKey = "user-import")
+    @AuthorizeUser(actionKey = "user-import")
     public List<LiteUserDTO> saveAll(@Valid @RequestBody List<ImportUserRequestDTO> dtos) {
-        autorisationService.addDroit(new SaveDroitDTO("UTILISATEURS", "Importer des utilisateurs", "user-import", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Importer des utilisateurs", "user-import", "POST", false));
         for (ImportUserRequestDTO dto : dtos) {
             if (service.existsByNomAndEmail(dto.getNom(), dto.getEmail()))
                 throw new RuntimeException("L'utilisateur avec le nom " + dto.getNom() + ", l'email " + dto.getEmail() + " existe déjà");
@@ -62,27 +63,27 @@ public class UserControllerImpl implements UserController {
 
     @Override
     @GetMapping("/{id}")
-    //@AuthorizeUser(actionKey = "user-details")
+    @AuthorizeUser(actionKey = "user-details")
     public UserDTO findById(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("UTILISATEURS", "Détails d'un utilisateur", "user-details", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Détails d'un utilisateur", "user-details", "GET", false));
         return service.getOne(id);
     }
 
 
     @Override
     @DeleteMapping("/{id}")
-    //@AuthorizeUser(actionKey = "user-delet")
+    @AuthorizeUser(actionKey = "user-delet")
     public void delete(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("UTILISATEURS", "Supprimer un utilisateur", "user-delet", "DELET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Supprimer un utilisateur", "user-delet", "DELET", false));
         if (service.findById(id) == null) throw new RuntimeException("L'utilisateur avec l'id " + id + " n'existe pas");
         service.deleteById(id);
     }
 
     @Override
     @GetMapping
-    //@AuthorizeUser(actionKey = "user-list")
+    @AuthorizeUser(actionKey = "user-list")
     public List<UserBranchDTO> list() {
-        autorisationService.addDroit(new SaveDroitDTO("UTILISATEURS", "Lister les utilisateurs", "user-list", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Lister les utilisateurs", "user-list", "GET", false));
         return service.findAll();
     }
 
@@ -94,9 +95,9 @@ public class UserControllerImpl implements UserController {
 
     @Override
     @PutMapping("/{id}")
-    //@AuthorizeUser(actionKey = "user-edit")
+    @AuthorizeUser(actionKey = "user-edit")
     public UserDTO update(@Valid @RequestBody UpdateUserRequestDTO dto, @PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("UTILISATEURS", "Modifier un utilisateur", "user-edit", "PUT", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Modifier un utilisateur", "user-edit", "PUT", false));
         if (service.findById(id) == null) throw new RuntimeException("L'utilisateur avec l'id " + id + " n'existe pas");
         return service.updateUserFrom(dto, id);
     }

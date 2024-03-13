@@ -11,6 +11,7 @@ import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
 import net.ktccenter.campusApi.service.scolarite.EtudiantService;
 import net.ktccenter.campusApi.service.scolarite.SessionService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ public class NoteController {
 
   @PostMapping("/saisie/notes/test-module")
   @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "droit-add")
   public List<TestModuleForNoteReponseDTO> saisieNotesTest(@Valid @RequestBody FullTestModuleForNoteDTO dto) {
     return testModuleService.saisieNotesTest(dto);
   }
@@ -62,6 +64,7 @@ public class NoteController {
 
   @PostMapping("/saisie/multiple/notes/examen")
   @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "droit-add")
   public List<ExamenForNoteReponseDTO> saisieNotesExamen2(@Valid @RequestBody FullExamen2ForNoteDTO dto) {
     return examenService.saisieNotesExamen2(dto);
   }
@@ -74,18 +77,21 @@ public class NoteController {
 
   @PostMapping("/saisie/notes/examen")
   @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "droit-add")
   public List<ExamenForNoteReponseDTO> saisieNotesExamen(@Valid @RequestBody FullExamenForNoteDTO dto) {
     return examenService.saisieNotesExamen(dto);
   }
 
   @PostMapping("/import/notes/test-module")
   @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "droit-add")
   public void importNotesTest(@Valid @RequestBody FullTestModuleForNoteImportDTO dto) {
     testModuleService.importNotesTest(dto);
   }
 
   @PostMapping("/import/notes/examen")
   @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "droit-add")
   public void importNotesexamen(@Valid @RequestBody FullExamenForNoteImportDTO dto) {
     examenService.importNotesExamen(dto);
   }

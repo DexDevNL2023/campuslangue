@@ -9,6 +9,7 @@ import net.ktccenter.campusApi.dto.request.administration.ModuleRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.ModuleService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,9 +33,9 @@ public class ModuleControllerImpl implements ModuleController {
     @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //@AuthorizeUser(actionKey = "module-add")
+    @AuthorizeUser(actionKey = "module-add")
     public ModuleDTO save(@Valid @RequestBody ModuleRequestDTO dto) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Ajouter un module", "module-add", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter un module", "module-add", "POST", false));
         if (service.existsByName(dto.getName()))
             throw new RuntimeException("Le module avec le nom " + dto.getName() + " existe déjà");
         return service.save(dto);
@@ -43,9 +44,9 @@ public class ModuleControllerImpl implements ModuleController {
     @Override
     @PostMapping("/imports")
     @ResponseStatus(HttpStatus.CREATED)
-    //@AuthorizeUser(actionKey = "module-import")
+    @AuthorizeUser(actionKey = "module-import")
     public List<LiteModuleDTO> saveAll(@Valid @RequestBody List<ImportModuleRequestDTO> dtos) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Importer des modules", "module-import", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Importer des modules", "module-import", "POST", false));
         for (ImportModuleRequestDTO dto : dtos) {
             if (service.existsByName(dto.getName()))
                 throw new RuntimeException("Le module avec le nom " + dto.getName() + " existe déjà");
@@ -55,26 +56,26 @@ public class ModuleControllerImpl implements ModuleController {
 
     @Override
     @GetMapping("/{id}")
-    //@AuthorizeUser(actionKey = "module-details")
+    @AuthorizeUser(actionKey = "module-details")
     public ModuleDTO findById(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Détails d'un module", "module-details", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Détails d'un module", "module-details", "GET", false));
         return service.getOne(id);
     }
 
     @Override
     @DeleteMapping("/{id}")
-    //@AuthorizeUser(actionKey = "module-delet")
+    @AuthorizeUser(actionKey = "module-delet")
     public void delete(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Supprimer un module", "module-delet", "DELET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Supprimer un module", "module-delet", "DELET", false));
         if (service.findById(id) == null) throw new RuntimeException("Le module avec l'id " + id + " n'existe pas");
         service.deleteById(id);
     }
 
     @Override
     @GetMapping
-    //@AuthorizeUser(actionKey = "module-list")
+    @AuthorizeUser(actionKey = "module-list")
     public List<LiteModuleDTO> list() {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Lister les modules", "module-list", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Lister les modules", "module-list", "GET", false));
         return service.findAll();
     }
 
@@ -86,9 +87,9 @@ public class ModuleControllerImpl implements ModuleController {
 
     @Override
     @PutMapping("/{id}")
-    //@AuthorizeUser(actionKey = "module-edit")
+    @AuthorizeUser(actionKey = "module-edit")
     public void update(@Valid @RequestBody ModuleRequestDTO dto, @PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Modifier un module", "module-edit", "PUT", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Modifier un module", "module-edit", "PUT", false));
         if (service.findById(id) == null) throw new RuntimeException("Le module avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))
             throw new RuntimeException("Le module avec les données suivante : " + dto.toString() + " existe déjà");
