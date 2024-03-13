@@ -20,6 +20,6 @@ public class AuthorizeUserValidatorConstraint implements ConstraintValidator<Aut
 
     @Override
     public boolean isValid(Object o, ConstraintValidatorContext constraintValidatorContext) {
-        return true;//mainService.isAuthorized(this.actionKey);
+        return mainService.isAuthorized(this.actionKey);
     }
 }
