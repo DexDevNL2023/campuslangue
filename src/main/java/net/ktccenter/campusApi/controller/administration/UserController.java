@@ -5,9 +5,7 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileForCurrentUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
-import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
-import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
-import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
+import net.ktccenter.campusApi.dto.request.administration.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -35,4 +33,8 @@ public interface UserController {
     ResponseEntity<?> changePassword(@Valid @RequestBody UserPasswordResetDTO userPassword);
 
     ProfileForCurrentUserDTO profile();
+
+    UserDTO updateUser(@Valid @RequestBody UpdateUserDTO dto);
+
+    void updatePassword(@Valid @RequestBody UpdatePasswordDTO dto);
 }
