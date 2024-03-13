@@ -4,6 +4,7 @@ package net.ktccenter.campusApi.controller.administration.impl;
 import net.ktccenter.campusApi.controller.administration.InstitutionController;
 import net.ktccenter.campusApi.dto.reponse.administration.InstitutionDTO;
 import net.ktccenter.campusApi.dto.request.administration.InstitutionRequestDTO;
+import net.ktccenter.campusApi.dto.request.administration.ParametreInstitutionRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.InstitutionService;
@@ -53,5 +54,14 @@ public class InstitutionControllerImpl implements InstitutionController {
         if (service.equalsByDto(dto, id))
             throw new RuntimeException("L'institution avec les données suivante : " + dto.toString() + " existe déjà");
         service.update(dto, id);
+    }
+
+
+    @Override
+    @PutMapping("/update/parameters")
+    @AuthorizeUser(actionKey = "institution-edit-parametres")
+    public void updateParametres(@Valid @RequestBody ParametreInstitutionRequestDTO dto) {
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Modifier les paramètres d'une institution", "institution-edit-parametres", "PUT", false));
+        service.updateParametres(dto);
     }
 }

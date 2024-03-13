@@ -3,7 +3,11 @@ package net.ktccenter.campusApi.dto.reponse.administration;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.ktccenter.campusApi.dto.lite.administration.LiteJourOuvrableDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteParametreInstitutionDTO;
 import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -33,4 +37,7 @@ public class InstitutionDTO extends AbstractDTO {
     private String enteteGauche;
     private String enteteDroite;
     private String piedPage;
+
+    private List<LiteJourOuvrableDTO> jourOuvrables;
+    private LiteParametreInstitutionDTO parametres;
 }
