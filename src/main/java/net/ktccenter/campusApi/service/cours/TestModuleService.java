@@ -10,7 +10,6 @@ import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteDTO;
 import net.ktccenter.campusApi.dto.request.cours.FullTestModuleForNoteImportDTO;
 import net.ktccenter.campusApi.dto.request.cours.TestModuleRequestDTO;
 import net.ktccenter.campusApi.entities.cours.TestModule;
-import net.ktccenter.campusApi.enums.ResultatFilter;
 import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.service.GenericService;
 
@@ -31,5 +30,5 @@ public interface TestModuleService extends GenericService<TestModule, TestModule
 
     void importNotesTest(FullTestModuleForNoteImportDTO dto);
 
-    List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state, ResultatFilter order);
+    List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state);
 }
