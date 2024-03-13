@@ -6,8 +6,6 @@ import net.ktccenter.campusApi.entities.BaseAuditingEntity;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,7 +17,7 @@ import java.util.List;
 @ToString
 @Entity
 public class ParametreInstitution extends BaseAuditingEntity {
-
-    @Transient
-    private List<JourOuvrable> jourOuvrables;
+    private String bareme;
+    private String devise;
+    private Integer dureeCours;
 }
