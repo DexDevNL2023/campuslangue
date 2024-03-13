@@ -13,5 +13,5 @@ import net.ktccenter.campusApi.validators.EnumValidator;
 public class ImportJourOuvrableRequestDTO {
     @EnumValidator(enumClass = Jour.class)
     private Jour jour;
-    private Float[] intervalle;
+    private double[] intervalle;
 }

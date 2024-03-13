@@ -419,8 +419,8 @@ public class UserServiceImpl extends MainService implements UserService {
         User user = getCurrentUser();
         if (user == null) throw new ResourceNotFoundException("L'utilisateur est introuvable.");
         String oldPassword = bCryptPasswordEncoder.encode(dto.getOldPassword());
-        if (!oldPassword.equals(dto.getNewPassword()))
-            throw new ResourceNotFoundException("Veuillez confirmer votre dernier mot de passe!");
+        if (!oldPassword.equals(user.getPassword()))
+            throw new ResourceNotFoundException("Votre ancien mot de passe n'est pas correcte!");
         // Update user's account with new password
         user.setPassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
         repository.save(user);

@@ -56,13 +56,14 @@ public class CampusApplication implements CommandLineRunner {
     private final FormateurRepository formateurRepository;
     private final PlageHoraireRepository plageHoraireRepository;
     private final ParametreInstitutionRepository parametreRepository;
+    private final JourOuvrableRepository jourOuvrableRepository;
 
     private final DiplomeRepository diplomeRepository;
     private final String password = "passwords";
     private final String username = "admin@admin.com";
     private final PasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(10);
 
-    public CampusApplication(BrancheRepository brancheRepository, UserRepository userRepository, RoleRepository roleRepository, InstitutionRepository institutionRepository, RubriqueRepository rubriqueRepository, ModePaiementRepository modePaiementRepository, FormateurRepository formateurRepository, PlageHoraireRepository plageHoraireRepository, ParametreInstitutionRepository parametreRepository, DiplomeRepository diplomeRepository) {
+    public CampusApplication(BrancheRepository brancheRepository, UserRepository userRepository, RoleRepository roleRepository, InstitutionRepository institutionRepository, RubriqueRepository rubriqueRepository, ModePaiementRepository modePaiementRepository, FormateurRepository formateurRepository, PlageHoraireRepository plageHoraireRepository, ParametreInstitutionRepository parametreRepository, JourOuvrableRepository jourOuvrableRepository, DiplomeRepository diplomeRepository) {
         this.brancheRepository = brancheRepository;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -72,6 +73,7 @@ public class CampusApplication implements CommandLineRunner {
         this.formateurRepository = formateurRepository;
         this.plageHoraireRepository = plageHoraireRepository;
         this.parametreRepository = parametreRepository;
+        this.jourOuvrableRepository = jourOuvrableRepository;
         this.diplomeRepository = diplomeRepository;
     }
 
@@ -96,7 +98,7 @@ public class CampusApplication implements CommandLineRunner {
         ParametreInstitution parametres = new ParametreInstitution();
         parametres.setBareme("20");
         parametres.setDevise("Francs CFA");
-        parametres.setDureeCours(1);
+        parametres.setDureeCours(1.0);
         parametreRepository.save(parametres);
     }
 
@@ -112,15 +114,22 @@ public class CampusApplication implements CommandLineRunner {
 
     private void buildDefautPlage() {
         if (plageHoraireRepository.count() > 0) return;
+        ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        double dureeCours = parametres.getDureeCours(); // Récupérer la durée du cours en demi-heures
         for (Jour jour : Jour.values()) {
-            for (int i = 7; i < 17; i++) {
-                String code = jour.getValue().substring(0, 3) + "-" + i + "h" + "-" + (i + 1) + "h";
+            JourOuvrable ouvrable = jourOuvrableRepository.findByJour(jour);
+            double debutIntervalle = ouvrable.getIntervalle()[0] * 2.0; // Convertir en demi-heures
+            double finIntervalle = ouvrable.getIntervalle()[1] * 2.0; // Convertir en demi-heures
+            for (double i = debutIntervalle; i < finIntervalle; i += dureeCours * 2) { // Utiliser dureeCours comme pas
+                String code = jour.getValue().substring(0, 3) + "-" + i / 2 + "h" + "-" + (i / 2 + dureeCours) + "h"; // Convertir en heures
+                LocalTime startTime = LocalTime.of((int) i / 2, (int) (i % 2) * 30);
+                LocalTime endTime = LocalTime.of((int) (i / 2) + (int) dureeCours, (int) (i % 2) * 30);
                 if (!plageHoraireRepository.findByCode(code).isPresent()) {
                     PlageHoraire plage = new PlageHoraire();
                     plage.setCode(code);
                     plage.setJour(jour);
-                    plage.setStartTime(LocalTime.of(i,0));
-                    plage.setEndTime(LocalTime.of(i+1, 0));
+                    plage.setStartTime(startTime); // Convertir en heures et minutes
+                    plage.setEndTime(endTime); // Convertir en heures et minutes
                     plageHoraireRepository.save(plage);
                 }
             }

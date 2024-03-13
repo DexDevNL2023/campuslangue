@@ -1,9 +1,9 @@
 package net.ktccenter.campusApi.service.administration.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.ktccenter.campusApi.dao.administration.InstitutionRepository;
-import net.ktccenter.campusApi.dao.administration.JourOuvrableRepository;
-import net.ktccenter.campusApi.dao.administration.ParametreInstitutionRepository;
+import net.ktccenter.campusApi.dao.administration.*;
+import net.ktccenter.campusApi.dao.cours.PlageHoraireRepository;
+import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportInstitutionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteInstitutionDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteJourOuvrableDTO;
@@ -11,9 +11,9 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteParametreInstitutionD
 import net.ktccenter.campusApi.dto.reponse.administration.InstitutionDTO;
 import net.ktccenter.campusApi.dto.request.administration.InstitutionRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.ParametreInstitutionRequestDTO;
-import net.ktccenter.campusApi.entities.administration.Institution;
-import net.ktccenter.campusApi.entities.administration.JourOuvrable;
-import net.ktccenter.campusApi.entities.administration.ParametreInstitution;
+import net.ktccenter.campusApi.entities.administration.*;
+import net.ktccenter.campusApi.entities.cours.PlageHoraire;
+import net.ktccenter.campusApi.enums.Jour;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
 import net.ktccenter.campusApi.mapper.administration.InstitutionMapper;
 import net.ktccenter.campusApi.service.administration.InstitutionService;
@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,13 +36,21 @@ public class InstitutionServiceImpl implements InstitutionService {
   private final InstitutionMapper mapper;
     private final ParametreInstitutionRepository parametreRepository;
     private final JourOuvrableRepository jourOuvrablesRepository;
+    private final PlageHoraireRepository plageHoraireRepository;
+    private final SalleRepository salleRepository;
+    private final OccupationSalleRepository occupationSalleRepository;
+    private final SessionRepository sessionRepository;
 
-    public InstitutionServiceImpl(InstitutionRepository repository, InstitutionMapper mapper, ParametreInstitutionRepository parametreRepository, JourOuvrableRepository jourOuvrablesRepository) {
+    public InstitutionServiceImpl(InstitutionRepository repository, InstitutionMapper mapper, ParametreInstitutionRepository parametreRepository, JourOuvrableRepository jourOuvrablesRepository, PlageHoraireRepository plageHoraireRepository, SalleRepository salleRepository, OccupationSalleRepository occupationSalleRepository, SessionRepository sessionRepository) {
       this.repository = repository;
       this.mapper = mapper;
         this.parametreRepository = parametreRepository;
         this.jourOuvrablesRepository = jourOuvrablesRepository;
-  }
+        this.plageHoraireRepository = plageHoraireRepository;
+        this.salleRepository = salleRepository;
+        this.occupationSalleRepository = occupationSalleRepository;
+        this.sessionRepository = sessionRepository;
+    }
 
   @Override
   public InstitutionDTO save(InstitutionRequestDTO dto) {
@@ -140,5 +149,54 @@ public class InstitutionServiceImpl implements InstitutionService {
         parametres.setDevise(dto.getDevise());
         parametres.setDureeCours(dto.getDureeCours());
         parametreRepository.save(parametres);
+        updatePlageHoraire();
+    }
+
+    private void updatePlageHoraire() {
+        buildPlageHoraires();
+        buildOccupations();
+    }
+
+    private void buildOccupations() {
+        List<Salle> salles = (List<Salle>) salleRepository.findAll();
+        List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
+        for (Salle salle : salles) {
+            for (PlageHoraire plage : plages) {
+                occupationSalleRepository.save(new OccupationSalle(salle.getCode() + "-" + plage.getCode(), false, plage, salle));
+            }
+        }
+    }
+
+    private void buildPlageHoraires() {
+        List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
+        for (PlageHoraire plage : plages) {
+            List<OccupationSalle> occupations = occupationSalleRepository.findAllByPlageHoraireAndEstOccupee(plage, false);
+            for (OccupationSalle occupation : occupations) {
+                occupationSalleRepository.delete(occupation);
+            }
+        }
+        plageHoraireRepository.deleteAll();
+
+        // On crée les nouvelles plages horaires
+        ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        double dureeCours = parametres.getDureeCours(); // Récupérer la durée du cours en demi-heures
+        for (Jour jour : Jour.values()) {
+            JourOuvrable ouvrable = jourOuvrablesRepository.findByJour(jour);
+            double debutIntervalle = ouvrable.getIntervalle()[0] * 2.0; // Convertir en demi-heures
+            double finIntervalle = ouvrable.getIntervalle()[1] * 2.0; // Convertir en demi-heures
+            for (double i = debutIntervalle; i < finIntervalle; i += dureeCours * 2) { // Utiliser dureeCours comme pas
+                String code = jour.getValue().substring(0, 3) + "-" + i / 2 + "h" + "-" + (i / 2 + dureeCours) + "h"; // Convertir en heures
+                LocalTime startTime = LocalTime.of((int) i / 2, (int) (i % 2) * 30);
+                LocalTime endTime = LocalTime.of((int) (i / 2) + (int) dureeCours, (int) (i % 2) * 30);
+                if (!plageHoraireRepository.findByCode(code).isPresent()) {
+                    PlageHoraire plage = new PlageHoraire();
+                    plage.setCode(code);
+                    plage.setJour(jour);
+                    plage.setStartTime(startTime); // Convertir en heures et minutes
+                    plage.setEndTime(endTime); // Convertir en heures et minutes
+                    plageHoraireRepository.save(plage);
+                }
+            }
+        }
     }
 }

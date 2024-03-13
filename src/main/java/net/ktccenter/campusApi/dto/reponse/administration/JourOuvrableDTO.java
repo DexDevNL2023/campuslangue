@@ -13,5 +13,5 @@ import net.ktccenter.campusApi.enums.Jour;
 @Getter
 public class JourOuvrableDTO extends AbstractDTO {
     private Jour jour;
-    private Float[] intervalle;
+    private double[] intervalle;
 }
