@@ -6,10 +6,7 @@ import net.ktccenter.campusApi.dto.lite.administration.LiteUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.ProfileForCurrentUserDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.UserDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
-import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
-import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
-import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
-import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
+import net.ktccenter.campusApi.dto.request.administration.*;
 import net.ktccenter.campusApi.exceptions.APIException;
 import net.ktccenter.campusApi.service.MainService;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
@@ -101,8 +98,6 @@ public class UserControllerImpl implements UserController {
     public UserDTO update(@Valid @RequestBody UpdateUserRequestDTO dto, @PathVariable("id") Long id) {
         autorisationService.addDroit(new SaveDroitDTO("UTILISATEURS", "Modifier un utilisateur", "user-edit", "PUT", false));
         if (service.findById(id) == null) throw new RuntimeException("L'utilisateur avec l'id " + id + " n'existe pas");
-        /*if (service.equalsByDto(dto, id))
-            throw new RuntimeException("L'utilisateur avec les données suivante : " + dto.toString() + " existe déjà");*/
         return service.updateUserFrom(dto, id);
     }
 
@@ -121,5 +116,17 @@ public class UserControllerImpl implements UserController {
         }else{
             throw new APIException(response);
         }
+    }
+
+    @Override
+    @PutMapping("/update")
+    public UserDTO updateUser(@Valid @RequestBody UpdateUserDTO dto) {
+        return service.updateUser(dto);
+    }
+
+    @Override
+    @PutMapping(path = "/update/password")
+    public void updatePassword(@Valid @RequestBody UpdatePasswordDTO dto) {
+        service.updatePassword(dto);
     }
 }

@@ -11,9 +11,7 @@ import net.ktccenter.campusApi.dto.lite.administration.*;
 import net.ktccenter.campusApi.dto.reponse.PermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.*;
 import net.ktccenter.campusApi.dto.reponse.branch.UserBranchDTO;
-import net.ktccenter.campusApi.dto.request.administration.UpdateUserRequestDTO;
-import net.ktccenter.campusApi.dto.request.administration.UserPasswordResetDTO;
-import net.ktccenter.campusApi.dto.request.administration.UserRequestDTO;
+import net.ktccenter.campusApi.dto.request.administration.*;
 import net.ktccenter.campusApi.entities.administration.Module;
 import net.ktccenter.campusApi.entities.administration.*;
 import net.ktccenter.campusApi.enums.TypeUser;
@@ -73,15 +71,6 @@ public class UserServiceImpl extends MainService implements UserService {
       this.roleRepository = roleRepository;
         this.roleDroitRepository = roleDroitRepository;
         this.moduleRepository = moduleRepository;
-    }
-
-    @Override
-    public User updateUser(String email, String password, Long id) {
-      User existUser = findById(id);
-      existUser.setEmail(email);
-      String encodedPassword = bCryptPasswordEncoder.encode(password);
-      existUser.setPassword(encodedPassword);
-      return repository.save(existUser);
     }
 
   @Override
@@ -405,6 +394,36 @@ public class UserServiceImpl extends MainService implements UserService {
         UserDTO result = mapper.asDTO(exist);
         result.setRole(new LiteRoleDTO(exist.getRoles().stream().findFirst().get()));
         return result;
+    }
+
+    @Override
+    public UserDTO updateUser(UpdateUserDTO dto) {
+        //Verifying whether user already exists
+        User user = getCurrentUser();
+        if (user == null) throw new ResourceNotFoundException("L'utilisateur est introuvable.");
+        user.setNom(dto.getNom());
+        user.setPrenom(dto.getPrenom());
+        user.setEmail(dto.getEmail());
+        user.setImageUrl(dto.getImageUrl());
+        user = repository.save(user);
+        UserDTO result = mapper.asDTO(user);
+        result.setRole(new LiteRoleDTO(user.getRoles().stream().findFirst().get()));
+        return result;
+    }
+
+    @Override
+    public void updatePassword(UpdatePasswordDTO dto) {
+        if (!dto.getNewPassword().equals(dto.getMatchingPassword()))
+            throw new ResourceNotFoundException("Veuillez confirmer votre mot de passe!");
+        //Verifying whether user already exists
+        User user = getCurrentUser();
+        if (user == null) throw new ResourceNotFoundException("L'utilisateur est introuvable.");
+        String oldPassword = bCryptPasswordEncoder.encode(dto.getOldPassword());
+        if (!oldPassword.equals(dto.getNewPassword()))
+            throw new ResourceNotFoundException("Veuillez confirmer votre dernier mot de passe!");
+        // Update user's account with new password
+        user.setPassword(bCryptPasswordEncoder.encode(dto.getNewPassword()));
+        repository.save(user);
     }
 
     UserBranchDTO buildData(Branche branche) {
