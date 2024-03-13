@@ -13,6 +13,7 @@ import net.ktccenter.campusApi.dto.request.administration.SalleRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.SalleService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -38,9 +39,9 @@ public class SalleControllerImpl implements SalleController {
   @Override
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  //@AuthorizeUser(actionKey = "salle-add")
+  @AuthorizeUser(actionKey = "salle-add")
   public SalleDTO save(@Valid @RequestBody SalleRequestDTO dto) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Ajouter un salle", "salle-add", "POST", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Ajouter un salle", "salle-add", "POST", true));
       if (service.existsByCodeAndLibelle(dto.getCode(), dto.getLibelle()))
           throw new RuntimeException("La salle avec le code " + dto.getCode() + ", ou le libelle " + dto.getLibelle() + " existe déjà");
     return service.save(dto);
@@ -49,9 +50,9 @@ public class SalleControllerImpl implements SalleController {
   @Override
   @PostMapping("/imports")
   @ResponseStatus(HttpStatus.CREATED)
-  //@AuthorizeUser(actionKey = "salle-import")
+  @AuthorizeUser(actionKey = "salle-import")
   public List<LiteSalleDTO> saveAll(@Valid @RequestBody List<ImportSalleRequestDTO> dtos) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Importer des salle", "salle-import", "POST", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Importer des salle", "salle-import", "POST", true));
     for (ImportSalleRequestDTO dto : dtos) {
       if (service.existsByCodeAndLibelle(dto.getCode(), dto.getLibelle()))
         throw new RuntimeException("La salle avec le code " + dto.getCode() + ", ou le libelle " + dto.getLibelle() + " existe déjà");
@@ -61,26 +62,26 @@ public class SalleControllerImpl implements SalleController {
 
   @Override
   @GetMapping("/{id}")
-  //@AuthorizeUser(actionKey = "salle-find")
+  @AuthorizeUser(actionKey = "salle-find")
   public SalleDTO findById(@PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Afficher les détails d'un salle", "salle-find", "GET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Afficher les détails d'un salle", "salle-find", "GET", true));
     return service.getOne(id);
   }
 
   @Override
   @DeleteMapping("/{id}")
-  //@AuthorizeUser(actionKey = "salle-delet")
+  @AuthorizeUser(actionKey = "salle-delet")
   public void delete(@PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Supprimer un salle", "salle-delet", "DELET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Supprimer un salle", "salle-delet", "DELET", true));
       if (service.findById(id) == null) throw new RuntimeException("La salle avec l'id " + id + " n'existe pas");
       service.deleteById(id);
   }
 
   @Override
   @GetMapping
-  //@AuthorizeUser(actionKey = "salle-list")
+  @AuthorizeUser(actionKey = "salle-list")
   public List<SalleBranchDTO> list() {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Lister les salle", "salle-list", "GET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Lister les salle", "salle-list", "GET", true));
     return service.findAll();
   }
 
@@ -92,9 +93,9 @@ public class SalleControllerImpl implements SalleController {
 
   @Override
   @PutMapping("/{id}")
-  //@AuthorizeUser(actionKey = "salle-update")
+  @AuthorizeUser(actionKey = "salle-update")
   public void update(@Valid @RequestBody SalleRequestDTO dto, @PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Mttre à jour un salle", "salle-update", "PUT", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Mttre à jour un salle", "salle-update", "PUT", true));
       if (service.findById(id) == null) throw new RuntimeException("La salle avec l'id " + id + " n'existe pas");
       if (service.equalsByDto(dto, id))
           throw new RuntimeException("La salle avec les données suivante : " + dto.toString() + " existe déjà");
@@ -103,9 +104,9 @@ public class SalleControllerImpl implements SalleController {
 
   @Override
   @PostMapping("/change/occupation")
-  //@AuthorizeUser(actionKey = "change-occupation")
+  @AuthorizeUser(actionKey = "change-occupation")
   public OccupationSalleDTO changeOccupation(@Valid @RequestBody OccupationSalleRequestDTO dto) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Mttre à jour un salle", "change-occupation", "PUT", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Mttre à jour un salle", "change-occupation", "PUT", true));
     return service.changeOccupation(dto);
   }
 
@@ -123,17 +124,17 @@ public class SalleControllerImpl implements SalleController {
 
   @Override
   @GetMapping("/get/all/disponibilites/{salleId}")
-  //@AuthorizeUser(actionKey = "get-disponibilite-salle")
+  @AuthorizeUser(actionKey = "get-disponibilite-salle")
   public List<LiteOccupationSalleDTO> getPlageDisponible(@Valid @PathVariable("salleId") Long salleId) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Afficher la disponibilité d'une salle", "get-disponibilite-salle", "GET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Afficher la disponibilité d'une salle", "get-disponibilite-salle", "GET", true));
     return service.getPlageDisponible(salleId);
   }
 
   @Override
   @GetMapping("/get/planning/{salleId}")
-  //@AuthorizeUser(actionKey = "get-planning-salle")
+  @AuthorizeUser(actionKey = "get-planning-salle")
   public List<LiteOccupationSalleDTO> getPlannigSalle(@Valid @PathVariable("salleId") Long salleId) {
-    autorisationService.addDroit(new SaveDroitDTO("STRUCTURE", "Afficher le plannig d'une salle", "get-planning-salle", "GET", true));
+    autorisationService.addDroit(new SaveDroitDTO("Structure", "Afficher le plannig d'une salle", "get-planning-salle", "GET", true));
     return service.getPlannigSalle(salleId);
   }
 }

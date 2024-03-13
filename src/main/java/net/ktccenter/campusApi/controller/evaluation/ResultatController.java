@@ -5,6 +5,7 @@ import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForResultatReponseDTO
 import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +25,14 @@ public class ResultatController {
 
   @GetMapping("/test-module/{sessionId}/{moduleId}/{state}")
   @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "droit-add")
   public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("moduleId") Long moduleId, @PathVariable("state") ResultatState state) {
     return testModuleService.getAllResultatTestBySession(sessionId, moduleId, state);
   }
 
   @GetMapping("/examen/{sessionId}/{state}")
   @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "droit-add")
   public List<ExamenForResultatReponseDTO> getAllResultatExamenBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("state") ResultatState state) {
     return examenService.getAllResultatExamenBySession(sessionId, state);
   }

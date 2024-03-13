@@ -1,4 +1,4 @@
-package net.ktccenter.campusApi.controller.scolarite;
+package net.ktccenter.campusApi.controller.formation;
 
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportFormateurRequestDTO;
 import net.ktccenter.campusApi.dto.lite.scolarite.LiteFormateurDTO;

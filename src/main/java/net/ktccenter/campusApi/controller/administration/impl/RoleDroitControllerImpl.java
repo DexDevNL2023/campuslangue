@@ -9,6 +9,7 @@ import net.ktccenter.campusApi.dto.request.administration.RoleDroitRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.RoleDroitService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,43 +33,43 @@ public class RoleDroitControllerImpl implements RoleDroitController {
     @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //@AuthorizeUser(actionKey = "permission-add")
+    @AuthorizeUser(actionKey = "permission-add")
     public RoleDroitDTO save(@Valid @RequestBody RoleDroitRequestDTO dto) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Ajouter une permission", "permission-add", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter une permission", "permission-add", "POST", false));
         return service.save(dto);
     }
 
     @Override
     @PostMapping("/imports")
     @ResponseStatus(HttpStatus.CREATED)
-    //@AuthorizeUser(actionKey = "permission-import")
+    @AuthorizeUser(actionKey = "permission-import")
     public List<LiteRoleDroitDTO> saveAll(@Valid @RequestBody List<ImportRoleDroitRequestDTO> dtos) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Importer des permissions", "permission-import", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Importer des permissions", "permission-import", "POST", false));
         return service.save(dtos);
     }
 
     @Override
     @GetMapping("/{id}")
-    //@AuthorizeUser(actionKey = "permission-details")
+    @AuthorizeUser(actionKey = "permission-details")
     public RoleDroitDTO findById(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Détails d'une permission", "permission-details", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Détails d'une permission", "permission-details", "GET", false));
         return service.getOne(id);
     }
 
     @Override
     @DeleteMapping("/{id}")
-    //@AuthorizeUser(actionKey = "permission-delet")
+    @AuthorizeUser(actionKey = "permission-delet")
     public void delete(@PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Supprimer une permission", "permission-delet", "DELET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Supprimer une permission", "permission-delet", "DELET", false));
         if (service.findById(id) == null) throw new RuntimeException("La permission avec l'id " + id + " n'existe pas");
         service.deleteById(id);
     }
 
     @Override
     @GetMapping
-    //@AuthorizeUser(actionKey = "permission-list")
+    @AuthorizeUser(actionKey = "permission-list")
     public List<PermissionModuleDTO> list() {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Lister les permissions", "permission-list", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Lister les permissions", "permission-list", "GET", false));
         return service.findAll();
     }
 
@@ -80,9 +81,9 @@ public class RoleDroitControllerImpl implements RoleDroitController {
 
     @Override
     @PutMapping("/{id}")
-    //@AuthorizeUser(actionKey = "permission-edit")
+    @AuthorizeUser(actionKey = "permission-edit")
     public void update(@Valid @RequestBody RoleDroitRequestDTO permissionDroitDTO, @PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Modifier une permission", "permission-edit", "PUT", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Modifier une permission", "permission-edit", "PUT", false));
         if (service.findById(id) == null) throw new RuntimeException("La permission avec l'id " + id + " n'existe pas");
         service.update(permissionDroitDTO, id);
     }

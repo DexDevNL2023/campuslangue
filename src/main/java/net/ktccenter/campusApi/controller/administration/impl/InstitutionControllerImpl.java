@@ -7,6 +7,7 @@ import net.ktccenter.campusApi.dto.request.administration.InstitutionRequestDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.InstitutionService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,26 +28,26 @@ public class InstitutionControllerImpl implements InstitutionController {
     @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    //@AuthorizeUser(actionKey = "institution-add")
+    @AuthorizeUser(actionKey = "institution-add")
     public InstitutionDTO save(@Valid @RequestBody InstitutionRequestDTO dto) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Ajouter une institution", "institution-add", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter une institution", "institution-add", "POST", false));
         return service.save(dto);
     }
 
     @Override
     @GetMapping("/parametres")
-    //@AuthorizeUser(actionKey = "institution-details")
+    @AuthorizeUser(actionKey = "institution-details")
     public InstitutionDTO getInstitution() {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Détails d'une institution", "institution-details", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Détails d'une institution", "institution-details", "GET", false));
         return service.getCurrentInstitution();
     }
 
 
     @Override
     @PutMapping("/{id}")
-    //@AuthorizeUser(actionKey = "institution-edit")
+    @AuthorizeUser(actionKey = "institution-edit")
     public void update(@Valid @RequestBody InstitutionRequestDTO dto, @PathVariable("id") Long id) {
-        autorisationService.addDroit(new SaveDroitDTO("AUTORISATIONS", "Modifier une institution", "institution-edit", "PUT", false));
+        autorisationService.addDroit(new SaveDroitDTO("Administration", "Modifier une institution", "institution-edit", "PUT", false));
         if (service.findById(id) == null)
             throw new RuntimeException("L'institution avec l'id " + id + " n'existe pas");
         if (service.equalsByDto(dto, id))

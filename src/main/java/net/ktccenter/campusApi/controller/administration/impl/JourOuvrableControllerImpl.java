@@ -8,6 +8,7 @@ import net.ktccenter.campusApi.dto.request.administration.JourOuvrableRequestDTO
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.administration.JourOuvrableService;
+import net.ktccenter.campusApi.validators.AuthorizeUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
   @Override
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  //@AuthorizeUser(actionKey = "campus-add")
+  @AuthorizeUser(actionKey = "jour-ouvrable-add")
   public JourOuvrableDTO save(@Valid @RequestBody JourOuvrableRequestDTO dto) {
     autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter un jour ouvrable", "jour-ouvrable-add", "POST", true));
     return service.save(dto);
@@ -41,7 +42,7 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
   @Override
   @PostMapping("/save")
   @ResponseStatus(HttpStatus.CREATED)
-  //@AuthorizeUser(actionKey = "campus-add")
+  @AuthorizeUser(actionKey = "jour-ouvrable-import")
   public List<JourOuvrableDTO> saveAll(@Valid @RequestBody List<JourOuvrableRequestDTO> dtos) {
     autorisationService.addDroit(new SaveDroitDTO("Administration", "Ajouter un jour ouvrable", "jour-ouvrable-add", "POST", true));
     return service.saveAll(dtos);
@@ -49,15 +50,15 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
 
   @Override
   @GetMapping("/{id}")
-  //@AuthorizeUser(actionKey = "campus-find")
+  @AuthorizeUser(actionKey = "jour-ouvrable-details")
   public JourOuvrableDTO findById(@PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("Administration", "Afficher les détails d'un jour ouvrable", "jour-ouvrable-find", "GET", true));
+      autorisationService.addDroit(new SaveDroitDTO("Administration", "Afficher les détails d'un jour ouvrable", "jour-ouvrable-details", "GET", true));
     return service.getOne(id);
   }
 
   @Override
   @DeleteMapping("/{id}")
-  //@AuthorizeUser(actionKey = "campus-delet")
+  @AuthorizeUser(actionKey = "jour-ouvrable-delet")
   public void delete(@PathVariable("id") Long id) {
     autorisationService.addDroit(new SaveDroitDTO("Administration", "Supprimer un jour ouvrable", "jour-ouvrable-delet", "DELET", true));
     if (service.findById(id) == null) throw new RuntimeException("Le jour ouvrable avec l'id " + id + " n'existe pas");
@@ -66,7 +67,7 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
 
   @Override
   @GetMapping
-  //@AuthorizeUser(actionKey = "campus-list")
+  @AuthorizeUser(actionKey = "jour-ouvrable-list")
   public List<LiteJourOuvrableDTO> list() {
     autorisationService.addDroit(new SaveDroitDTO("Administration", "Lister les jours ouvrables", "jour-ouvrable-list", "GET", true));
     return service.findAll();
@@ -74,9 +75,7 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
 
   @Override
   @GetMapping("/default")
-  //@AuthorizeUser(actionKey = "campus-list")
   public List<RequestJourOuvrableDTO> getDefaultJour() {
-    autorisationService.addDroit(new SaveDroitDTO("Administration", "Lister les jours ouvrables", "jour-ouvrable-list", "GET", true));
     return service.getDefaultJour();
   }
 
@@ -88,9 +87,9 @@ public class JourOuvrableControllerImpl implements JourOuvrableController {
 
   @Override
   @PutMapping("/{id}")
-  //@AuthorizeUser(actionKey = "campus-update")
+  @AuthorizeUser(actionKey = "jour-ouvrable-edit")
   public void update(@Valid @RequestBody JourOuvrableRequestDTO dto, @PathVariable("id") Long id) {
-    autorisationService.addDroit(new SaveDroitDTO("Administration", "Mettre à jour un jour ouvrable", "jour-ouvrable-update", "PUT", true));
+      autorisationService.addDroit(new SaveDroitDTO("Administration", "Mettre à jour un jour ouvrable", "jour-ouvrable-edit", "PUT", true));
     if (service.findById(id) == null) throw new RuntimeException("Le jour ouvrable avec l'id " + id + " n'existe pas");
     if (service.equalsByDto(dto, id))
       throw new RuntimeException("Le jour ouvrable avec les données suivante : " + dto.toString() + " existe déjà");
