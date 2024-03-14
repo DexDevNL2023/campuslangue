@@ -2,6 +2,7 @@ package net.ktccenter.campusApi.service.scolarite.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.CampusRepository;
+import net.ktccenter.campusApi.dao.administration.ParametreInstitutionRepository;
 import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
 import net.ktccenter.campusApi.dao.cours.ExamenRepository;
@@ -15,10 +16,7 @@ import net.ktccenter.campusApi.dto.lite.scolarite.*;
 import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.scolarite.EtudiantDTO;
 import net.ktccenter.campusApi.dto.request.scolarite.EtudiantRequestDTO;
-import net.ktccenter.campusApi.entities.administration.Branche;
-import net.ktccenter.campusApi.entities.administration.Campus;
-import net.ktccenter.campusApi.entities.administration.OccupationSalle;
-import net.ktccenter.campusApi.entities.administration.User;
+import net.ktccenter.campusApi.entities.administration.*;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
 import net.ktccenter.campusApi.entities.cours.Examen;
@@ -59,8 +57,9 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     private final EvaluationTestRepository evaluationTestRepository;
     private final EpreuveRepository epreuveRepository;
     private final DiplomeRepository diplomeRepository;
+    private final ParametreInstitutionRepository parametreRepository;
 
-    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, SessionRepository sessionRepository, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository, DiplomeRepository diplomeRepository) {
+    public EtudiantServiceImpl(EtudiantRepository repository, EtudiantMapper mapper, UserService userService, SessionRepository sessionRepository, InscriptionRepository inscriptionRepository, CampusRepository campusRepository, PaiementRepository paiementRepository, CompteRepository compteRepository, TestModuleRepository testModuleRepository, ExamenRepository examenRepository, EvaluationTestRepository evaluationTestRepository, EpreuveRepository epreuveRepository, DiplomeRepository diplomeRepository, ParametreInstitutionRepository parametreRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.userService = userService;
@@ -74,6 +73,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         this.evaluationTestRepository = evaluationTestRepository;
         this.epreuveRepository = epreuveRepository;
         this.diplomeRepository = diplomeRepository;
+        this.parametreRepository = parametreRepository;
     }
 
     @Override
@@ -236,12 +236,15 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
     // 20/20, Excellent ; 16/20 à 19/20, Très bien ; 14/20 à 16/20, Bien ; 12/20 à 13/20, Assez bien ;
     // 10/20 à 11/20, Passable ; 5/20 à 8/20, Insuffisant ; 0/20 à 4/20, Médiocre.
     private String buildAppreciation(Float moyenne) {
-        int note = moyenne.intValue();
-        if (note >= 17) {
+        ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        int bareme = parametres.getBareme();
+        int noteTotale = Math.round(moyenne * bareme); // Calcul de la note totale en fonction de la moyenne et du barème
+
+        if (noteTotale >= 17 * bareme) { // Note totale >= 17 sur une échelle du barème
             return "Sehr Gut Bestanden";
-        } else if (note >= 13) {
+        } else if (noteTotale >= 13 * bareme) { // Note totale >= 13 sur une échelle du barème
             return "Gut Bestanden";
-        } else if (note >= 10) {
+        } else if (noteTotale >= 10 * bareme) { // Note totale >= 10 sur une échelle du barème
             return "Bestanden";
         } else {
             return "Nicht Bestanden";
@@ -587,7 +590,6 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         for (LiteEtudiantDTO e : etudiants) {
             List<Inscription> inscriptions = getAllInscriptionsForEtudiantId(e.getId());
             for (Inscription inscription : inscriptions) {
-                BigDecimal unpaid = BigDecimal.valueOf(0.0);
                 BigDecimal solde = BigDecimal.valueOf(0.0);
                 BigDecimal netApayer = inscription.getSession().getNiveau().getFraisPension().add(inscription.getSession().getNiveau().getFraisInscription());
                 Compte compte = compteRepository.findByInscription(inscription);
@@ -595,7 +597,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
                 for (Paiement paiement : paiements) {
                     solde = solde.add(paiement.getMontant());
                 }
-                unpaid = netApayer.subtract(solde);
+                BigDecimal unpaid = netApayer.subtract(solde);
                 return unpaid.intValue() > 0;
             }
         }

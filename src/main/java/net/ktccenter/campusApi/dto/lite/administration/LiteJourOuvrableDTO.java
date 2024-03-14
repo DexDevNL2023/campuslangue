@@ -14,7 +14,7 @@ import net.ktccenter.campusApi.enums.Jour;
 public class LiteJourOuvrableDTO {
     private Long id;
     private Jour jour;
-    private Float[] intervalle;
+    private double[] intervalle;
 
     public LiteJourOuvrableDTO(JourOuvrable jourOuvrable) {
         this.id = jourOuvrable.getId();

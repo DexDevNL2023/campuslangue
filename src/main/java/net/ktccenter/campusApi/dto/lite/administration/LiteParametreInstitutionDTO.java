@@ -12,9 +12,9 @@ import net.ktccenter.campusApi.entities.administration.ParametreInstitution;
 @Getter
 public class LiteParametreInstitutionDTO {
     private Long id;
-    private String bareme;
+    private int bareme;
     private String devise;
-    private Integer dureeCours;
+    private double dureeCours;
 
     public LiteParametreInstitutionDTO(ParametreInstitution parametres) {
         this.id = parametres.getId();

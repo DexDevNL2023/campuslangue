@@ -263,8 +263,13 @@ public class SessionServiceImpl extends MainService implements SessionService {
       occupation = occupationSalleRepository.save(occupation);
       occupations.add(occupation);
     }
-    log.info(session.getDateDebut().toString());
-    log.info(session.getDateDebut().toString());
+    log.info("1");
+    // On remet en suite les anciens occupation à false
+    for (OccupationSalle oldOccupation : exist.getOccupations()) {
+      oldOccupation.setEstOccupee(false);
+      occupationSalleRepository.save(oldOccupation);
+    }
+    log.info("2");
     SimpleDateFormat formatNowYear = new SimpleDateFormat("YYYY");
 
     String monthDebut = Month.of(session.getDateDebut().getMonth()).toString(); // formatNowMonth.format(session.getDateDebut()).toUpperCase();

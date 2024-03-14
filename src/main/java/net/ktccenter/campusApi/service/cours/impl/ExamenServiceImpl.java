@@ -1,6 +1,7 @@
 package net.ktccenter.campusApi.service.cours.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ktccenter.campusApi.dao.administration.ParametreInstitutionRepository;
 import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
 import net.ktccenter.campusApi.dao.cours.ExamenRepository;
 import net.ktccenter.campusApi.dao.cours.UniteRepository;
@@ -17,6 +18,7 @@ import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForResultatReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.entities.administration.Branche;
+import net.ktccenter.campusApi.entities.administration.ParametreInstitution;
 import net.ktccenter.campusApi.entities.cours.Epreuve;
 import net.ktccenter.campusApi.entities.cours.Examen;
 import net.ktccenter.campusApi.entities.cours.Unite;
@@ -45,13 +47,15 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
     private final EpreuveRepository epreuveRepository;
     private final NiveauRepository niveauRepository;
     private final UniteRepository uniteRepository;
+    private final ParametreInstitutionRepository parametreRepository;
 
-    public ExamenServiceImpl(ExamenRepository repository, ExamenMapper mapper, EpreuveRepository epreuveRepository, NiveauRepository niveauRepository, UniteRepository uniteRepository) {
+    public ExamenServiceImpl(ExamenRepository repository, ExamenMapper mapper, EpreuveRepository epreuveRepository, NiveauRepository niveauRepository, UniteRepository uniteRepository, ParametreInstitutionRepository parametreRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.epreuveRepository = epreuveRepository;
         this.niveauRepository = niveauRepository;
         this.uniteRepository = uniteRepository;
+        this.parametreRepository = parametreRepository;
     }
 
     @Override
@@ -177,21 +181,6 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         return dto;
     }
 
-    // 20/20, Excellent ; 16/20 à 19/20, Très bien ; 14/20 à 16/20, Bien ; 12/20 à 13/20, Assez bien ;
-    // 10/20 à 11/20, Passable ; 5/20 à 8/20, Insuffisant ; 0/20 à 4/20, Médiocre.
-    private String buildAppreciation(Float moyenne) {
-        int note = moyenne.intValue();
-        if (note >= 17) {
-            return "Sehr Gut Bestanden";
-        } else if (note >= 13) {
-            return "Gut Bestanden";
-        } else if (note >= 10) {
-            return "Bestanden";
-        } else {
-            return "Nicht Bestanden";
-        }
-    }
-
     @Override
     public Page<LiteExamenDTO> findAll(Pageable pageable) {
         Page<Examen> entityPage = repository.findAll(pageable);
@@ -311,30 +300,58 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
     public List<ExamenForResultatReponseDTO> getAllResultatExamenBySession(Long sessionId, ResultatState state) {
         return repository.findAllBySessionId(sessionId)
                 .stream()
-                .filter(e -> getByAppreciation(e, state))
+                .filter(e -> hasWin(e, state))
                 .map(this::buildExamenResultatDto)
                 .collect(Collectors.toList());
     }
 
-    private boolean getByAppreciation(Examen examen, ResultatState state) {
+    // 20/20, Excellent ; 16/20 à 19/20, Très bien ; 14/20 à 16/20, Bien ; 12/20 à 13/20, Assez bien ;
+    // 10/20 à 11/20, Passable ; 5/20 à 8/20, Insuffisant ; 0/20 à 4/20, Médiocre.
+    private String buildAppreciation(Float moyenne) {
+        ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        int bareme = parametres.getBareme();
+        int noteTotale = Math.round(moyenne * bareme); // Calcul de la note totale en fonction de la moyenne et du barème
+
+        if (noteTotale >= 17 * bareme) { // Note totale >= 17 sur une échelle du barème
+            return "Sehr Gut Bestanden";
+        } else if (noteTotale >= 13 * bareme) { // Note totale >= 13 sur une échelle du barème
+            return "Gut Bestanden";
+        } else if (noteTotale >= 10 * bareme) { // Note totale >= 10 sur une échelle du barème
+            return "Bestanden";
+        } else {
+            return "Nicht Bestanden";
+        }
+    }
+
+    private boolean hasWin(Examen examen, ResultatState state) {
+        ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        int bareme = parametres.getBareme();
         List<Epreuve> epreuves = epreuveRepository.findAllByExamen(examen);
-        Float moyenne = 0F;
+        float moyenne = 0F;
         boolean isFail = false;
+
         for (Epreuve epreuve : epreuves) {
             if (!epreuve.getEstValidee()) {
                 isFail = true;
             }
             moyenne += epreuve.getNoteObtenue();
         }
-        moyenne = !epreuves.isEmpty() && !isFail ? moyenne / epreuves.size() : 0;
-        int note = moyenne.intValue();
+
+        if (!epreuves.isEmpty() && !isFail) {
+            moyenne = moyenne / epreuves.size();
+        } else {
+            moyenne = 0; // Si une épreuve ou toutes les épreuves ont été échoué, la moyenne est considérée comme 0.
+        }
+
+        int noteTotale = Math.round(moyenne * bareme); // Note totale sur une échelle du barème
+
         switch (state) {
             case ALL:
                 return true;
             case WIN:
-                return (note >= 10);
+                return (noteTotale >= 10 * bareme); // Note totale >= 10 sur une échelle du barème
             case FAIL:
-                return (note < 10);
+                return (noteTotale < 10 * bareme); // Note totale < 10 sur une échelle du barème
             default:
                 return false;
         }

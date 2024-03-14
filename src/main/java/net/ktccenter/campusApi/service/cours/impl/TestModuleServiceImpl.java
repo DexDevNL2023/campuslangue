@@ -1,6 +1,7 @@
 package net.ktccenter.campusApi.service.cours.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ktccenter.campusApi.dao.administration.ParametreInstitutionRepository;
 import net.ktccenter.campusApi.dao.cours.EvaluationTestRepository;
 import net.ktccenter.campusApi.dao.cours.TestModuleRepository;
 import net.ktccenter.campusApi.dao.scolarite.ModuleFormationRepository;
@@ -16,6 +17,7 @@ import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForResultatReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.entities.administration.Branche;
+import net.ktccenter.campusApi.entities.administration.ParametreInstitution;
 import net.ktccenter.campusApi.entities.cours.EvaluationTest;
 import net.ktccenter.campusApi.entities.cours.TestModule;
 import net.ktccenter.campusApi.entities.scolarite.Etudiant;
@@ -44,13 +46,15 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
   private final EvaluationTestRepository evaluationTestRepository;
   private final NiveauRepository niveauRepository;
   private final ModuleFormationRepository moduleFormationRepository;
+  private final ParametreInstitutionRepository parametreRepository;
 
-  public TestModuleServiceImpl(TestModuleRepository repository, TestModuleMapper mapper, EvaluationTestRepository evaluationTestRepository, NiveauRepository niveauRepository, ModuleFormationRepository moduleFormationRepository) {
+  public TestModuleServiceImpl(TestModuleRepository repository, TestModuleMapper mapper, EvaluationTestRepository evaluationTestRepository, NiveauRepository niveauRepository, ModuleFormationRepository moduleFormationRepository, ParametreInstitutionRepository parametreRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.evaluationTestRepository = evaluationTestRepository;
     this.niveauRepository = niveauRepository;
     this.moduleFormationRepository = moduleFormationRepository;
+    this.parametreRepository = parametreRepository;
   }
 
   @Override
@@ -262,27 +266,36 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
   public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state) {
     return repository.findAllBySessionId(sessionId)
             .stream()
-            .filter(t -> getByAppreciation(t, state))
+            .filter(t -> hasWin(t, state))
             .map(t -> buildTestModuleResultatDto(t, moduleId))
             .collect(Collectors.toList());
   }
 
-  private boolean getByAppreciation(TestModule testModule, ResultatState state) {
+  private boolean hasWin(TestModule testModule, ResultatState state) {
+    ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+    int bareme = parametres.getBareme();
     List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
-    Float moyenne = 0F;
-    boolean isFail = false;
+    float moyenne = 0F;
+
     for (EvaluationTest evaluation : evaluations) {
       moyenne += evaluation.getNote();
     }
-    moyenne = !evaluations.isEmpty() && !isFail ? moyenne / evaluations.size() : 0;
-    int note = moyenne.intValue();
+
+    if (!evaluations.isEmpty()) {
+      moyenne = moyenne / evaluations.size();
+    } else {
+      moyenne = 0; // Si une evaluation ou toutes les evaluations ont été échoué, la moyenne est considérée comme 0.
+    }
+
+    int noteTotale = Math.round(moyenne * bareme); // Note totale sur une échelle du barème
+
     switch (state) {
       case ALL:
         return true;
       case WIN:
-        return (note >= 10);
+        return (noteTotale >= 10 * bareme); // Note totale >= 10 sur une échelle du barème
       case FAIL:
-        return (note < 10);
+        return (noteTotale < 10 * bareme); // Note totale < 10 sur une échelle du barème
       default:
         return false;
     }

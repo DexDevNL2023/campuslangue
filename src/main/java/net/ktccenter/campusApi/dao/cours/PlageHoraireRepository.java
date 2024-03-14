@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,4 +16,6 @@ public interface PlageHoraireRepository extends PagingAndSortingRepository<Plage
     Optional<PlageHoraire> findByCode(String code);
 
     List<PlageHoraire> findByJour(Jour jour);
+
+    List<PlageHoraire> findByStartTimeAndEndTime(LocalTime startTime, LocalTime endTime);
 }

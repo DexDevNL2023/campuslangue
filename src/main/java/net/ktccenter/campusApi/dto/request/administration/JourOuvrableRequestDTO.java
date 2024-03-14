@@ -14,5 +14,5 @@ public class JourOuvrableRequestDTO {
     private Long id;
     @EnumValidator(enumClass = Jour.class)
     private Jour jour;
-    private Float[] intervalle;
+    private double[] intervalle;
 }

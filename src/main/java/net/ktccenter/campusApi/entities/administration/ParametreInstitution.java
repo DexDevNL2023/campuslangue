@@ -17,7 +17,7 @@ import javax.persistence.Table;
 @ToString
 @Entity
 public class ParametreInstitution extends BaseAuditingEntity {
-    private String bareme;
+    private int bareme;
     private String devise;
-    private Integer dureeCours;
+    private double dureeCours;
 }

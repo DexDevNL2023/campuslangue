@@ -11,7 +11,7 @@ import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 @Setter
 @Getter
 public class ParametreInstitutionDTO extends AbstractDTO {
-    private String bareme;
+    private int bareme;
     private String devise;
     private Integer dureeCours;
 }
