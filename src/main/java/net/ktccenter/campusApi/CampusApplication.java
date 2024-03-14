@@ -100,7 +100,7 @@ public class CampusApplication implements CommandLineRunner {
         ParametreInstitution parametres = new ParametreInstitution();
         parametres.setBareme(20);
         parametres.setDevise("Francs CFA");
-        parametres.setDureeCours(1.5);
+        parametres.setDureeCours(1.0);
         parametreRepository.save(parametres);
     }
 
