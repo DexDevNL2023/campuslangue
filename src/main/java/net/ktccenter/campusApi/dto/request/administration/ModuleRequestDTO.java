@@ -15,4 +15,5 @@ public class ModuleRequestDTO  {
     @NotBlank(message = "le nom du module est obligatoire")
     private String name;
     private String description;
+    private Boolean hasDroit = true;
 }

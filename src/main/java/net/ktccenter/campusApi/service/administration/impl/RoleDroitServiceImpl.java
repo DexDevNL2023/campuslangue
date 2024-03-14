@@ -63,13 +63,11 @@ public class RoleDroitServiceImpl implements RoleDroitService {
 
     @Override
     public RoleDroitDTO getOne(Long id) {
-
         return mapper.asDTO(findById(id));
     }
 
     @Override
     public List<PermissionModuleDTO> findAll() {
-        //return ((List<RoleDroit>) repository.findAllByModule(module)).stream().map(mapper::asLite).collect(Collectors.toList());
         List<PermissionModuleDTO> list = new ArrayList<>();
         List<Module> modules = (List<Module>) moduleRepository.findAll();
         for (Module module : modules) {
@@ -80,6 +78,13 @@ public class RoleDroitServiceImpl implements RoleDroitService {
             list.add(dto);
         }
         return list;
+    }
+
+    @Override
+    public void changePermissionStatus(Long permissionId) {
+        RoleDroit exist = findById(permissionId);
+        exist.setHasDroit(!exist.getHasDroit());
+        repository.save(exist);
     }
 
     @Override

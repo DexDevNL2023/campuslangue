@@ -78,6 +78,7 @@ public class AutorisationServiceImpl implements AutorisationService {
             if(module == null){
                 module = new Module();
                 module.setName(saveDroitDTO.getModule());
+                module.setHasDroit(true);
                 moduleRepository.save(module);
             }
             Optional<Droit> exist = droitRepository.findByKey(saveDroitDTO.getKey());

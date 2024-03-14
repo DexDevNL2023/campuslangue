@@ -23,4 +23,6 @@ public class Module extends BaseAuditingEntity {
     private String name;
 
     private String description;
+
+    private Boolean hasDroit;
 }
