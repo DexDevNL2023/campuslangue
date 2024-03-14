@@ -32,6 +32,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalTime;
+import java.util.Optional;
 
 @Slf4j
 @SpringBootApplication
@@ -91,14 +92,15 @@ public class CampusApplication implements CommandLineRunner {
         buildDefautRubrique();
         buildDefautModePaiement();
         buildDefautFormateur();
+        buildDefautJourOuvrable();
         buildDefautPlage();
     }
 
     private void buildDefaultParametreInstitution() {
         ParametreInstitution parametres = new ParametreInstitution();
-        parametres.setBareme("20");
+        parametres.setBareme(20);
         parametres.setDevise("Francs CFA");
-        parametres.setDureeCours(1.0);
+        parametres.setDureeCours(1.5);
         parametreRepository.save(parametres);
     }
 
@@ -112,6 +114,12 @@ public class CampusApplication implements CommandLineRunner {
         );
     }
 
+    private void buildDefautJourOuvrable() {
+        for (Jour jour : Jour.values()) {
+            jourOuvrableRepository.save(new JourOuvrable(jour));
+        }
+    }
+
     private void buildDefautPlage() {
         if (plageHoraireRepository.count() > 0) return;
         ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
@@ -121,10 +129,13 @@ public class CampusApplication implements CommandLineRunner {
             double debutIntervalle = ouvrable.getIntervalle()[0] * 2.0; // Convertir en demi-heures
             double finIntervalle = ouvrable.getIntervalle()[1] * 2.0; // Convertir en demi-heures
             for (double i = debutIntervalle; i < finIntervalle; i += dureeCours * 2) { // Utiliser dureeCours comme pas
-                String code = jour.getValue().substring(0, 3) + "-" + i / 2 + "h" + "-" + (i / 2 + dureeCours) + "h"; // Convertir en heures
-                LocalTime startTime = LocalTime.of((int) i / 2, (int) (i % 2) * 30);
-                LocalTime endTime = LocalTime.of((int) (i / 2) + (int) dureeCours, (int) (i % 2) * 30);
-                if (!plageHoraireRepository.findByCode(code).isPresent()) {
+                double startTimeValue = i / 2;
+                double endTimeValue = (i / 2 + dureeCours);
+                String code = jour.getValue().substring(0, 3) + "-" + (int) startTimeValue + "h" + (convertToMinutes(startTimeValue) == 0 ? "" : convertToMinutes(startTimeValue)) + "-" + (int) endTimeValue + "h" + (convertToMinutes(endTimeValue) == 0 ? "" : convertToMinutes(endTimeValue)); // Convertir en heures
+                LocalTime startTime = LocalTime.of((int) startTimeValue, convertToMinutes(startTimeValue));
+                LocalTime endTime = LocalTime.of((int) endTimeValue, convertToMinutes(endTimeValue));
+                Optional<PlageHoraire> result = plageHoraireRepository.findByCode(code);
+                if (!result.isPresent()) {
                     PlageHoraire plage = new PlageHoraire();
                     plage.setCode(code);
                     plage.setJour(jour);
@@ -134,6 +145,11 @@ public class CampusApplication implements CommandLineRunner {
                 }
             }
         }
+    }
+
+    private int convertToMinutes(double decimalValue) {
+        double minutes = decimalValue % 1 * 60;
+        return (int) minutes;
     }
 
     private void buildDefautFormateur() {
@@ -187,7 +203,7 @@ public class CampusApplication implements CommandLineRunner {
       formateur.setEmail("sonnymba@gmail.com");
       formateur.setIsDefault(true);
         formateur.setBranche(mainService.getDefaultBranch());
-        Diplome diplome = diplomeRepository.findAll().iterator().next();
+        Diplome diplome = diplomeRepository.findFirstByOrderById();
         if (diplome == null) {
             diplome = new Diplome("L3", "LICENCE");
         }

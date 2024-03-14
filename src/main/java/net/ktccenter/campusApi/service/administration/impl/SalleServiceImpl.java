@@ -51,10 +51,7 @@ public class SalleServiceImpl extends MainService implements SalleService {
   @Override
   public SalleDTO save(SalleRequestDTO dto) {
     Salle salle = repository.save(mapper.asEntity(dto));
-    if (getOccupationsForSalle(salle).isEmpty()) {
-      List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
-      ajouteOccupation(salle, plages);
-    }
+    ajouteOccupation(salle);
     return buildSalleDto(salle);
   }
 
@@ -64,9 +61,12 @@ public class SalleServiceImpl extends MainService implements SalleService {
     return dto;
   }
 
-  private void ajouteOccupation(Salle salle, List<PlageHoraire> list) {
-    for (PlageHoraire plage : list) {
-      occupationSalleRepository.save(new OccupationSalle(salle.getCode()+"-"+plage.getCode(),false, plage, salle));
+  private void ajouteOccupation(Salle salle) {
+    List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
+    for (PlageHoraire plage : plages) {
+      if (!occupationSalleRepository.findByPlageHoraireAndSalle(plage, salle).isPresent()) {
+        occupationSalleRepository.save(new OccupationSalle(salle.getCode() + "-" + plage.getCode(), false, plage, salle));
+      }
     }
   }
 
@@ -74,10 +74,7 @@ public class SalleServiceImpl extends MainService implements SalleService {
   public List<LiteSalleDTO> save(List<ImportSalleRequestDTO> dtos) {
     List<Salle> list = (List<Salle>) repository.saveAll(mapper.asEntityList(dtos));
     for (Salle salle : list) {
-      if (getOccupationsForSalle(salle).isEmpty()) {
-        List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
-        ajouteOccupation(salle, plages);
-      }
+      ajouteOccupation(salle);
     }
     return  list
             .stream()
@@ -127,10 +124,7 @@ public class SalleServiceImpl extends MainService implements SalleService {
     Salle exist = findById(id);
     dto.setId(exist.getId());
     exist = repository.save(mapper.asEntity(dto));
-    if (getOccupationsForSalle(exist).isEmpty()) {
-      List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
-      ajouteOccupation(exist, plages);
-    }
+    ajouteOccupation(exist);
     return mapper.asDTO(exist);
   }
 

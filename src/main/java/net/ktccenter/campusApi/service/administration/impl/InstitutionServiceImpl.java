@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -145,15 +146,16 @@ public class InstitutionServiceImpl implements InstitutionService {
     @Override
     public void updateParametres(ParametreInstitutionRequestDTO dto) {
         ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        log.info("id " + parametres.getId());
         parametres.setBareme(dto.getBareme());
         parametres.setDevise(dto.getDevise());
         parametres.setDureeCours(dto.getDureeCours());
-        parametreRepository.save(parametres);
-        updatePlageHoraire();
+        parametres = parametreRepository.save(parametres);
+        updatePlageHoraire(parametres);
     }
 
-    private void updatePlageHoraire() {
-        buildPlageHoraires();
+    private void updatePlageHoraire(ParametreInstitution parametres) {
+        buildPlageHoraires(parametres);
         buildOccupations();
     }
 
@@ -162,33 +164,44 @@ public class InstitutionServiceImpl implements InstitutionService {
         List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
         for (Salle salle : salles) {
             for (PlageHoraire plage : plages) {
-                occupationSalleRepository.save(new OccupationSalle(salle.getCode() + "-" + plage.getCode(), false, plage, salle));
+                if (!occupationSalleRepository.findByPlageHoraireAndSalle(plage, salle).isPresent()) {
+                    occupationSalleRepository.save(new OccupationSalle(salle.getCode() + "-" + plage.getCode(), false, plage, salle));
+                }
             }
         }
     }
 
-    private void buildPlageHoraires() {
+    private void buildPlageHoraires(ParametreInstitution parametres) {
         List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
         for (PlageHoraire plage : plages) {
             List<OccupationSalle> occupations = occupationSalleRepository.findAllByPlageHoraireAndEstOccupee(plage, false);
-            for (OccupationSalle occupation : occupations) {
-                occupationSalleRepository.delete(occupation);
+            if (!occupations.isEmpty()) {
+                for (OccupationSalle occupation : occupations) {
+                    occupationSalleRepository.delete(occupation);
+                }
+                plageHoraireRepository.delete(plage);
+            } else {
+                occupations = occupationSalleRepository.findAllByPlageHoraireAndEstOccupee(plage, true);
+                if (occupations.isEmpty()) {
+                    plageHoraireRepository.delete(plage);
+                }
             }
         }
-        plageHoraireRepository.deleteAll();
 
         // On crée les nouvelles plages horaires
-        ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
         double dureeCours = parametres.getDureeCours(); // Récupérer la durée du cours en demi-heures
         for (Jour jour : Jour.values()) {
             JourOuvrable ouvrable = jourOuvrablesRepository.findByJour(jour);
             double debutIntervalle = ouvrable.getIntervalle()[0] * 2.0; // Convertir en demi-heures
             double finIntervalle = ouvrable.getIntervalle()[1] * 2.0; // Convertir en demi-heures
             for (double i = debutIntervalle; i < finIntervalle; i += dureeCours * 2) { // Utiliser dureeCours comme pas
-                String code = jour.getValue().substring(0, 3) + "-" + i / 2 + "h" + "-" + (i / 2 + dureeCours) + "h"; // Convertir en heures
-                LocalTime startTime = LocalTime.of((int) i / 2, (int) (i % 2) * 30);
-                LocalTime endTime = LocalTime.of((int) (i / 2) + (int) dureeCours, (int) (i % 2) * 30);
-                if (!plageHoraireRepository.findByCode(code).isPresent()) {
+                double startTimeValue = i / 2;
+                double endTimeValue = (i / 2 + dureeCours);
+                String code = jour.getValue().substring(0, 3) + "-" + (int) startTimeValue + "h" + (convertToMinutes(startTimeValue) == 0 ? "" : convertToMinutes(startTimeValue)) + "-" + (int) endTimeValue + "h" + (convertToMinutes(endTimeValue) == 0 ? "" : convertToMinutes(endTimeValue)); // Convertir en heures
+                LocalTime startTime = LocalTime.of((int) startTimeValue, convertToMinutes(startTimeValue));
+                LocalTime endTime = LocalTime.of((int) endTimeValue, convertToMinutes(endTimeValue));
+                Optional<PlageHoraire> result = plageHoraireRepository.findByCode(code);
+                if (!result.isPresent()) {
                     PlageHoraire plage = new PlageHoraire();
                     plage.setCode(code);
                     plage.setJour(jour);
@@ -198,5 +211,10 @@ public class InstitutionServiceImpl implements InstitutionService {
                 }
             }
         }
+    }
+
+    private int convertToMinutes(double decimalValue) {
+        double minutes = decimalValue % 1 * 60;
+        return (int) minutes;
     }
 }

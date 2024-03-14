@@ -13,4 +13,6 @@ public interface DiplomeRepository extends PagingAndSortingRepository<Diplome, L
     Optional<Diplome> findByCode(String code);
     @Query("SELECT DISTINCT e FROM Diplome e WHERE e.code = :code OR e.libelle = :libelle")
     Optional<Diplome> findByCodeAndLibelle(String code, String libelle);
+
+    Diplome findFirstByOrderById();
 }

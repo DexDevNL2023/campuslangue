@@ -43,11 +43,12 @@ public class JourOuvrableServiceImpl implements JourOuvrableService {
   public List<JourOuvrableDTO> saveAll(List<JourOuvrableRequestDTO> dtos) {
     List<JourOuvrableDTO> result = new ArrayList<>();
     for (JourOuvrableRequestDTO dto : dtos) {
+      JourOuvrable exist = repository.findByJour(dto.getJour());
+      if (exist != null) dto.setId(exist.getId());
       result.add(mapper.asDTO(repository.save(mapper.asEntity(dto))));
     }
     return result;
   }
-
 
   @Override
   public List<LiteJourOuvrableDTO> save(List<ImportJourOuvrableRequestDTO> dtos) {

@@ -23,4 +23,11 @@ public class JourOuvrable extends BaseAuditingEntity {
     @Enumerated(EnumType.STRING)
     private Jour jour;
     private double[] intervalle;
+
+    // Constructeur par défaut
+    public JourOuvrable(Jour jour) {
+        this.jour = jour;
+        // Initialise l'intervalle avec des valeurs par défaut
+        this.intervalle = new double[]{7.0, 17.0}; // Par exemple, 7h00 à 17h00
+    }
 }
