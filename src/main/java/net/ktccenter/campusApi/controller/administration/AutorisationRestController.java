@@ -71,6 +71,5 @@ public class AutorisationRestController {
     public void changePermissionStatus(@PathVariable("permissionId") Long permissionId) {
         roleDroitService.changePermissionStatus(permissionId);
     }
-
 }
 
