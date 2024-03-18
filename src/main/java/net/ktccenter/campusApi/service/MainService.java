@@ -83,8 +83,10 @@ public class MainService {
             } else {
                 List<RoleDroit> permissions = roleDroitRepository.findAllByRole(role);
                 for (RoleDroit permission : permissions) {
-                    if (permission.getHasDroit() && permission.getDroit().getKey().equals(actionKey)) {
-                        isAuthorized = true;
+                    if (permission.getDroit().getKey().equals(actionKey)) {
+                        if (permission.getHasDroit() && permission.getDroit().getModule().getHasDroit()) {
+                            isAuthorized = true;
+                        }
                         break;
                     }
                 }

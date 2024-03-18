@@ -17,4 +17,6 @@ public interface ModuleService extends GenericService<Module, ModuleRequestDTO, 
     boolean equalsByDto(ModuleRequestDTO dto, Long id);
 
     Module findByName(String name);
+
+    void changeModuleStatus(Long moduleId);
 }

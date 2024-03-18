@@ -11,4 +11,5 @@ import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 public class ModuleDTO extends AbstractDTO {
     private String name;
     private String description;
+    private Boolean hasDroit;
 }

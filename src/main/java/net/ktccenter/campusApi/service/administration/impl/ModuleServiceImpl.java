@@ -109,4 +109,11 @@ public class ModuleServiceImpl implements ModuleService {
                 () ->  new ResourceNotFoundException("Le module avec le nom " + name + " n'existe pas")
         );
     }
+
+    @Override
+    public void changeModuleStatus(Long moduleId) {
+        Module exist = findById(moduleId);
+        exist.setHasDroit(!exist.getHasDroit());
+        repository.save(exist);
+    }
 }

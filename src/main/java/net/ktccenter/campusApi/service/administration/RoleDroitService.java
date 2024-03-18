@@ -12,4 +12,6 @@ import java.util.List;
 
 public interface RoleDroitService extends GenericService<RoleDroit, RoleDroitRequestDTO, RoleDroitDTO, LiteRoleDroitDTO, ImportRoleDroitRequestDTO> {
     List<PermissionModuleDTO> findAll();
+
+    void changePermissionStatus(Long permissionId);
 }

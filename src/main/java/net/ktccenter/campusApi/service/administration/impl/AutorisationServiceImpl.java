@@ -5,7 +5,10 @@ import net.ktccenter.campusApi.dao.administration.DroitRepository;
 import net.ktccenter.campusApi.dao.administration.ModuleRepository;
 import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
-import net.ktccenter.campusApi.dto.LitePermissionModuleDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LiteModulePermissionDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleAccesStatusDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleDTO;
+import net.ktccenter.campusApi.dto.lite.administration.LitePermissionResponseDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.DroitDTO;
 import net.ktccenter.campusApi.dto.request.administration.PermissionDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
@@ -78,6 +81,7 @@ public class AutorisationServiceImpl implements AutorisationService {
             if(module == null){
                 module = new Module();
                 module.setName(saveDroitDTO.getModule());
+                module.setHasDroit(true);
                 moduleRepository.save(module);
             }
             Optional<Droit> exist = droitRepository.findByKey(saveDroitDTO.getKey());
@@ -105,7 +109,7 @@ public class AutorisationServiceImpl implements AutorisationService {
     }
 
     @Override
-    public List<LitePermissionModuleDTO> getRolePersmission(String roleName) {
+    public List<LitePermissionModuleAccesStatusDTO> getRolePersmission(String roleName) {
         Role role = roleRepository.findByRoleName(roleName);
         if (role == null) {
             throw new ResourceNotFoundException("Role introuvable");
@@ -113,13 +117,13 @@ public class AutorisationServiceImpl implements AutorisationService {
         return getAllPermissionsByRole(role);
     }
 
-    private List<LitePermissionModuleDTO> getAllPermissionsByRole(Role role) {
-        List<LitePermissionModuleDTO> list = new ArrayList<>();
+    private List<LitePermissionModuleAccesStatusDTO> getAllPermissionsByRole(Role role) {
+        List<LitePermissionModuleAccesStatusDTO> list = new ArrayList<>();
         List<Module> modules = (List<Module>) moduleRepository.findAll();
         for (Module module : modules) {
-            LitePermissionModuleDTO dto = new LitePermissionModuleDTO();
-            dto.setModule(module.getName());
-            List<String> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().map(p -> p.getDroit().getKey()).collect(Collectors.toList());
+            LitePermissionModuleAccesStatusDTO dto = new LitePermissionModuleAccesStatusDTO();
+            dto.setModule(new LiteModulePermissionDTO(module));
+            List<LitePermissionResponseDTO> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().map(p -> new LitePermissionResponseDTO(p)).collect(Collectors.toList());
             dto.setPermissions(data);
             list.add(dto);
         }
