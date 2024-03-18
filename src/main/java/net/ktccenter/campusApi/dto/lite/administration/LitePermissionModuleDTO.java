@@ -1,4 +1,4 @@
-package net.ktccenter.campusApi.dto;
+package net.ktccenter.campusApi.dto.lite.administration;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
