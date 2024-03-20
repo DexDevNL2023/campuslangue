@@ -57,6 +57,11 @@ public class AutorisationRestController {
         return roleService.getRolePersmission(roleName);
     }
 
+    @GetMapping(path = "/all/permissions/{roleName}")
+    public List<LitePermissionModuleDTO> getAllPermissions(@NotNull @PathVariable("roleName") String roleName) {
+        return roleService.getAllPermissionsByRole(roleName);
+    }
+
     @GetMapping(path = "/all/permissions")
     public List<LitePermissionModuleDTO> getAllPermissions() {
         return roleService.getAllPermissions();

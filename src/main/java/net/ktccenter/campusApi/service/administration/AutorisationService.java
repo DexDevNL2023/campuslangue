@@ -12,9 +12,10 @@ public interface AutorisationService {
     void changeAutorisation(PermissionDTO permissionDTO);
     void changeIsDefaultDroit(DroitDTO droitDTO);
     void addDroit(SaveDroitDTO saveDroitDTO);
-
     List<LitePermissionModuleAccesStatusDTO> getRolePersmission(String roleName);
     List<LitePermissionModuleDTO> getAllPermissions();
+
+    List<LitePermissionModuleDTO> getAllPermissionsByRole(String roleName);
 }
 
 
