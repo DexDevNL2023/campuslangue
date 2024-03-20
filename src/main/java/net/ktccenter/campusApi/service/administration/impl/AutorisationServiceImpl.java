@@ -153,11 +153,13 @@ public class AutorisationServiceImpl implements AutorisationService {
         List<LitePermissionModuleDTO> list = new ArrayList<>();
         List<Module> modules = (List<Module>) moduleRepository.findAll();
         for (Module module : modules) {
-            LitePermissionModuleDTO dto = new LitePermissionModuleDTO();
-            dto.setModule(module.getName());
-            List<String> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().map(p -> p.getDroit().getKey()).collect(Collectors.toList());
-            dto.setPermissions(data);
-            list.add(dto);
+            if (module.getHasDroit()) {
+                LitePermissionModuleDTO dto = new LitePermissionModuleDTO();
+                dto.setModule(module.getName());
+                List<String> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().filter(RoleDroit::getHasDroit).map(p -> p.getDroit().getKey()).collect(Collectors.toList());
+                dto.setPermissions(data);
+                list.add(dto);
+            }
         }
         return list;
     }
