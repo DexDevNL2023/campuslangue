@@ -51,7 +51,7 @@ public class NiveauControllerImpl implements NiveauController {
     @ResponseStatus(HttpStatus.CREATED)
     @AuthorizeUser(actionKey = "niveau-import")
     public List<LiteNiveauDTO> saveAll(@Valid @RequestBody List<ImportNiveauRequestDTO> dtos) {
-        autorisationService.addDroit(new SaveDroitDTO("Scolarité", "Importer des niveaus", "niveau-import", "POST", false));
+        autorisationService.addDroit(new SaveDroitDTO("Scolarité", "Importer des niveaux", "niveau-import", "POST", false));
         for (ImportNiveauRequestDTO dto : dtos) {
             if (service.existByCode(dto.getCode()))
                 throw new APIException("Le niveau avec le code " + dto.getCode() + " existe déjà");
@@ -87,7 +87,7 @@ public class NiveauControllerImpl implements NiveauController {
     @GetMapping
     @AuthorizeUser(actionKey = "niveau-list")
     public List<LiteNiveauDTO> list() {
-        autorisationService.addDroit(new SaveDroitDTO("Scolarité", "Lister les niveaus", "niveau-list", "GET", false));
+        autorisationService.addDroit(new SaveDroitDTO("Scolarité", "Lister les niveaux", "niveau-list", "GET", false));
         return service.findAll();
     }
 
