@@ -5,10 +5,7 @@ import net.ktccenter.campusApi.dao.administration.DroitRepository;
 import net.ktccenter.campusApi.dao.administration.ModuleRepository;
 import net.ktccenter.campusApi.dao.administration.RoleDroitRepository;
 import net.ktccenter.campusApi.dao.administration.RoleRepository;
-import net.ktccenter.campusApi.dto.lite.administration.LiteModulePermissionDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleAccesStatusDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleDTO;
-import net.ktccenter.campusApi.dto.lite.administration.LitePermissionResponseDTO;
+import net.ktccenter.campusApi.dto.lite.administration.*;
 import net.ktccenter.campusApi.dto.reponse.administration.DroitDTO;
 import net.ktccenter.campusApi.dto.request.administration.PermissionDTO;
 import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
@@ -145,21 +142,25 @@ public class AutorisationServiceImpl implements AutorisationService {
     }
 
     @Override
-    public List<LitePermissionModuleDTO> getAllPermissionsByRole(String roleName) {
+    public LitePermissionAndModuleDTO getAllPermissionsByRole(String roleName) {
         Role role = roleRepository.findByRoleName(roleName);
         if (role == null) {
             throw new ResourceNotFoundException("Role introuvable");
         }
-        List<LitePermissionModuleDTO> list = new ArrayList<>();
+        LitePermissionAndModuleDTO result = new LitePermissionAndModuleDTO();
+        List<String> moduleList = new ArrayList<>();
+        List<String> pemissionList = new ArrayList<>();
         List<Module> modules = (List<Module>) moduleRepository.findAll();
         for (Module module : modules) {
-            LitePermissionModuleDTO dto = new LitePermissionModuleDTO();
-            dto.setModule(module.getName());
-            List<String> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().map(p -> p.getDroit().getKey()).collect(Collectors.toList());
-            dto.setPermissions(data);
-            list.add(dto);
+            if (module.getHasDroit()) {
+                moduleList.add(module.getName());
+                List<String> data = roleDroitRepository.findAllByModuleAndRole(module, role).stream().filter(RoleDroit::getHasDroit).map(p -> p.getDroit().getKey()).collect(Collectors.toList());
+                pemissionList.addAll(data);
+            }
         }
-        return list;
+        result.setModules(moduleList);
+        result.setPermissions(pemissionList);
+        return result;
     }
 }
 

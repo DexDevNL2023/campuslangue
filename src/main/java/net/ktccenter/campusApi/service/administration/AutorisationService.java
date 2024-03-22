@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.service.administration;
 
+import net.ktccenter.campusApi.dto.lite.administration.LitePermissionAndModuleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleAccesStatusDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.DroitDTO;
@@ -15,7 +16,7 @@ public interface AutorisationService {
     List<LitePermissionModuleAccesStatusDTO> getRolePersmission(String roleName);
     List<LitePermissionModuleDTO> getAllPermissions();
 
-    List<LitePermissionModuleDTO> getAllPermissionsByRole(String roleName);
+    LitePermissionAndModuleDTO getAllPermissionsByRole(String roleName);
 }
 
 

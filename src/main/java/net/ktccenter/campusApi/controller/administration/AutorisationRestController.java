@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.controller.administration;
 
+import net.ktccenter.campusApi.dto.lite.administration.LitePermissionAndModuleDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleAccesStatusDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LitePermissionModuleDTO;
 import net.ktccenter.campusApi.dto.reponse.administration.DroitDTO;
@@ -58,7 +59,7 @@ public class AutorisationRestController {
     }
 
     @GetMapping(path = "/all/permissions/{roleName}")
-    public List<LitePermissionModuleDTO> getAllPermissions(@NotNull @PathVariable("roleName") String roleName) {
+    public LitePermissionAndModuleDTO getAllPermissions(@NotNull @PathVariable("roleName") String roleName) {
         return roleService.getAllPermissionsByRole(roleName);
     }
 

@@ -5,8 +5,10 @@ import net.ktccenter.campusApi.dto.lite.scolarite.LiteSessionForNoteDTO;
 import net.ktccenter.campusApi.dto.reponse.branch.EtudiantBranchDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.ExamenForNoteReponseDTO;
 import net.ktccenter.campusApi.dto.reponse.cours.TestModuleForNoteReponseDTO;
+import net.ktccenter.campusApi.dto.request.administration.SaveDroitDTO;
 import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.service.MainService;
+import net.ktccenter.campusApi.service.administration.AutorisationService;
 import net.ktccenter.campusApi.service.cours.ExamenService;
 import net.ktccenter.campusApi.service.cours.TestModuleService;
 import net.ktccenter.campusApi.service.scolarite.EtudiantService;
@@ -28,13 +30,15 @@ public class NoteController {
   private final SessionService sessionService;
   private final EtudiantService etudiantService;
   private final MainService mainService;
+  private final AutorisationService autorisationService;
 
-  public NoteController(TestModuleService testModuleService, ExamenService examenService, SessionService sessionService, EtudiantService etudiantService, MainService mainService) {
+  public NoteController(TestModuleService testModuleService, ExamenService examenService, SessionService sessionService, EtudiantService etudiantService, MainService mainService, AutorisationService autorisationService) {
     this.testModuleService = testModuleService;
     this.examenService = examenService;
     this.sessionService = sessionService;
       this.etudiantService = etudiantService;
       this.mainService = mainService;
+    this.autorisationService = autorisationService;
   }
 
   @GetMapping("/get/all/session")
@@ -51,8 +55,9 @@ public class NoteController {
 
   @PostMapping("/saisie/notes/test-module")
   @ResponseStatus(HttpStatus.OK)
-  @AuthorizeUser(actionKey = "droit-add")
+  @AuthorizeUser(actionKey = "saisie-notes-test-module")
   public List<TestModuleForNoteReponseDTO> saisieNotesTest(@Valid @RequestBody FullTestModuleForNoteDTO dto) {
+    autorisationService.addDroit(new SaveDroitDTO("Notes", "Saisie des notes de test module", "saisie-notes-test-module", "POST", false));
     return testModuleService.saisieNotesTest(dto);
   }
 
@@ -64,8 +69,9 @@ public class NoteController {
 
   @PostMapping("/saisie/multiple/notes/examen")
   @ResponseStatus(HttpStatus.OK)
-  @AuthorizeUser(actionKey = "droit-add")
+  @AuthorizeUser(actionKey = "saisie-multiple-notes-examen")
   public List<ExamenForNoteReponseDTO> saisieNotesExamen2(@Valid @RequestBody FullExamen2ForNoteDTO dto) {
+    autorisationService.addDroit(new SaveDroitDTO("Notes", "Saisie multiple des notes d'examen", "saisie-multiple-notes-examen", "POST", false));
     return examenService.saisieNotesExamen2(dto);
   }
 
@@ -77,22 +83,25 @@ public class NoteController {
 
   @PostMapping("/saisie/notes/examen")
   @ResponseStatus(HttpStatus.OK)
-  @AuthorizeUser(actionKey = "droit-add")
+  @AuthorizeUser(actionKey = "saisie-notes-examen")
   public List<ExamenForNoteReponseDTO> saisieNotesExamen(@Valid @RequestBody FullExamenForNoteDTO dto) {
+    autorisationService.addDroit(new SaveDroitDTO("Notes", "Saisie des notes d'examen", "saisie-notes-examen", "POST", false));
     return examenService.saisieNotesExamen(dto);
   }
 
   @PostMapping("/import/notes/test-module")
   @ResponseStatus(HttpStatus.OK)
-  @AuthorizeUser(actionKey = "droit-add")
+  @AuthorizeUser(actionKey = "import-notes-test-module")
   public void importNotesTest(@Valid @RequestBody FullTestModuleForNoteImportDTO dto) {
+    autorisationService.addDroit(new SaveDroitDTO("Notes", "Importer des notes de test module", "import-notes-test-module", "POST", false));
     testModuleService.importNotesTest(dto);
   }
 
   @PostMapping("/import/notes/examen")
   @ResponseStatus(HttpStatus.OK)
-  @AuthorizeUser(actionKey = "droit-add")
+  @AuthorizeUser(actionKey = "import-notes-examen")
   public void importNotesexamen(@Valid @RequestBody FullExamenForNoteImportDTO dto) {
+    autorisationService.addDroit(new SaveDroitDTO("Notes", "Importer des notes d'examen'", "import-notes-examen", "POST", false));
     examenService.importNotesExamen(dto);
   }
 
@@ -106,7 +115,6 @@ public class NoteController {
   private List<EtudiantBranchDTO> getEmptyList() {
     List<EtudiantBranchDTO> result = new ArrayList<>();
     EtudiantBranchDTO dto = new EtudiantBranchDTO();
-    //dto.setBranche(new LiteBrancheDTO(mainService.getDefaultBranch()));
     dto.setBranche(new LiteBrancheDTO(mainService.getCurrentUserBranch()));
     dto.setData(new ArrayList<>());
     result.add(dto);
