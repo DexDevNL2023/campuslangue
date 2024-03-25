@@ -168,10 +168,8 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
     for (Campus campus : campusList) {
       PaiementCampusDTO paiementCampusDTO = new PaiementCampusDTO();
       paiementCampusDTO.setCampus(new LiteCampusDTO(campus));
-      List<Paiement> paiements = (List<Paiement>) repository.findAll();
+      List<Paiement> paiements = repository.findAllByCampusId(campus.getId());
       paiementCampusDTO.setData(paiements.stream()
-              .filter(e -> belongsToTheCurrentBranch(branche, e))
-              .filter(p -> findByCampus(p, campus.getId()))
               .map(this::buildLitePaiementDto)
               .collect(Collectors.toList()));
       data.add(paiementCampusDTO);
@@ -246,9 +244,8 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
 
   @Override
   public List<LitePaiementForCampusDTO> findAllByCampus(Long campusId) {
-    return ((List<Paiement>) repository.findAll())
+    return repository.findAllByCampusId(campusId)
             .stream()
-            .filter(p -> findByCampus(p, campusId))
             .map(this::buildLitePaiementDto)
             .collect(Collectors.toList());
   }
@@ -266,10 +263,6 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
     liteCompte.setInscription(liteInscription);
     dto.setCompte(liteCompte);
     return dto;
-  }
-
-  private boolean findByCampus(Paiement paiement, Long campusId) {
-    return paiement.getCampusId().equals(campusId);
   }
 
   private List<Paiement> getAllPaiementsForCompte(Compte compte) {

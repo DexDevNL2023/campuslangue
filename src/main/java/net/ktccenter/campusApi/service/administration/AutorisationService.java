@@ -15,7 +15,6 @@ public interface AutorisationService {
     void addDroit(SaveDroitDTO saveDroitDTO);
     List<LitePermissionModuleAccesStatusDTO> getRolePersmission(String roleName);
     List<LitePermissionModuleDTO> getAllPermissions();
-
     LitePermissionAndModuleDTO getAllPermissionsByRole(String roleName);
 }
 

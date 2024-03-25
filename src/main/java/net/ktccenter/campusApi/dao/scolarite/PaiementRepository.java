@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,4 +25,7 @@ public interface PaiementRepository extends PagingAndSortingRepository<Paiement,
 
     @Query("SELECT DISTINCT p FROM Paiement p WHERE p.rubrique = :rubrique")
     List<Paiement> findAllByRubrique(Rubrique rubrique);
+
+    @Query("SELECT DISTINCT p FROM Paiement p WHERE p.campusId = :campusId")
+    List<Paiement> findAllByCampusId(Long campusId);
 }
