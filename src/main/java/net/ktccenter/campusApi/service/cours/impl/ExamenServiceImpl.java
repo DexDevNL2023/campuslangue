@@ -351,7 +351,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         ParametreInstitution parametreInstitution = parametreRepository.findFirstByOrderById();
         float moyenneFinale = parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
 
-        int noteTotale = Math.round(moyenneFinale * bareme); // Note totale sur une échelle du barème
+        int noteTotale = Math.round(moyenneFinale / 100 * bareme); // Note totale sur une échelle du barème
 
         switch (state) {
             case ALL:
@@ -436,7 +436,8 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
         float moyenneTestModule = calculMoyenneTestModule(evaluations);
         ParametreInstitution parametreInstitution = parametreRepository.findFirstByOrderById();
-        return parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
+        float moyenneFinale = parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
+        return moyenneFinale / 100;
     }
 
     private Float calculMoyenneTestModule(List<EvaluationTest> evaluations) {

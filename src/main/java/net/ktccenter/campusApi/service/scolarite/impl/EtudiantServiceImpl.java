@@ -285,7 +285,8 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
         float moyenneTestModule = calculMoyenneTestModule(evaluations);
         ParametreInstitution parametreInstitution = parametreRepository.findFirstByOrderById();
-        return parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
+        float moyenneFinale = parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
+        return moyenneFinale / 100;
     }
 
     private BigDecimal calculTotalRatrappage(List<Epreuve> epreuves) {
