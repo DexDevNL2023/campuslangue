@@ -30,5 +30,7 @@ public interface TestModuleService extends GenericService<TestModule, TestModule
 
     void importNotesTest(FullTestModuleForNoteImportDTO dto);
 
-    List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state);
+    List<TestModuleForResultatReponseDTO> getAllResultatTestBySessionAndModule(Long sessionId, Long moduleId, ResultatState state);
+
+    List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, ResultatState state);
 }

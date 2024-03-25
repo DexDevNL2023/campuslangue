@@ -263,12 +263,35 @@ public class TestModuleServiceImpl extends MainService implements TestModuleServ
   }
 
   @Override
-  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, Long moduleId, ResultatState state) {
+  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySessionAndModule(Long sessionId, Long moduleId, ResultatState state) {
     return repository.findAllBySessionId(sessionId)
             .stream()
             .filter(t -> hasWin(t, state))
             .map(t -> buildTestModuleResultatDto(t, moduleId))
             .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(Long sessionId, ResultatState state) {
+    return repository.findAllBySessionId(sessionId)
+            .stream()
+            .filter(t -> hasWin(t, state))
+            .map(this::buildTestModuleResultatDto2)
+            .collect(Collectors.toList());
+  }
+
+  private TestModuleForResultatReponseDTO buildTestModuleResultatDto2(TestModule testModule) {
+    Set<EvaluationTestForNoteDTO> listEvaluationDto = new HashSet<>();
+    TestModuleForResultatReponseDTO dto = new TestModuleForResultatReponseDTO();
+    dto.setMatricule(testModule.getInscription().getEtudiant().getMatricule());
+    dto.setFullName(getFullName(testModule.getInscription().getEtudiant()));
+    List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
+    for (EvaluationTest evaluation : evaluations) {
+      listEvaluationDto.add(buildEvaluationForResultatDto(evaluation));
+    }
+    dto.setEvaluations(listEvaluationDto);
+    dto.setMoyenne(calculMoyenne(evaluations));
+    return dto;
   }
 
   private boolean hasWin(TestModule testModule, ResultatState state) {

@@ -30,9 +30,17 @@ public class ResultatController {
   @GetMapping("/test-module/{sessionId}/{moduleId}/{state}")
   @ResponseStatus(HttpStatus.OK)
   @AuthorizeUser(actionKey = "resultat-test-module")
-  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("moduleId") Long moduleId, @PathVariable("state") ResultatState state) {
+  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySessionAndModule(@PathVariable("sessionId") Long sessionId, @PathVariable("moduleId") Long moduleId, @PathVariable("state") ResultatState state) {
     autorisationService.addDroit(new SaveDroitDTO("Notes", "Afficher les resultats d'un test module", "resultat-test-module", "GET", false));
-    return testModuleService.getAllResultatTestBySession(sessionId, moduleId, state);
+    return testModuleService.getAllResultatTestBySessionAndModule(sessionId, moduleId, state);
+  }
+
+  @GetMapping("/test-module/{sessionId}/{state}")
+  @ResponseStatus(HttpStatus.OK)
+  @AuthorizeUser(actionKey = "resultat-test-module")
+  public List<TestModuleForResultatReponseDTO> getAllResultatTestBySession(@PathVariable("sessionId") Long sessionId, @PathVariable("state") ResultatState state) {
+    autorisationService.addDroit(new SaveDroitDTO("Notes", "Afficher les resultats d'un test module", "resultat-test-module", "GET", false));
+    return testModuleService.getAllResultatTestBySession(sessionId, state);
   }
 
   @GetMapping("/examen/{sessionId}/{state}")
