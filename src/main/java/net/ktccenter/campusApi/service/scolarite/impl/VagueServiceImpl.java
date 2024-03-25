@@ -1,5 +1,6 @@
 package net.ktccenter.campusApi.service.scolarite.impl;
 
+import net.ktccenter.campusApi.dao.administration.BrancheRepository;
 import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dao.scolarite.VagueRepository;
 import net.ktccenter.campusApi.dto.importation.scolarite.ImportVagueRequestDTO;
@@ -33,11 +34,13 @@ public class VagueServiceImpl extends MainService implements VagueService {
   private final VagueRepository repository;
   private final VagueMapper mapper;
   private final SessionRepository sessionRepository;
+  private final BrancheRepository brancheRepository;
 
-  public VagueServiceImpl(VagueRepository repository, VagueMapper mapper, SessionRepository sessionRepository) {
+  public VagueServiceImpl(VagueRepository repository, VagueMapper mapper, SessionRepository sessionRepository, BrancheRepository brancheRepository) {
     this.repository = repository;
     this.mapper = mapper;
     this.sessionRepository = sessionRepository;
+    this.brancheRepository = brancheRepository;
   }
 
   @Override
@@ -53,7 +56,17 @@ public class VagueServiceImpl extends MainService implements VagueService {
 
   @Override
   public List<LiteVagueDTO> save(List<ImportVagueRequestDTO> dtos) {
-    return  ((List<Vague>) repository.saveAll(mapper.asEntityList(dtos)))
+    List<Vague> list = new ArrayList<>();
+    for (ImportVagueRequestDTO dto : dtos) {
+      Vague vague = new Vague();
+      vague.setCode(dto.getCode());
+      Branche branche = brancheRepository.findByCode(dto.getBrancheCode()).orElseThrow(
+              () -> new ResourceNotFoundException("Le branche avec le code " + dto.getBrancheCode() + " n'existe pas")
+      );
+      vague.setBranche(branche);
+      list.add(vague);
+    }
+    return ((List<Vague>) repository.saveAll(list))
             .stream()
             .map(mapper::asLite)
             .collect(Collectors.toList());
