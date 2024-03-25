@@ -296,4 +296,5 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
     calcul.setResteApayer(reste);
     return calcul;
   }
+
 }
