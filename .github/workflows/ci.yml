@@ -35,5 +35,5 @@ jobs:
       run: |
         echo Start app deployment here !
         docker rm -f campus-langue-api-prod ||  docker kill campus-langue-api-prod || echo "Nothing to kill"
-        docker run --detach --name campus-langue-api-prod -p 10003:8443 -e "VIRTUAL_HOST=campus-langue-api-prod.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api-prod.devops2.kamer-center.net" --pull=always  xmael123/campus-langue-api-prod:latest
+        docker run --detach --name campus-langue-api-prod -p 10004:8443 -e "VIRTUAL_HOST=campus-langue-api-prod.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api-prod.devops2.kamer-center.net" --pull=always  xmael123/campus-langue-api-prod:latest
         # docker logs -f  campus-langue-api-prod
