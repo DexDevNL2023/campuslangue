@@ -13,5 +13,6 @@ import net.ktccenter.campusApi.dto.reponse.AbstractDTO;
 public class ParametreInstitutionDTO extends AbstractDTO {
     private int bareme;
     private String devise;
-    private Integer dureeCours;
+    private double dureeCours;
+    private int pourcentageTestModule;
 }

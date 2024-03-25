@@ -15,6 +15,7 @@ public class LiteParametreInstitutionDTO {
     private int bareme;
     private String devise;
     private double dureeCours;
+    private int pourcentageTestModule;
 
     public LiteParametreInstitutionDTO(ParametreInstitution parametres) {
         this.id = parametres.getId();

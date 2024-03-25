@@ -44,6 +44,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -315,12 +316,12 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     if (isInscritToSession(etudiant, session)) throw
             new ResourceNotFoundException("L'étudiant " + etudiant.getNom().toLowerCase() + " est déjà inscrit pour cette session.");
     log.info("22");
-    // On génére le matricule de l"étudiant
+    /*// On génére le matricule de l"étudiant
     etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode() + "/" + session.getVague().getCode() + "/" + session.getNiveau().getCode()));
     log.info("23");
     // On met à jour le profil de l'étudiant
     etudiant = etudiantRepository.save(etudiant);
-    log.info("24");
+    log.info("24");*/
 
     // On crée l'inscription
     Inscription inscription = new Inscription();
@@ -405,7 +406,9 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
 
   private Compte getEtudiantComptePaiement(Inscription inscription) {
     //String code = MyUtils.GenerateCode("CMPT"+"-"+inscription.getCampus().getBranche().getCode()+"-"+inscription.getEtudiant().getMatricule());
-    String code = MyUtils.GenerateCode("CMPT" + "-" + inscription.getEtudiant().getMatricule());
+    SimpleDateFormat formatNowYear = new SimpleDateFormat("YYYY");
+    String currentYear = formatNowYear.format(inscription.getDateInscription()).toUpperCase();
+    String code = MyUtils.GenerateCode("CMPT" + "/" + currentYear);
     log.info("50");
     //log.info(code);
     Compte compte = new Compte();
@@ -420,7 +423,9 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   private Examen getEtudiantExamen(Inscription inscription) {
     log.info("41");
     //log.info("Begin to build examen");
-    String code = MyUtils.GenerateCode("EXAMEN-"+inscription.getSession().getCode()+"-"+inscription.getEtudiant().getMatricule());
+    SimpleDateFormat formatNowYear = new SimpleDateFormat("YYYY");
+    String currentYear = formatNowYear.format(inscription.getDateInscription()).toUpperCase();
+    String code = MyUtils.GenerateCode("EXAMEN/" + currentYear);
     log.info("42");
     //log.info("Examen code "+code);
     Examen examen = new Examen();
@@ -461,7 +466,9 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
   private TestModule getEtudiantTestModule(Inscription inscription) {
     log.info("30");
     //log.info("Begin to build test module");
-    String code = MyUtils.GenerateCode("TEST-"+inscription.getSession().getCode()+"-"+inscription.getEtudiant().getMatricule());
+    SimpleDateFormat formatNowYear = new SimpleDateFormat("YYYY");
+    String currentYear = formatNowYear.format(inscription.getDateInscription()).toUpperCase();
+    String code = MyUtils.GenerateCode("TEST-MODULE/" + currentYear);
     log.info("31");
     //log.info("Test module code"+code);
     TestModule testModule = new TestModule();
@@ -529,7 +536,7 @@ public class InscriptionServiceImpl extends MainService implements InscriptionSe
     etudiant.setPrenom(dto.getPrenom());
 
     // On génére le matricule de l"étudiant
-    etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode() + "/" + session.getVague().getCode() + "/" + session.getNiveau().getCode()));
+    etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode()));
     //etudiant.setMatricule(MyUtils.GenerateMatricule(session.getBranche().getCode()+"-"+session.getVague().getCode()+"-"+session.getNiveau().getCode()));
 
     // On construit l'objet etudiant

@@ -226,7 +226,7 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         log.info("find all epreuve okay");
         lite.setEpreuves(getAllEpreuvessForExamen(epreuves));
         log.info("set lite epreuve okay");
-        lite.setMoyenne(calculMoyenneExamen(epreuves));
+        lite.setMoyenne(calculMoyenneExamen(epreuves, entity.getInscription()));
         log.info("set examen moyen okay");
         lite.setAppreciation(buildAppreciation(lite.getMoyenne()));
         log.info("set appreciation okay");
@@ -263,16 +263,29 @@ public class EtudiantServiceImpl extends MainService implements EtudiantService 
         return lite;
     }
 
-    private Float calculMoyenneExamen(List<Epreuve> epreuves) {
-        Float moyenne = 0F;
-        if (epreuves.isEmpty()) return 0F;
+    private Float calculMoyenneExamen(List<Epreuve> epreuves, Inscription inscription) {
+        float moyenne = 0F;
+        boolean isFail = false;
+
         for (Epreuve epreuve : epreuves) {
             if (!epreuve.getEstValidee()) {
-                return 0F;
+                isFail = true;
             }
             moyenne += epreuve.getNoteObtenue();
         }
-        return moyenne / epreuves.size();
+
+        float moyenneExamen = 0F;
+        if (!epreuves.isEmpty() && !isFail) {
+            moyenneExamen = moyenne / epreuves.size();
+        } else {
+            moyenneExamen = 0; // Si une épreuve ou toutes les épreuves ont été échoué, la moyenne est considérée comme 0.
+        }
+
+        TestModule testModule = testModuleRepository.findByInscription(inscription);
+        List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
+        float moyenneTestModule = calculMoyenneTestModule(evaluations);
+        ParametreInstitution parametreInstitution = parametreRepository.findFirstByOrderById();
+        return parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
     }
 
     private BigDecimal calculTotalRatrappage(List<Epreuve> epreuves) {

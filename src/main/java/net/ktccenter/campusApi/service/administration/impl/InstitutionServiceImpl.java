@@ -101,7 +101,6 @@ public class InstitutionServiceImpl implements InstitutionService {
       return new PageImpl<>(mapper.asDTOList(entities), pageable, entityPage.getTotalElements());
   }
 
-
   @Override
   public InstitutionDTO update(InstitutionRequestDTO dto, Long id) {
       if(!MyUtils.isValidEmailAddress(dto.getEmail()))

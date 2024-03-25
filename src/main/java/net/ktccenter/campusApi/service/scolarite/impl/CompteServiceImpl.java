@@ -136,7 +136,6 @@ public class CompteServiceImpl extends MainService implements CompteService {
 
     @Override
     public List<CompteBranchDTO> findAll() {
-        //return ((List<Compte>) repository.findAll()).stream().map(this::buildLiteCompteDto).collect(Collectors.toList());
         List<Compte> comptes = (List<Compte>) repository.findAll();
         List<CompteBranchDTO> result = new ArrayList<>();
         if (hasGrantAuthorized()) {

@@ -20,4 +20,5 @@ public class ParametreInstitution extends BaseAuditingEntity {
     private int bareme;
     private String devise;
     private double dureeCours;
+    private int pourcentageTestModule;
 }

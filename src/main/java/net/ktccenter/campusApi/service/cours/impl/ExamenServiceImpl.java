@@ -2,9 +2,7 @@ package net.ktccenter.campusApi.service.cours.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.ParametreInstitutionRepository;
-import net.ktccenter.campusApi.dao.cours.EpreuveRepository;
-import net.ktccenter.campusApi.dao.cours.ExamenRepository;
-import net.ktccenter.campusApi.dao.cours.UniteRepository;
+import net.ktccenter.campusApi.dao.cours.*;
 import net.ktccenter.campusApi.dao.scolarite.NiveauRepository;
 import net.ktccenter.campusApi.dto.importation.cours.ImportExamenRequestDTO;
 import net.ktccenter.campusApi.dto.lite.cours.LiteEpreuveDTO;
@@ -19,10 +17,9 @@ import net.ktccenter.campusApi.dto.reponse.cours.ExamenForResultatReponseDTO;
 import net.ktccenter.campusApi.dto.request.cours.*;
 import net.ktccenter.campusApi.entities.administration.Branche;
 import net.ktccenter.campusApi.entities.administration.ParametreInstitution;
-import net.ktccenter.campusApi.entities.cours.Epreuve;
-import net.ktccenter.campusApi.entities.cours.Examen;
-import net.ktccenter.campusApi.entities.cours.Unite;
+import net.ktccenter.campusApi.entities.cours.*;
 import net.ktccenter.campusApi.entities.scolarite.Etudiant;
+import net.ktccenter.campusApi.entities.scolarite.Inscription;
 import net.ktccenter.campusApi.entities.scolarite.Niveau;
 import net.ktccenter.campusApi.enums.ResultatState;
 import net.ktccenter.campusApi.exceptions.ResourceNotFoundException;
@@ -48,14 +45,18 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
     private final NiveauRepository niveauRepository;
     private final UniteRepository uniteRepository;
     private final ParametreInstitutionRepository parametreRepository;
+    private final TestModuleRepository testModuleRepository;
+    private final EvaluationTestRepository evaluationTestRepository;
 
-    public ExamenServiceImpl(ExamenRepository repository, ExamenMapper mapper, EpreuveRepository epreuveRepository, NiveauRepository niveauRepository, UniteRepository uniteRepository, ParametreInstitutionRepository parametreRepository) {
+    public ExamenServiceImpl(ExamenRepository repository, ExamenMapper mapper, EpreuveRepository epreuveRepository, NiveauRepository niveauRepository, UniteRepository uniteRepository, ParametreInstitutionRepository parametreRepository, TestModuleRepository testModuleRepository, EvaluationTestRepository evaluationTestRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.epreuveRepository = epreuveRepository;
         this.niveauRepository = niveauRepository;
         this.uniteRepository = uniteRepository;
         this.parametreRepository = parametreRepository;
+        this.testModuleRepository = testModuleRepository;
+        this.evaluationTestRepository = evaluationTestRepository;
     }
 
     @Override
@@ -74,7 +75,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             epreuves = createAllEpreuvesForExamen(examen);
         }
         dto.setEpreuves(buildAllEpreuvesDto(epreuves));
-        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setMoyenne(calculMoyenneExamen(epreuves, examen.getInscription()));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
     }
@@ -176,7 +177,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         LiteExamenDTO dto = mapper.asLite(examen);
         List<Epreuve> epreuves = getAllEpreuvessForExamen(examen);
         dto.setEpreuves(buildAllEpreuvesDto(epreuves));
-        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setMoyenne(calculMoyenneExamen(epreuves, examen.getInscription()));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
     }
@@ -337,13 +338,20 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             moyenne += epreuve.getNoteObtenue();
         }
 
+        float moyenneExamen = 0F;
         if (!epreuves.isEmpty() && !isFail) {
-            moyenne = moyenne / epreuves.size();
+            moyenneExamen = moyenne / epreuves.size();
         } else {
-            moyenne = 0; // Si une épreuve ou toutes les épreuves ont été échoué, la moyenne est considérée comme 0.
+            moyenneExamen = 0; // Si une épreuve ou toutes les épreuves ont été échoué, la moyenne est considérée comme 0.
         }
 
-        int noteTotale = Math.round(moyenne * bareme); // Note totale sur une échelle du barème
+        TestModule testModule = testModuleRepository.findByInscription(examen.getInscription());
+        List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
+        float moyenneTestModule = calculMoyenneTestModule(evaluations);
+        ParametreInstitution parametreInstitution = parametreRepository.findFirstByOrderById();
+        float moyenneFinale = parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
+
+        int noteTotale = Math.round(moyenneFinale * bareme); // Note totale sur une échelle du barème
 
         switch (state) {
             case ALL:
@@ -367,7 +375,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
             listEpreuveDto.add(buildEpreuveForResultatDto(epreuve));
         }
         dto.setEpreuves(listEpreuveDto);
-        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setMoyenne(calculMoyenneExamen(epreuves, examen.getInscription()));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
     }
@@ -414,15 +422,29 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         return dto;
     }
 
-    private Float calculMoyenne(List<Epreuve> epreuves) {
+    private Float calculMoyenneExamen(List<Epreuve> epreuves, Inscription inscription) {
         Float moyenne = 0F;
+        if (epreuves.isEmpty()) return 0F;
         for (Epreuve epreuve : epreuves) {
             if (!epreuve.getEstValidee()) {
                 return 0F;
             }
             moyenne += epreuve.getNoteObtenue();
         }
-        return !epreuves.isEmpty() ? moyenne / epreuves.size() : 0;
+        float moyenneExamen = moyenne / epreuves.size();
+        TestModule testModule = testModuleRepository.findByInscription(inscription);
+        List<EvaluationTest> evaluations = evaluationTestRepository.findAllByTestModule(testModule);
+        float moyenneTestModule = calculMoyenneTestModule(evaluations);
+        ParametreInstitution parametreInstitution = parametreRepository.findFirstByOrderById();
+        return parametreInstitution.getPourcentageTestModule() * moyenneTestModule + (100 - parametreInstitution.getPourcentageTestModule()) * moyenneExamen;
+    }
+
+    private Float calculMoyenneTestModule(List<EvaluationTest> evaluations) {
+        Float moyenne = 0F;
+        for (EvaluationTest test : evaluations) {
+            moyenne += test.getNote();
+        }
+        return !evaluations.isEmpty() ? moyenne / evaluations.size() : 0;
     }
 
     @Override
@@ -499,7 +521,7 @@ public class ExamenServiceImpl extends MainService implements ExamenService {
         dto.setNom(examen.getInscription().getEtudiant().getNom());
         dto.setPrenom(examen.getInscription().getEtudiant().getPrenom());
         dto.setEpreuves(buildAllEpreuvesDto(epreuves));
-        dto.setMoyenne(calculMoyenne(epreuves));
+        dto.setMoyenne(calculMoyenneExamen(epreuves, examen.getInscription()));
         dto.setAppreciation(buildAppreciation(dto.getMoyenne()));
         return dto;
     }

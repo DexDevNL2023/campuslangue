@@ -2,7 +2,9 @@ package net.ktccenter.campusApi.dto.request.scolarite;
 
 import lombok.*;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +17,8 @@ import java.util.Set;
 @ToString
 public class SessionRequestDTO {
   private Long id;
-  @NotNull(message = "Le code de la session est obligatoire")
+    @NotBlank(message = "Le code de la vague est obligatoire")
+    @Size(min = 2, message = "Le code doit être d'au moins 2 caractères")
   private String code;
   @NotNull(message = "La date de debut de la session est obligatoire")
   private Date dateDebut;

@@ -118,8 +118,8 @@ public class MyUtils {
 
   public static String GenerateCode(String prefixe) {
     Random random = new Random();
-    String number = String.format("%04d", random.nextInt(10000));
-    return prefixe+"-"+number;
+    String number = String.format("%06d", random.nextInt(10000));
+    return prefixe + "/" + number;
   }
 
   public static String GenerateMatricule(String prefixe) {
