@@ -145,12 +145,14 @@ public class InstitutionServiceImpl implements InstitutionService {
     @Override
     public void updateParametres(ParametreInstitutionRequestDTO dto) {
         ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        double lastDuration = parametres.getDureeCours();
         log.info("id " + parametres.getId());
         parametres.setBareme(dto.getBareme());
         parametres.setDevise(dto.getDevise());
         parametres.setDureeCours(dto.getDureeCours());
+        parametres.setPourcentageTestModule(dto.getPourcentageTestModule());
         parametres = parametreRepository.save(parametres);
-        updatePlageHoraire(parametres);
+        if (lastDuration != parametres.getDureeCours()) updatePlageHoraire(parametres);
     }
 
     private void updatePlageHoraire(ParametreInstitution parametres) {
