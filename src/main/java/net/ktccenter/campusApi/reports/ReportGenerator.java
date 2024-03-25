@@ -46,7 +46,6 @@ public class ReportGenerator {
         if (inscription.getDateDelivranceAttestation() == null) {
             inscription.setDateDelivranceAttestation(MyUtils.currentDate());
             inscription = inscriptionRepository.save(inscription);
-            logImpressionService.save(inscription);
         }
         Examen examen = examenRepository.findByInscription(inscription);
         if (examen == null)
@@ -72,6 +71,7 @@ public class ReportGenerator {
         String fileName = "/" + fullName + ".pdf";
 
         // créer une méthode privée qui renvoie le lien vers le fichier pdf spécifique
+        logImpressionService.save(inscription);
         return getReportPath(print, fileName);
     }
 
