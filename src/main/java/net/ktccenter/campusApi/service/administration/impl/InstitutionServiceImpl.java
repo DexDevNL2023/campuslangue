@@ -141,9 +141,10 @@ public class InstitutionServiceImpl implements InstitutionService {
 
     @Override
     public void updateParametres(ParametreInstitutionRequestDTO dto) {
-        ParametreInstitution parametres = parametreRepository.findFirstByOrderById();
+        ParametreInstitution parametres = parametreRepository.findById(dto.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Aucune paramètre n'est enregistrée")
+        );
         double lastDuration = parametres.getDureeCours();
-        log.info("id " + parametres.getId());
         parametres.setBareme(dto.getBareme());
         parametres.setDevise(dto.getDevise());
         parametres.setDureeCours(dto.getDureeCours());

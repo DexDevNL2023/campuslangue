@@ -9,6 +9,7 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public class ParametreInstitutionRequestDTO {
+    long id;
     private int bareme;
     private String devise;
     private double dureeCours;
