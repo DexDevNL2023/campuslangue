@@ -3,7 +3,6 @@ package net.ktccenter.campusApi.service.administration.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.ktccenter.campusApi.dao.administration.*;
 import net.ktccenter.campusApi.dao.cours.PlageHoraireRepository;
-import net.ktccenter.campusApi.dao.scolarite.SessionRepository;
 import net.ktccenter.campusApi.dto.importation.administration.ImportInstitutionRequestDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteInstitutionDTO;
 import net.ktccenter.campusApi.dto.lite.administration.LiteJourOuvrableDTO;
@@ -40,20 +39,18 @@ public class InstitutionServiceImpl implements InstitutionService {
     private final PlageHoraireRepository plageHoraireRepository;
     private final SalleRepository salleRepository;
     private final OccupationSalleRepository occupationSalleRepository;
-    private final SessionRepository sessionRepository;
 
-    public InstitutionServiceImpl(InstitutionRepository repository, InstitutionMapper mapper, ParametreInstitutionRepository parametreRepository, JourOuvrableRepository jourOuvrablesRepository, PlageHoraireRepository plageHoraireRepository, SalleRepository salleRepository, OccupationSalleRepository occupationSalleRepository, SessionRepository sessionRepository) {
-      this.repository = repository;
-      this.mapper = mapper;
+    public InstitutionServiceImpl(InstitutionRepository repository, InstitutionMapper mapper, ParametreInstitutionRepository parametreRepository, JourOuvrableRepository jourOuvrablesRepository, PlageHoraireRepository plageHoraireRepository, SalleRepository salleRepository, OccupationSalleRepository occupationSalleRepository) {
+        this.repository = repository;
+        this.mapper = mapper;
         this.parametreRepository = parametreRepository;
         this.jourOuvrablesRepository = jourOuvrablesRepository;
         this.plageHoraireRepository = plageHoraireRepository;
         this.salleRepository = salleRepository;
         this.occupationSalleRepository = occupationSalleRepository;
-        this.sessionRepository = sessionRepository;
     }
 
-  @Override
+    @Override
   public InstitutionDTO save(InstitutionRequestDTO dto) {
       if(!MyUtils.isValidEmailAddress(dto.getEmail()))
           throw new ResourceNotFoundException("L'email " + dto.getEmail() + " est invalide.");
@@ -152,22 +149,14 @@ public class InstitutionServiceImpl implements InstitutionService {
         parametres.setDureeCours(dto.getDureeCours());
         parametres.setPourcentageTestModule(dto.getPourcentageTestModule());
         parametres = parametreRepository.save(parametres);
-        if (lastDuration != parametres.getDureeCours()) updatePlageHoraire(parametres);
+        if (lastDuration != parametres.getDureeCours()) buildPlageHoraires(parametres);
     }
 
-    private void updatePlageHoraire(ParametreInstitution parametres) {
-        buildPlageHoraires(parametres);
-        buildOccupations();
-    }
-
-    private void buildOccupations() {
+    private void buildOccupations(PlageHoraire plage) {
         List<Salle> salles = (List<Salle>) salleRepository.findAll();
-        List<PlageHoraire> plages = (List<PlageHoraire>) plageHoraireRepository.findAll();
         for (Salle salle : salles) {
-            for (PlageHoraire plage : plages) {
-                if (!occupationSalleRepository.findByPlageHoraireAndSalle(plage, salle).isPresent()) {
-                    occupationSalleRepository.save(new OccupationSalle(salle.getCode() + "-" + plage.getCode(), false, plage, salle));
-                }
+            if (!occupationSalleRepository.findByPlageHoraireAndSalle(plage, salle).isPresent()) {
+                occupationSalleRepository.save(new OccupationSalle(salle.getCode() + "-" + plage.getCode(), false, plage, salle));
             }
         }
     }
@@ -208,7 +197,8 @@ public class InstitutionServiceImpl implements InstitutionService {
                     plage.setJour(jour);
                     plage.setStartTime(startTime); // Convertir en heures et minutes
                     plage.setEndTime(endTime); // Convertir en heures et minutes
-                    plageHoraireRepository.save(plage);
+                    plage = plageHoraireRepository.save(plage);
+                    buildOccupations(plage);
                 }
             }
         }

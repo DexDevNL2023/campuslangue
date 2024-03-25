@@ -18,7 +18,8 @@ import java.time.LocalTime;
 @ToString
 @Entity
 public class PlageHoraire extends BaseAuditingEntity {
-  @Column(nullable = false)
+
+  @Column(nullable = false, unique = true)
   private String code;
   private LocalTime startTime;
   private LocalTime endTime;
