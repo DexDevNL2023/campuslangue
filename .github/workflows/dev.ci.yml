@@ -1,0 +1,38 @@
+name: CI
+on:
+  push:
+    branches: [ testing, testing2 ]
+jobs:
+  building:
+    runs-on: ubuntu-latest
+    container: docker:stable
+    steps:
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username:  ${{ secrets.HUB_USERNAME }}
+        password: ${{ secrets.HUB_PASSWORD }}
+    - name: Check out
+      uses: actions/checkout@v3
+    - name: Run Build
+      run: |
+        echo >> Start app building here.
+        docker -v
+        ls -a
+        sed -i 's/spring.profiles.active=dev/#spring.profiles.active=dev/' src/main/resources/application.properties
+        sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
+        sed -i 's/localhost/5.196.68.13/' src/main/resources/application.properties
+        docker build -t campus-langue-api .
+        docker tag campus-langue-api xmael123/campus-langue-api:latest
+        docker push xmael123/campus-langue-api:latest
+  deployment:
+    needs: [building]
+    runs-on: campus-langue-api-run2
+    # container: docker:stable
+    steps:
+    - name: Run deploy
+      run: |
+        echo Start app deployment here !
+        docker rm -f campus-langue-api ||  docker kill campus-langue-api || echo "Nothing to kill"
+        docker run --detach --name campus-langue-api -p 10003:8443 -e "VIRTUAL_HOST=campus-langue-api.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api.devops2.kamer-center.net" --pull=always  xmael123/campus-langue-api:latest
+        # docker logs -f  campus-langue-api
