@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,7 +79,21 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
     log.info("10");
     paiement = repository.save(paiement);
     log.info("11");
-    return mapper.asDTO(paiement);
+    return buildPaiementDto(paiement);
+  }
+
+  private PaiementDTO buildPaiementDto(Paiement paiement) {
+    Optional<Campus> campus = campusRepository.findById(paiement.getCampusId());
+    PaiementDTO dto = mapper.asDTO(paiement);
+    campus.ifPresent(value -> dto.setCampus(new LiteCampusDTO(value)));
+    return dto;
+  }
+
+  private LitePaiementDTO buildLitePaiementDto(Paiement paiement) {
+    Optional<Campus> campus = campusRepository.findById(paiement.getCampusId());
+    LitePaiementDTO dto = mapper.asLite(paiement);
+    campus.ifPresent(value -> dto.setCampus(new LiteCampusDTO(value)));
+    return dto;
   }
 
   @Override
@@ -116,7 +131,7 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
 
   @Override
   public PaiementDTO getOne(Long id) {
-    return mapper.asDTO(findById(id));
+    return buildPaiementDto(findById(id));
   }
 
   @Override
@@ -138,7 +153,7 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
     dto.setBranche(brancheMapper.asLite(branche));
     dto.setData(paiements.stream()
             .filter(e -> belongsToTheCurrentBranch(branche, e))
-            .map(mapper::asLite)
+            .map(this::buildLitePaiementDto)
             .collect(Collectors.toList()));
     return dto;
   }
@@ -170,7 +185,7 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
       paiementCampusDTO.setCampus(new LiteCampusDTO(campus));
       List<Paiement> paiements = repository.findAllByCampusId(campus.getId());
       paiementCampusDTO.setData(paiements.stream()
-              .map(this::buildLitePaiementDto)
+              .map(this::buildLitePaiementForCampusDto)
               .collect(Collectors.toList()));
       data.add(paiementCampusDTO);
     }
@@ -218,7 +233,7 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
     log.info("10");
     paiement = repository.save(paiement);
     log.info("11");
-    return mapper.asDTO(paiement);
+    return buildPaiementDto(paiement);
   }
 
 
@@ -229,7 +244,6 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
 
   @Override
   public boolean equalsByDto(PaiementRequestDTO dto, Long id) {
-//    Paiement ressource = repository.findByRefPaiement(dto.getRefPaiement()).orElse(null);
     Paiement ressource = repository.findById(id).orElse(null);
     if (ressource == null) return false;
     return !ressource.equals(dto);
@@ -246,11 +260,11 @@ public class PaiementServiceImpl extends MainService implements PaiementService 
   public List<LitePaiementForCampusDTO> findAllByCampus(Long campusId) {
     return repository.findAllByCampusId(campusId)
             .stream()
-            .map(this::buildLitePaiementDto)
+            .map(this::buildLitePaiementForCampusDto)
             .collect(Collectors.toList());
   }
 
-  private LitePaiementForCampusDTO buildLitePaiementDto(Paiement paiement) {
+  private LitePaiementForCampusDTO buildLitePaiementForCampusDto(Paiement paiement) {
     LitePaiementForCampusDTO dto = new LitePaiementForCampusDTO(paiement);
     dto.setModePaiement(new LiteModePaiementDTO(paiement.getModePaiement()));
     dto.setRubrique(new LiteRubriqueDTO(paiement.getRubrique()));
