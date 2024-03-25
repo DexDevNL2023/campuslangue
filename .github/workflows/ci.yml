@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [ testing, testing2 ]
+    branches: [ production ]
 jobs:
   building:
     runs-on: ubuntu-latest
@@ -22,9 +22,10 @@ jobs:
         sed -i 's/spring.profiles.active=dev/#spring.profiles.active=dev/' src/main/resources/application.properties
         sed -i 's/server.ssl.enabled=false/server.ssl.enabled=false/' src/main/resources/application.properties
         sed -i 's/localhost/5.196.68.13/' src/main/resources/application.properties
-        docker build -t campus-langue-api .
-        docker tag campus-langue-api xmael123/campus-langue-api:latest
-        docker push xmael123/campus-langue-api:latest
+        sed -i 's/campus_langue/campus_langue_prod/' src/main/resources/application.properties
+        docker build -t campus-langue-api-prod .
+        docker tag campus-langue-api-prod xmael123/campus-langue-api-prod:latest
+        docker push xmael123/campus-langue-api-prod:latest
   deployment:
     needs: [building]
     runs-on: campus-langue-api-run2
@@ -33,6 +34,6 @@ jobs:
     - name: Run deploy
       run: |
         echo Start app deployment here !
-        docker rm -f campus-langue-api ||  docker kill campus-langue-api || echo "Nothing to kill"
-        docker run --detach --name campus-langue-api -p 10003:8443 -e "VIRTUAL_HOST=campus-langue-api.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api.devops2.kamer-center.net" --pull=always  xmael123/campus-langue-api:latest
-        # docker logs -f  campus-langue-api
+        docker rm -f campus-langue-api-prod ||  docker kill campus-langue-api-prod || echo "Nothing to kill"
+        docker run --detach --name campus-langue-api-prod -p 10003:8443 -e "VIRTUAL_HOST=campus-langue-api-prod.devops2.kamer-center.net"  -e "VIRTUAL_PORT=8443" -e "LETSENCRYPT_HOST=campus-langue-api-prod.devops2.kamer-center.net" --pull=always  xmael123/campus-langue-api-prod:latest
+        # docker logs -f  campus-langue-api-prod
