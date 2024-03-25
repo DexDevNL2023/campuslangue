@@ -22,5 +22,6 @@ public class LiteParametreInstitutionDTO {
         this.bareme = parametres.getBareme();
         this.devise = parametres.getDevise();
         this.dureeCours = parametres.getDureeCours();
+        this.pourcentageTestModule = parametres.getPourcentageTestModule();
     }
 }
