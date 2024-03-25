@@ -115,6 +115,11 @@ public class ModuleFormationServiceImpl implements ModuleFormationService {
   }
 
   @Override
+  public List<LiteModuleFormationDTO> findAllByNiveau(Long niveauId) {
+    return repository.findAllByNiveauId(niveauId).stream().map(mapper::asLite).collect(Collectors.toList());
+  }
+
+  @Override
   public Page<LiteModuleFormationDTO> findAll(Pageable pageable) {
     Page<ModuleFormation> entityPage = repository.findAll(pageable);
     List<ModuleFormation> entities = entityPage.getContent();

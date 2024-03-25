@@ -17,6 +17,8 @@ public interface ModuleFormationService extends GenericService<ModuleFormation, 
 
   List<LiteModuleFormationDTO> findAll();
 
+  List<LiteModuleFormationDTO> findAllByNiveau(Long niveauId);
+
   boolean existByCode(String code);
 
   ModuleFormation findByCodeAndLibelle(String code, String libelle);

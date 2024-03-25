@@ -22,6 +22,8 @@ public interface ModuleFormationController {
 
   List<LiteModuleFormationDTO> list();
 
+  List<LiteModuleFormationDTO> findAllByNiveau(@PathVariable("niveauId") Long niveauId);
+
   Page<LiteModuleFormationDTO> pageQuery(Pageable pageable);
 
   void update(@RequestBody ModuleFormationRequestDTO dto, @PathVariable("id") Long id);

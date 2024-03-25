@@ -80,6 +80,14 @@ public class ModuleFormationControllerImpl implements ModuleFormationController 
   }
 
   @Override
+  @GetMapping("/by/niveau/{niveauId}")
+  @AuthorizeUser(actionKey = "module-formation-list")
+  public List<LiteModuleFormationDTO> findAllByNiveau(@PathVariable("niveauId") Long niveauId) {
+    autorisationService.addDroit(new SaveDroitDTO("Formations", "Lister les module-formations", "module-formation-list", "GET", false));
+    return service.findAllByNiveau(niveauId);
+  }
+
+  @Override
   @GetMapping("/page-query")
   public Page<LiteModuleFormationDTO> pageQuery(Pageable pageable) {
     return service.findAll(pageable);
