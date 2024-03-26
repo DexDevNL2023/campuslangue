@@ -2,12 +2,8 @@ package net.ktccenter.campusApi.controller;
 
 import net.ktccenter.campusApi.dto.reponse.scolarite.LogImpressionDTO;
 import net.ktccenter.campusApi.service.LogImpressionService;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -21,7 +17,7 @@ public class LogImpressionController {
     }
 
     @GetMapping(path = "/for/{inscriptionId}")
-    public List<LogImpressionDTO> list(@NotNull Long inscriptionId) {
+    public List<LogImpressionDTO> list(@PathVariable("inscriptionId") Long inscriptionId) {
         return logImpressionService.findAll(inscriptionId);
     }
 }
